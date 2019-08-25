@@ -1,0 +1,467 @@
+[
+{
+  "directory": "/home/stel/game/nile/build",
+  "command": "/home/stel/cc_args.py  g++   -DENABLE_DOCTEST_IN_LIBRARY -Dengine_EXPORTS -I/home/stel/game/nile/build -I/home/stel/game/nile/external -I/home/stel/game/nile/external/glm -I/home/stel/game/nile/external/stb -I/home/stel/game/nile/include -I/home/stel/game/nile/external/glfw-3.3/include -I/usr/include/SDL2 -I/home/stel/game/nile/external/doctest/doctest -I/home/stel/game/nile/external/glad/include  -g -fPIC   -Wall -Wextra -Wpedantic -Wno-switch-enum -Werror -std=c++17 -o CMakeFiles/engine.dir/src/core/engine.cc.o -c /home/stel/game/nile/src/core/engine.cc",
+  "file": "/home/stel/game/nile/src/core/engine.cc"
+},
+{
+  "directory": "/home/stel/game/nile/build",
+  "command": "/home/stel/cc_args.py  g++   -DENABLE_DOCTEST_IN_LIBRARY -Dengine_EXPORTS -I/home/stel/game/nile/build -I/home/stel/game/nile/external -I/home/stel/game/nile/external/glm -I/home/stel/game/nile/external/stb -I/home/stel/game/nile/include -I/home/stel/game/nile/external/glfw-3.3/include -I/usr/include/SDL2 -I/home/stel/game/nile/external/doctest/doctest -I/home/stel/game/nile/external/glad/include  -g -fPIC   -Wall -Wextra -Wpedantic -Wno-switch-enum -Werror -std=c++17 -o CMakeFiles/engine.dir/src/core/logger.cc.o -c /home/stel/game/nile/src/core/logger.cc",
+  "file": "/home/stel/game/nile/src/core/logger.cc"
+},
+{
+  "directory": "/home/stel/game/nile/build",
+  "command": "/home/stel/cc_args.py  g++   -DENABLE_DOCTEST_IN_LIBRARY -Dengine_EXPORTS -I/home/stel/game/nile/build -I/home/stel/game/nile/external -I/home/stel/game/nile/external/glm -I/home/stel/game/nile/external/stb -I/home/stel/game/nile/include -I/home/stel/game/nile/external/glfw-3.3/include -I/usr/include/SDL2 -I/home/stel/game/nile/external/doctest/doctest -I/home/stel/game/nile/external/glad/include  -g -fPIC   -Wall -Wextra -Wpedantic -Wno-switch-enum -Werror -std=c++17 -o CMakeFiles/engine.dir/src/renderer/shader.cc.o -c /home/stel/game/nile/src/renderer/shader.cc",
+  "file": "/home/stel/game/nile/src/renderer/shader.cc"
+},
+{
+  "directory": "/home/stel/game/nile/build",
+  "command": "/home/stel/cc_args.py  g++   -DENABLE_DOCTEST_IN_LIBRARY -I/home/stel/game/nile/build -I/home/stel/game/nile/external -I/home/stel/game/nile/external/glm -I/home/stel/game/nile/external/stb -I/usr/include/SDL2 -I/home/stel/game/nile/include -I/home/stel/game/nile/external/doctest/doctest -I/home/stel/game/nile/external/glfw-3.3/include -I/home/stel/game/nile/external/glad/include  -g   -Wall -Wextra -Wpedantic -Wno-switch-enum -Werror -std=c++17 -o CMakeFiles/main.dir/app/main.cpp.o -c /home/stel/game/nile/app/main.cpp",
+  "file": "/home/stel/game/nile/app/main.cpp"
+},
+{
+  "directory": "/home/stel/game/nile/build/external/glfw-3.3/src",
+  "command": "/usr/bin/cc -DENABLE_DOCTEST_IN_LIBRARY -D_GLFW_USE_CONFIG_H -I/home/stel/game/nile/build -I/home/stel/game/nile/external -I/home/stel/game/nile/external/glm -I/home/stel/game/nile/external/stb -I/home/stel/game/nile/external/glfw-3.3/include -I/home/stel/game/nile/external/glfw-3.3/src -I/home/stel/game/nile/build/external/glfw-3.3/src  -g -fPIC   -Wall -Wdeclaration-after-statement -o CMakeFiles/glfw.dir/context.c.o   -c /home/stel/game/nile/external/glfw-3.3/src/context.c",
+  "file": "/home/stel/game/nile/external/glfw-3.3/src/context.c"
+},
+{
+  "directory": "/home/stel/game/nile/build/external/glfw-3.3/src",
+  "command": "/usr/bin/cc -DENABLE_DOCTEST_IN_LIBRARY -D_GLFW_USE_CONFIG_H -I/home/stel/game/nile/build -I/home/stel/game/nile/external -I/home/stel/game/nile/external/glm -I/home/stel/game/nile/external/stb -I/home/stel/game/nile/external/glfw-3.3/include -I/home/stel/game/nile/external/glfw-3.3/src -I/home/stel/game/nile/build/external/glfw-3.3/src  -g -fPIC   -Wall -Wdeclaration-after-statement -o CMakeFiles/glfw.dir/init.c.o   -c /home/stel/game/nile/external/glfw-3.3/src/init.c",
+  "file": "/home/stel/game/nile/external/glfw-3.3/src/init.c"
+},
+{
+  "directory": "/home/stel/game/nile/build/external/glfw-3.3/src",
+  "command": "/usr/bin/cc -DENABLE_DOCTEST_IN_LIBRARY -D_GLFW_USE_CONFIG_H -I/home/stel/game/nile/build -I/home/stel/game/nile/external -I/home/stel/game/nile/external/glm -I/home/stel/game/nile/external/stb -I/home/stel/game/nile/external/glfw-3.3/include -I/home/stel/game/nile/external/glfw-3.3/src -I/home/stel/game/nile/build/external/glfw-3.3/src  -g -fPIC   -Wall -Wdeclaration-after-statement -o CMakeFiles/glfw.dir/input.c.o   -c /home/stel/game/nile/external/glfw-3.3/src/input.c",
+  "file": "/home/stel/game/nile/external/glfw-3.3/src/input.c"
+},
+{
+  "directory": "/home/stel/game/nile/build/external/glfw-3.3/src",
+  "command": "/usr/bin/cc -DENABLE_DOCTEST_IN_LIBRARY -D_GLFW_USE_CONFIG_H -I/home/stel/game/nile/build -I/home/stel/game/nile/external -I/home/stel/game/nile/external/glm -I/home/stel/game/nile/external/stb -I/home/stel/game/nile/external/glfw-3.3/include -I/home/stel/game/nile/external/glfw-3.3/src -I/home/stel/game/nile/build/external/glfw-3.3/src  -g -fPIC   -Wall -Wdeclaration-after-statement -o CMakeFiles/glfw.dir/monitor.c.o   -c /home/stel/game/nile/external/glfw-3.3/src/monitor.c",
+  "file": "/home/stel/game/nile/external/glfw-3.3/src/monitor.c"
+},
+{
+  "directory": "/home/stel/game/nile/build/external/glfw-3.3/src",
+  "command": "/usr/bin/cc -DENABLE_DOCTEST_IN_LIBRARY -D_GLFW_USE_CONFIG_H -I/home/stel/game/nile/build -I/home/stel/game/nile/external -I/home/stel/game/nile/external/glm -I/home/stel/game/nile/external/stb -I/home/stel/game/nile/external/glfw-3.3/include -I/home/stel/game/nile/external/glfw-3.3/src -I/home/stel/game/nile/build/external/glfw-3.3/src  -g -fPIC   -Wall -Wdeclaration-after-statement -o CMakeFiles/glfw.dir/vulkan.c.o   -c /home/stel/game/nile/external/glfw-3.3/src/vulkan.c",
+  "file": "/home/stel/game/nile/external/glfw-3.3/src/vulkan.c"
+},
+{
+  "directory": "/home/stel/game/nile/build/external/glfw-3.3/src",
+  "command": "/usr/bin/cc -DENABLE_DOCTEST_IN_LIBRARY -D_GLFW_USE_CONFIG_H -I/home/stel/game/nile/build -I/home/stel/game/nile/external -I/home/stel/game/nile/external/glm -I/home/stel/game/nile/external/stb -I/home/stel/game/nile/external/glfw-3.3/include -I/home/stel/game/nile/external/glfw-3.3/src -I/home/stel/game/nile/build/external/glfw-3.3/src  -g -fPIC   -Wall -Wdeclaration-after-statement -o CMakeFiles/glfw.dir/window.c.o   -c /home/stel/game/nile/external/glfw-3.3/src/window.c",
+  "file": "/home/stel/game/nile/external/glfw-3.3/src/window.c"
+},
+{
+  "directory": "/home/stel/game/nile/build/external/glfw-3.3/src",
+  "command": "/usr/bin/cc -DENABLE_DOCTEST_IN_LIBRARY -D_GLFW_USE_CONFIG_H -I/home/stel/game/nile/build -I/home/stel/game/nile/external -I/home/stel/game/nile/external/glm -I/home/stel/game/nile/external/stb -I/home/stel/game/nile/external/glfw-3.3/include -I/home/stel/game/nile/external/glfw-3.3/src -I/home/stel/game/nile/build/external/glfw-3.3/src  -g -fPIC   -Wall -o CMakeFiles/glfw.dir/x11_init.c.o   -c /home/stel/game/nile/external/glfw-3.3/src/x11_init.c",
+  "file": "/home/stel/game/nile/external/glfw-3.3/src/x11_init.c"
+},
+{
+  "directory": "/home/stel/game/nile/build/external/glfw-3.3/src",
+  "command": "/usr/bin/cc -DENABLE_DOCTEST_IN_LIBRARY -D_GLFW_USE_CONFIG_H -I/home/stel/game/nile/build -I/home/stel/game/nile/external -I/home/stel/game/nile/external/glm -I/home/stel/game/nile/external/stb -I/home/stel/game/nile/external/glfw-3.3/include -I/home/stel/game/nile/external/glfw-3.3/src -I/home/stel/game/nile/build/external/glfw-3.3/src  -g -fPIC   -Wall -o CMakeFiles/glfw.dir/x11_monitor.c.o   -c /home/stel/game/nile/external/glfw-3.3/src/x11_monitor.c",
+  "file": "/home/stel/game/nile/external/glfw-3.3/src/x11_monitor.c"
+},
+{
+  "directory": "/home/stel/game/nile/build/external/glfw-3.3/src",
+  "command": "/usr/bin/cc -DENABLE_DOCTEST_IN_LIBRARY -D_GLFW_USE_CONFIG_H -I/home/stel/game/nile/build -I/home/stel/game/nile/external -I/home/stel/game/nile/external/glm -I/home/stel/game/nile/external/stb -I/home/stel/game/nile/external/glfw-3.3/include -I/home/stel/game/nile/external/glfw-3.3/src -I/home/stel/game/nile/build/external/glfw-3.3/src  -g -fPIC   -Wall -o CMakeFiles/glfw.dir/x11_window.c.o   -c /home/stel/game/nile/external/glfw-3.3/src/x11_window.c",
+  "file": "/home/stel/game/nile/external/glfw-3.3/src/x11_window.c"
+},
+{
+  "directory": "/home/stel/game/nile/build/external/glfw-3.3/src",
+  "command": "/usr/bin/cc -DENABLE_DOCTEST_IN_LIBRARY -D_GLFW_USE_CONFIG_H -I/home/stel/game/nile/build -I/home/stel/game/nile/external -I/home/stel/game/nile/external/glm -I/home/stel/game/nile/external/stb -I/home/stel/game/nile/external/glfw-3.3/include -I/home/stel/game/nile/external/glfw-3.3/src -I/home/stel/game/nile/build/external/glfw-3.3/src  -g -fPIC   -Wall -o CMakeFiles/glfw.dir/xkb_unicode.c.o   -c /home/stel/game/nile/external/glfw-3.3/src/xkb_unicode.c",
+  "file": "/home/stel/game/nile/external/glfw-3.3/src/xkb_unicode.c"
+},
+{
+  "directory": "/home/stel/game/nile/build/external/glfw-3.3/src",
+  "command": "/usr/bin/cc -DENABLE_DOCTEST_IN_LIBRARY -D_GLFW_USE_CONFIG_H -I/home/stel/game/nile/build -I/home/stel/game/nile/external -I/home/stel/game/nile/external/glm -I/home/stel/game/nile/external/stb -I/home/stel/game/nile/external/glfw-3.3/include -I/home/stel/game/nile/external/glfw-3.3/src -I/home/stel/game/nile/build/external/glfw-3.3/src  -g -fPIC   -Wall -o CMakeFiles/glfw.dir/posix_time.c.o   -c /home/stel/game/nile/external/glfw-3.3/src/posix_time.c",
+  "file": "/home/stel/game/nile/external/glfw-3.3/src/posix_time.c"
+},
+{
+  "directory": "/home/stel/game/nile/build/external/glfw-3.3/src",
+  "command": "/usr/bin/cc -DENABLE_DOCTEST_IN_LIBRARY -D_GLFW_USE_CONFIG_H -I/home/stel/game/nile/build -I/home/stel/game/nile/external -I/home/stel/game/nile/external/glm -I/home/stel/game/nile/external/stb -I/home/stel/game/nile/external/glfw-3.3/include -I/home/stel/game/nile/external/glfw-3.3/src -I/home/stel/game/nile/build/external/glfw-3.3/src  -g -fPIC   -Wall -o CMakeFiles/glfw.dir/posix_thread.c.o   -c /home/stel/game/nile/external/glfw-3.3/src/posix_thread.c",
+  "file": "/home/stel/game/nile/external/glfw-3.3/src/posix_thread.c"
+},
+{
+  "directory": "/home/stel/game/nile/build/external/glfw-3.3/src",
+  "command": "/usr/bin/cc -DENABLE_DOCTEST_IN_LIBRARY -D_GLFW_USE_CONFIG_H -I/home/stel/game/nile/build -I/home/stel/game/nile/external -I/home/stel/game/nile/external/glm -I/home/stel/game/nile/external/stb -I/home/stel/game/nile/external/glfw-3.3/include -I/home/stel/game/nile/external/glfw-3.3/src -I/home/stel/game/nile/build/external/glfw-3.3/src  -g -fPIC   -Wall -o CMakeFiles/glfw.dir/glx_context.c.o   -c /home/stel/game/nile/external/glfw-3.3/src/glx_context.c",
+  "file": "/home/stel/game/nile/external/glfw-3.3/src/glx_context.c"
+},
+{
+  "directory": "/home/stel/game/nile/build/external/glfw-3.3/src",
+  "command": "/usr/bin/cc -DENABLE_DOCTEST_IN_LIBRARY -D_GLFW_USE_CONFIG_H -I/home/stel/game/nile/build -I/home/stel/game/nile/external -I/home/stel/game/nile/external/glm -I/home/stel/game/nile/external/stb -I/home/stel/game/nile/external/glfw-3.3/include -I/home/stel/game/nile/external/glfw-3.3/src -I/home/stel/game/nile/build/external/glfw-3.3/src  -g -fPIC   -Wall -o CMakeFiles/glfw.dir/egl_context.c.o   -c /home/stel/game/nile/external/glfw-3.3/src/egl_context.c",
+  "file": "/home/stel/game/nile/external/glfw-3.3/src/egl_context.c"
+},
+{
+  "directory": "/home/stel/game/nile/build/external/glfw-3.3/src",
+  "command": "/usr/bin/cc -DENABLE_DOCTEST_IN_LIBRARY -D_GLFW_USE_CONFIG_H -I/home/stel/game/nile/build -I/home/stel/game/nile/external -I/home/stel/game/nile/external/glm -I/home/stel/game/nile/external/stb -I/home/stel/game/nile/external/glfw-3.3/include -I/home/stel/game/nile/external/glfw-3.3/src -I/home/stel/game/nile/build/external/glfw-3.3/src  -g -fPIC   -Wall -o CMakeFiles/glfw.dir/osmesa_context.c.o   -c /home/stel/game/nile/external/glfw-3.3/src/osmesa_context.c",
+  "file": "/home/stel/game/nile/external/glfw-3.3/src/osmesa_context.c"
+},
+{
+  "directory": "/home/stel/game/nile/build/external/glfw-3.3/src",
+  "command": "/usr/bin/cc -DENABLE_DOCTEST_IN_LIBRARY -D_GLFW_USE_CONFIG_H -I/home/stel/game/nile/build -I/home/stel/game/nile/external -I/home/stel/game/nile/external/glm -I/home/stel/game/nile/external/stb -I/home/stel/game/nile/external/glfw-3.3/include -I/home/stel/game/nile/external/glfw-3.3/src -I/home/stel/game/nile/build/external/glfw-3.3/src  -g -fPIC   -Wall -o CMakeFiles/glfw.dir/linux_joystick.c.o   -c /home/stel/game/nile/external/glfw-3.3/src/linux_joystick.c",
+  "file": "/home/stel/game/nile/external/glfw-3.3/src/linux_joystick.c"
+},
+{
+  "directory": "/home/stel/game/nile/build/external/glfw-3.3/examples",
+  "command": "/usr/bin/cc -DENABLE_DOCTEST_IN_LIBRARY -I/home/stel/game/nile/build -I/home/stel/game/nile/external -I/home/stel/game/nile/external/glm -I/home/stel/game/nile/external/stb -I/home/stel/game/nile/external/glfw-3.3/deps -I/home/stel/game/nile/external/glfw-3.3/include  -g   -o CMakeFiles/heightmap.dir/heightmap.c.o   -c /home/stel/game/nile/external/glfw-3.3/examples/heightmap.c",
+  "file": "/home/stel/game/nile/external/glfw-3.3/examples/heightmap.c"
+},
+{
+  "directory": "/home/stel/game/nile/build/external/glfw-3.3/examples",
+  "command": "/usr/bin/cc -DENABLE_DOCTEST_IN_LIBRARY -I/home/stel/game/nile/build -I/home/stel/game/nile/external -I/home/stel/game/nile/external/glm -I/home/stel/game/nile/external/stb -I/home/stel/game/nile/external/glfw-3.3/deps -I/home/stel/game/nile/external/glfw-3.3/include  -g   -o CMakeFiles/heightmap.dir/__/deps/glad_gl.c.o   -c /home/stel/game/nile/external/glfw-3.3/deps/glad_gl.c",
+  "file": "/home/stel/game/nile/external/glfw-3.3/deps/glad_gl.c"
+},
+{
+  "directory": "/home/stel/game/nile/build/external/glfw-3.3/examples",
+  "command": "/usr/bin/cc -DENABLE_DOCTEST_IN_LIBRARY -I/home/stel/game/nile/build -I/home/stel/game/nile/external -I/home/stel/game/nile/external/glm -I/home/stel/game/nile/external/stb -I/home/stel/game/nile/external/glfw-3.3/deps -I/home/stel/game/nile/external/glfw-3.3/include  -g   -o CMakeFiles/offscreen.dir/offscreen.c.o   -c /home/stel/game/nile/external/glfw-3.3/examples/offscreen.c",
+  "file": "/home/stel/game/nile/external/glfw-3.3/examples/offscreen.c"
+},
+{
+  "directory": "/home/stel/game/nile/build/external/glfw-3.3/examples",
+  "command": "/usr/bin/cc -DENABLE_DOCTEST_IN_LIBRARY -I/home/stel/game/nile/build -I/home/stel/game/nile/external -I/home/stel/game/nile/external/glm -I/home/stel/game/nile/external/stb -I/home/stel/game/nile/external/glfw-3.3/deps -I/home/stel/game/nile/external/glfw-3.3/include  -g   -o CMakeFiles/offscreen.dir/__/deps/glad_gl.c.o   -c /home/stel/game/nile/external/glfw-3.3/deps/glad_gl.c",
+  "file": "/home/stel/game/nile/external/glfw-3.3/deps/glad_gl.c"
+},
+{
+  "directory": "/home/stel/game/nile/build/external/glfw-3.3/examples",
+  "command": "/usr/bin/cc -DENABLE_DOCTEST_IN_LIBRARY -I/home/stel/game/nile/build -I/home/stel/game/nile/external -I/home/stel/game/nile/external/glm -I/home/stel/game/nile/external/stb -I/home/stel/game/nile/external/glfw-3.3/deps -I/home/stel/game/nile/external/glfw-3.3/include  -g   -o CMakeFiles/particles.dir/particles.c.o   -c /home/stel/game/nile/external/glfw-3.3/examples/particles.c",
+  "file": "/home/stel/game/nile/external/glfw-3.3/examples/particles.c"
+},
+{
+  "directory": "/home/stel/game/nile/build/external/glfw-3.3/examples",
+  "command": "/usr/bin/cc -DENABLE_DOCTEST_IN_LIBRARY -I/home/stel/game/nile/build -I/home/stel/game/nile/external -I/home/stel/game/nile/external/glm -I/home/stel/game/nile/external/stb -I/home/stel/game/nile/external/glfw-3.3/deps -I/home/stel/game/nile/external/glfw-3.3/include  -g   -o CMakeFiles/particles.dir/__/deps/tinycthread.c.o   -c /home/stel/game/nile/external/glfw-3.3/deps/tinycthread.c",
+  "file": "/home/stel/game/nile/external/glfw-3.3/deps/tinycthread.c"
+},
+{
+  "directory": "/home/stel/game/nile/build/external/glfw-3.3/examples",
+  "command": "/usr/bin/cc -DENABLE_DOCTEST_IN_LIBRARY -I/home/stel/game/nile/build -I/home/stel/game/nile/external -I/home/stel/game/nile/external/glm -I/home/stel/game/nile/external/stb -I/home/stel/game/nile/external/glfw-3.3/deps -I/home/stel/game/nile/external/glfw-3.3/include  -g   -o CMakeFiles/particles.dir/__/deps/getopt.c.o   -c /home/stel/game/nile/external/glfw-3.3/deps/getopt.c",
+  "file": "/home/stel/game/nile/external/glfw-3.3/deps/getopt.c"
+},
+{
+  "directory": "/home/stel/game/nile/build/external/glfw-3.3/examples",
+  "command": "/usr/bin/cc -DENABLE_DOCTEST_IN_LIBRARY -I/home/stel/game/nile/build -I/home/stel/game/nile/external -I/home/stel/game/nile/external/glm -I/home/stel/game/nile/external/stb -I/home/stel/game/nile/external/glfw-3.3/deps -I/home/stel/game/nile/external/glfw-3.3/include  -g   -o CMakeFiles/particles.dir/__/deps/glad_gl.c.o   -c /home/stel/game/nile/external/glfw-3.3/deps/glad_gl.c",
+  "file": "/home/stel/game/nile/external/glfw-3.3/deps/glad_gl.c"
+},
+{
+  "directory": "/home/stel/game/nile/build/external/glfw-3.3/examples",
+  "command": "/usr/bin/cc -DENABLE_DOCTEST_IN_LIBRARY -I/home/stel/game/nile/build -I/home/stel/game/nile/external -I/home/stel/game/nile/external/glm -I/home/stel/game/nile/external/stb -I/home/stel/game/nile/external/glfw-3.3/deps -I/home/stel/game/nile/external/glfw-3.3/include  -g   -o CMakeFiles/wave.dir/wave.c.o   -c /home/stel/game/nile/external/glfw-3.3/examples/wave.c",
+  "file": "/home/stel/game/nile/external/glfw-3.3/examples/wave.c"
+},
+{
+  "directory": "/home/stel/game/nile/build/external/glfw-3.3/examples",
+  "command": "/usr/bin/cc -DENABLE_DOCTEST_IN_LIBRARY -I/home/stel/game/nile/build -I/home/stel/game/nile/external -I/home/stel/game/nile/external/glm -I/home/stel/game/nile/external/stb -I/home/stel/game/nile/external/glfw-3.3/deps -I/home/stel/game/nile/external/glfw-3.3/include  -g   -o CMakeFiles/wave.dir/__/deps/glad_gl.c.o   -c /home/stel/game/nile/external/glfw-3.3/deps/glad_gl.c",
+  "file": "/home/stel/game/nile/external/glfw-3.3/deps/glad_gl.c"
+},
+{
+  "directory": "/home/stel/game/nile/build/external/glfw-3.3/examples",
+  "command": "/usr/bin/cc -DENABLE_DOCTEST_IN_LIBRARY -I/home/stel/game/nile/build -I/home/stel/game/nile/external -I/home/stel/game/nile/external/glm -I/home/stel/game/nile/external/stb -I/home/stel/game/nile/external/glfw-3.3/deps -I/home/stel/game/nile/external/glfw-3.3/include  -g   -o CMakeFiles/boing.dir/boing.c.o   -c /home/stel/game/nile/external/glfw-3.3/examples/boing.c",
+  "file": "/home/stel/game/nile/external/glfw-3.3/examples/boing.c"
+},
+{
+  "directory": "/home/stel/game/nile/build/external/glfw-3.3/examples",
+  "command": "/usr/bin/cc -DENABLE_DOCTEST_IN_LIBRARY -I/home/stel/game/nile/build -I/home/stel/game/nile/external -I/home/stel/game/nile/external/glm -I/home/stel/game/nile/external/stb -I/home/stel/game/nile/external/glfw-3.3/deps -I/home/stel/game/nile/external/glfw-3.3/include  -g   -o CMakeFiles/boing.dir/__/deps/glad_gl.c.o   -c /home/stel/game/nile/external/glfw-3.3/deps/glad_gl.c",
+  "file": "/home/stel/game/nile/external/glfw-3.3/deps/glad_gl.c"
+},
+{
+  "directory": "/home/stel/game/nile/build/external/glfw-3.3/examples",
+  "command": "/usr/bin/cc -DENABLE_DOCTEST_IN_LIBRARY -I/home/stel/game/nile/build -I/home/stel/game/nile/external -I/home/stel/game/nile/external/glm -I/home/stel/game/nile/external/stb -I/home/stel/game/nile/external/glfw-3.3/deps -I/home/stel/game/nile/external/glfw-3.3/include  -g   -o CMakeFiles/gears.dir/gears.c.o   -c /home/stel/game/nile/external/glfw-3.3/examples/gears.c",
+  "file": "/home/stel/game/nile/external/glfw-3.3/examples/gears.c"
+},
+{
+  "directory": "/home/stel/game/nile/build/external/glfw-3.3/examples",
+  "command": "/usr/bin/cc -DENABLE_DOCTEST_IN_LIBRARY -I/home/stel/game/nile/build -I/home/stel/game/nile/external -I/home/stel/game/nile/external/glm -I/home/stel/game/nile/external/stb -I/home/stel/game/nile/external/glfw-3.3/deps -I/home/stel/game/nile/external/glfw-3.3/include  -g   -o CMakeFiles/gears.dir/__/deps/glad_gl.c.o   -c /home/stel/game/nile/external/glfw-3.3/deps/glad_gl.c",
+  "file": "/home/stel/game/nile/external/glfw-3.3/deps/glad_gl.c"
+},
+{
+  "directory": "/home/stel/game/nile/build/external/glfw-3.3/examples",
+  "command": "/usr/bin/cc -DENABLE_DOCTEST_IN_LIBRARY -I/home/stel/game/nile/build -I/home/stel/game/nile/external -I/home/stel/game/nile/external/glm -I/home/stel/game/nile/external/stb -I/home/stel/game/nile/external/glfw-3.3/deps -I/home/stel/game/nile/external/glfw-3.3/include  -g   -o CMakeFiles/sharing.dir/sharing.c.o   -c /home/stel/game/nile/external/glfw-3.3/examples/sharing.c",
+  "file": "/home/stel/game/nile/external/glfw-3.3/examples/sharing.c"
+},
+{
+  "directory": "/home/stel/game/nile/build/external/glfw-3.3/examples",
+  "command": "/usr/bin/cc -DENABLE_DOCTEST_IN_LIBRARY -I/home/stel/game/nile/build -I/home/stel/game/nile/external -I/home/stel/game/nile/external/glm -I/home/stel/game/nile/external/stb -I/home/stel/game/nile/external/glfw-3.3/deps -I/home/stel/game/nile/external/glfw-3.3/include  -g   -o CMakeFiles/sharing.dir/__/deps/glad_gl.c.o   -c /home/stel/game/nile/external/glfw-3.3/deps/glad_gl.c",
+  "file": "/home/stel/game/nile/external/glfw-3.3/deps/glad_gl.c"
+},
+{
+  "directory": "/home/stel/game/nile/build/external/glfw-3.3/examples",
+  "command": "/usr/bin/cc -DENABLE_DOCTEST_IN_LIBRARY -I/home/stel/game/nile/build -I/home/stel/game/nile/external -I/home/stel/game/nile/external/glm -I/home/stel/game/nile/external/stb -I/home/stel/game/nile/external/glfw-3.3/deps -I/home/stel/game/nile/external/glfw-3.3/include  -g   -o CMakeFiles/simple.dir/simple.c.o   -c /home/stel/game/nile/external/glfw-3.3/examples/simple.c",
+  "file": "/home/stel/game/nile/external/glfw-3.3/examples/simple.c"
+},
+{
+  "directory": "/home/stel/game/nile/build/external/glfw-3.3/examples",
+  "command": "/usr/bin/cc -DENABLE_DOCTEST_IN_LIBRARY -I/home/stel/game/nile/build -I/home/stel/game/nile/external -I/home/stel/game/nile/external/glm -I/home/stel/game/nile/external/stb -I/home/stel/game/nile/external/glfw-3.3/deps -I/home/stel/game/nile/external/glfw-3.3/include  -g   -o CMakeFiles/simple.dir/__/deps/glad_gl.c.o   -c /home/stel/game/nile/external/glfw-3.3/deps/glad_gl.c",
+  "file": "/home/stel/game/nile/external/glfw-3.3/deps/glad_gl.c"
+},
+{
+  "directory": "/home/stel/game/nile/build/external/glfw-3.3/examples",
+  "command": "/usr/bin/cc -DENABLE_DOCTEST_IN_LIBRARY -I/home/stel/game/nile/build -I/home/stel/game/nile/external -I/home/stel/game/nile/external/glm -I/home/stel/game/nile/external/stb -I/home/stel/game/nile/external/glfw-3.3/deps -I/home/stel/game/nile/external/glfw-3.3/include  -g   -o CMakeFiles/splitview.dir/splitview.c.o   -c /home/stel/game/nile/external/glfw-3.3/examples/splitview.c",
+  "file": "/home/stel/game/nile/external/glfw-3.3/examples/splitview.c"
+},
+{
+  "directory": "/home/stel/game/nile/build/external/glfw-3.3/examples",
+  "command": "/usr/bin/cc -DENABLE_DOCTEST_IN_LIBRARY -I/home/stel/game/nile/build -I/home/stel/game/nile/external -I/home/stel/game/nile/external/glm -I/home/stel/game/nile/external/stb -I/home/stel/game/nile/external/glfw-3.3/deps -I/home/stel/game/nile/external/glfw-3.3/include  -g   -o CMakeFiles/splitview.dir/__/deps/glad_gl.c.o   -c /home/stel/game/nile/external/glfw-3.3/deps/glad_gl.c",
+  "file": "/home/stel/game/nile/external/glfw-3.3/deps/glad_gl.c"
+},
+{
+  "directory": "/home/stel/game/nile/build/external/glfw-3.3/tests",
+  "command": "/usr/bin/cc -DENABLE_DOCTEST_IN_LIBRARY -I/home/stel/game/nile/build -I/home/stel/game/nile/external -I/home/stel/game/nile/external/glm -I/home/stel/game/nile/external/stb -I/home/stel/game/nile/external/glfw-3.3/deps -I/home/stel/game/nile/external/glfw-3.3/include  -g   -o CMakeFiles/icon.dir/icon.c.o   -c /home/stel/game/nile/external/glfw-3.3/tests/icon.c",
+  "file": "/home/stel/game/nile/external/glfw-3.3/tests/icon.c"
+},
+{
+  "directory": "/home/stel/game/nile/build/external/glfw-3.3/tests",
+  "command": "/usr/bin/cc -DENABLE_DOCTEST_IN_LIBRARY -I/home/stel/game/nile/build -I/home/stel/game/nile/external -I/home/stel/game/nile/external/glm -I/home/stel/game/nile/external/stb -I/home/stel/game/nile/external/glfw-3.3/deps -I/home/stel/game/nile/external/glfw-3.3/include  -g   -o CMakeFiles/icon.dir/__/deps/glad_gl.c.o   -c /home/stel/game/nile/external/glfw-3.3/deps/glad_gl.c",
+  "file": "/home/stel/game/nile/external/glfw-3.3/deps/glad_gl.c"
+},
+{
+  "directory": "/home/stel/game/nile/build/external/glfw-3.3/tests",
+  "command": "/usr/bin/cc -DENABLE_DOCTEST_IN_LIBRARY -I/home/stel/game/nile/build -I/home/stel/game/nile/external -I/home/stel/game/nile/external/glm -I/home/stel/game/nile/external/stb -I/home/stel/game/nile/external/glfw-3.3/deps -I/home/stel/game/nile/external/glfw-3.3/include  -g   -o CMakeFiles/gamma.dir/gamma.c.o   -c /home/stel/game/nile/external/glfw-3.3/tests/gamma.c",
+  "file": "/home/stel/game/nile/external/glfw-3.3/tests/gamma.c"
+},
+{
+  "directory": "/home/stel/game/nile/build/external/glfw-3.3/tests",
+  "command": "/usr/bin/cc -DENABLE_DOCTEST_IN_LIBRARY -I/home/stel/game/nile/build -I/home/stel/game/nile/external -I/home/stel/game/nile/external/glm -I/home/stel/game/nile/external/stb -I/home/stel/game/nile/external/glfw-3.3/deps -I/home/stel/game/nile/external/glfw-3.3/include  -g   -o CMakeFiles/gamma.dir/__/deps/glad_gl.c.o   -c /home/stel/game/nile/external/glfw-3.3/deps/glad_gl.c",
+  "file": "/home/stel/game/nile/external/glfw-3.3/deps/glad_gl.c"
+},
+{
+  "directory": "/home/stel/game/nile/build/external/glfw-3.3/tests",
+  "command": "/usr/bin/cc -DENABLE_DOCTEST_IN_LIBRARY -I/home/stel/game/nile/build -I/home/stel/game/nile/external -I/home/stel/game/nile/external/glm -I/home/stel/game/nile/external/stb -I/home/stel/game/nile/external/glfw-3.3/deps -I/home/stel/game/nile/external/glfw-3.3/include  -g   -o CMakeFiles/tearing.dir/tearing.c.o   -c /home/stel/game/nile/external/glfw-3.3/tests/tearing.c",
+  "file": "/home/stel/game/nile/external/glfw-3.3/tests/tearing.c"
+},
+{
+  "directory": "/home/stel/game/nile/build/external/glfw-3.3/tests",
+  "command": "/usr/bin/cc -DENABLE_DOCTEST_IN_LIBRARY -I/home/stel/game/nile/build -I/home/stel/game/nile/external -I/home/stel/game/nile/external/glm -I/home/stel/game/nile/external/stb -I/home/stel/game/nile/external/glfw-3.3/deps -I/home/stel/game/nile/external/glfw-3.3/include  -g   -o CMakeFiles/tearing.dir/__/deps/glad_gl.c.o   -c /home/stel/game/nile/external/glfw-3.3/deps/glad_gl.c",
+  "file": "/home/stel/game/nile/external/glfw-3.3/deps/glad_gl.c"
+},
+{
+  "directory": "/home/stel/game/nile/build/external/glfw-3.3/tests",
+  "command": "/usr/bin/cc -DENABLE_DOCTEST_IN_LIBRARY -I/home/stel/game/nile/build -I/home/stel/game/nile/external -I/home/stel/game/nile/external/glm -I/home/stel/game/nile/external/stb -I/home/stel/game/nile/external/glfw-3.3/deps -I/home/stel/game/nile/external/glfw-3.3/include  -g   -o CMakeFiles/reopen.dir/reopen.c.o   -c /home/stel/game/nile/external/glfw-3.3/tests/reopen.c",
+  "file": "/home/stel/game/nile/external/glfw-3.3/tests/reopen.c"
+},
+{
+  "directory": "/home/stel/game/nile/build/external/glfw-3.3/tests",
+  "command": "/usr/bin/cc -DENABLE_DOCTEST_IN_LIBRARY -I/home/stel/game/nile/build -I/home/stel/game/nile/external -I/home/stel/game/nile/external/glm -I/home/stel/game/nile/external/stb -I/home/stel/game/nile/external/glfw-3.3/deps -I/home/stel/game/nile/external/glfw-3.3/include  -g   -o CMakeFiles/reopen.dir/__/deps/glad_gl.c.o   -c /home/stel/game/nile/external/glfw-3.3/deps/glad_gl.c",
+  "file": "/home/stel/game/nile/external/glfw-3.3/deps/glad_gl.c"
+},
+{
+  "directory": "/home/stel/game/nile/build/external/glfw-3.3/tests",
+  "command": "/usr/bin/cc -DENABLE_DOCTEST_IN_LIBRARY -I/home/stel/game/nile/build -I/home/stel/game/nile/external -I/home/stel/game/nile/external/glm -I/home/stel/game/nile/external/stb -I/home/stel/game/nile/external/glfw-3.3/deps -I/home/stel/game/nile/external/glfw-3.3/include  -g   -o CMakeFiles/vulkan.dir/vulkan.c.o   -c /home/stel/game/nile/external/glfw-3.3/tests/vulkan.c",
+  "file": "/home/stel/game/nile/external/glfw-3.3/tests/vulkan.c"
+},
+{
+  "directory": "/home/stel/game/nile/build/external/glfw-3.3/tests",
+  "command": "/usr/bin/cc -DENABLE_DOCTEST_IN_LIBRARY -I/home/stel/game/nile/build -I/home/stel/game/nile/external -I/home/stel/game/nile/external/glm -I/home/stel/game/nile/external/stb -I/home/stel/game/nile/external/glfw-3.3/deps -I/home/stel/game/nile/external/glfw-3.3/include  -g   -o CMakeFiles/vulkan.dir/__/deps/glad_vulkan.c.o   -c /home/stel/game/nile/external/glfw-3.3/deps/glad_vulkan.c",
+  "file": "/home/stel/game/nile/external/glfw-3.3/deps/glad_vulkan.c"
+},
+{
+  "directory": "/home/stel/game/nile/build/external/glfw-3.3/tests",
+  "command": "/usr/bin/cc -DENABLE_DOCTEST_IN_LIBRARY -I/home/stel/game/nile/build -I/home/stel/game/nile/external -I/home/stel/game/nile/external/glm -I/home/stel/game/nile/external/stb -I/home/stel/game/nile/external/glfw-3.3/deps -I/home/stel/game/nile/external/glfw-3.3/include  -g   -o CMakeFiles/empty.dir/empty.c.o   -c /home/stel/game/nile/external/glfw-3.3/tests/empty.c",
+  "file": "/home/stel/game/nile/external/glfw-3.3/tests/empty.c"
+},
+{
+  "directory": "/home/stel/game/nile/build/external/glfw-3.3/tests",
+  "command": "/usr/bin/cc -DENABLE_DOCTEST_IN_LIBRARY -I/home/stel/game/nile/build -I/home/stel/game/nile/external -I/home/stel/game/nile/external/glm -I/home/stel/game/nile/external/stb -I/home/stel/game/nile/external/glfw-3.3/deps -I/home/stel/game/nile/external/glfw-3.3/include  -g   -o CMakeFiles/empty.dir/__/deps/tinycthread.c.o   -c /home/stel/game/nile/external/glfw-3.3/deps/tinycthread.c",
+  "file": "/home/stel/game/nile/external/glfw-3.3/deps/tinycthread.c"
+},
+{
+  "directory": "/home/stel/game/nile/build/external/glfw-3.3/tests",
+  "command": "/usr/bin/cc -DENABLE_DOCTEST_IN_LIBRARY -I/home/stel/game/nile/build -I/home/stel/game/nile/external -I/home/stel/game/nile/external/glm -I/home/stel/game/nile/external/stb -I/home/stel/game/nile/external/glfw-3.3/deps -I/home/stel/game/nile/external/glfw-3.3/include  -g   -o CMakeFiles/empty.dir/__/deps/glad_gl.c.o   -c /home/stel/game/nile/external/glfw-3.3/deps/glad_gl.c",
+  "file": "/home/stel/game/nile/external/glfw-3.3/deps/glad_gl.c"
+},
+{
+  "directory": "/home/stel/game/nile/build/external/glfw-3.3/tests",
+  "command": "/usr/bin/cc -DENABLE_DOCTEST_IN_LIBRARY -I/home/stel/game/nile/build -I/home/stel/game/nile/external -I/home/stel/game/nile/external/glm -I/home/stel/game/nile/external/stb -I/home/stel/game/nile/external/glfw-3.3/deps -I/home/stel/game/nile/external/glfw-3.3/include  -g   -o CMakeFiles/events.dir/events.c.o   -c /home/stel/game/nile/external/glfw-3.3/tests/events.c",
+  "file": "/home/stel/game/nile/external/glfw-3.3/tests/events.c"
+},
+{
+  "directory": "/home/stel/game/nile/build/external/glfw-3.3/tests",
+  "command": "/usr/bin/cc -DENABLE_DOCTEST_IN_LIBRARY -I/home/stel/game/nile/build -I/home/stel/game/nile/external -I/home/stel/game/nile/external/glm -I/home/stel/game/nile/external/stb -I/home/stel/game/nile/external/glfw-3.3/deps -I/home/stel/game/nile/external/glfw-3.3/include  -g   -o CMakeFiles/events.dir/__/deps/getopt.c.o   -c /home/stel/game/nile/external/glfw-3.3/deps/getopt.c",
+  "file": "/home/stel/game/nile/external/glfw-3.3/deps/getopt.c"
+},
+{
+  "directory": "/home/stel/game/nile/build/external/glfw-3.3/tests",
+  "command": "/usr/bin/cc -DENABLE_DOCTEST_IN_LIBRARY -I/home/stel/game/nile/build -I/home/stel/game/nile/external -I/home/stel/game/nile/external/glm -I/home/stel/game/nile/external/stb -I/home/stel/game/nile/external/glfw-3.3/deps -I/home/stel/game/nile/external/glfw-3.3/include  -g   -o CMakeFiles/events.dir/__/deps/glad_gl.c.o   -c /home/stel/game/nile/external/glfw-3.3/deps/glad_gl.c",
+  "file": "/home/stel/game/nile/external/glfw-3.3/deps/glad_gl.c"
+},
+{
+  "directory": "/home/stel/game/nile/build/external/glfw-3.3/tests",
+  "command": "/usr/bin/cc -DENABLE_DOCTEST_IN_LIBRARY -I/home/stel/game/nile/build -I/home/stel/game/nile/external -I/home/stel/game/nile/external/glm -I/home/stel/game/nile/external/stb -I/home/stel/game/nile/external/glfw-3.3/deps -I/home/stel/game/nile/external/glfw-3.3/include  -g   -o CMakeFiles/msaa.dir/msaa.c.o   -c /home/stel/game/nile/external/glfw-3.3/tests/msaa.c",
+  "file": "/home/stel/game/nile/external/glfw-3.3/tests/msaa.c"
+},
+{
+  "directory": "/home/stel/game/nile/build/external/glfw-3.3/tests",
+  "command": "/usr/bin/cc -DENABLE_DOCTEST_IN_LIBRARY -I/home/stel/game/nile/build -I/home/stel/game/nile/external -I/home/stel/game/nile/external/glm -I/home/stel/game/nile/external/stb -I/home/stel/game/nile/external/glfw-3.3/deps -I/home/stel/game/nile/external/glfw-3.3/include  -g   -o CMakeFiles/msaa.dir/__/deps/getopt.c.o   -c /home/stel/game/nile/external/glfw-3.3/deps/getopt.c",
+  "file": "/home/stel/game/nile/external/glfw-3.3/deps/getopt.c"
+},
+{
+  "directory": "/home/stel/game/nile/build/external/glfw-3.3/tests",
+  "command": "/usr/bin/cc -DENABLE_DOCTEST_IN_LIBRARY -I/home/stel/game/nile/build -I/home/stel/game/nile/external -I/home/stel/game/nile/external/glm -I/home/stel/game/nile/external/stb -I/home/stel/game/nile/external/glfw-3.3/deps -I/home/stel/game/nile/external/glfw-3.3/include  -g   -o CMakeFiles/msaa.dir/__/deps/glad_gl.c.o   -c /home/stel/game/nile/external/glfw-3.3/deps/glad_gl.c",
+  "file": "/home/stel/game/nile/external/glfw-3.3/deps/glad_gl.c"
+},
+{
+  "directory": "/home/stel/game/nile/build/external/glfw-3.3/tests",
+  "command": "/usr/bin/cc -DENABLE_DOCTEST_IN_LIBRARY -I/home/stel/game/nile/build -I/home/stel/game/nile/external -I/home/stel/game/nile/external/glm -I/home/stel/game/nile/external/stb -I/home/stel/game/nile/external/glfw-3.3/deps -I/home/stel/game/nile/external/glfw-3.3/include  -g   -o CMakeFiles/clipboard.dir/clipboard.c.o   -c /home/stel/game/nile/external/glfw-3.3/tests/clipboard.c",
+  "file": "/home/stel/game/nile/external/glfw-3.3/tests/clipboard.c"
+},
+{
+  "directory": "/home/stel/game/nile/build/external/glfw-3.3/tests",
+  "command": "/usr/bin/cc -DENABLE_DOCTEST_IN_LIBRARY -I/home/stel/game/nile/build -I/home/stel/game/nile/external -I/home/stel/game/nile/external/glm -I/home/stel/game/nile/external/stb -I/home/stel/game/nile/external/glfw-3.3/deps -I/home/stel/game/nile/external/glfw-3.3/include  -g   -o CMakeFiles/clipboard.dir/__/deps/getopt.c.o   -c /home/stel/game/nile/external/glfw-3.3/deps/getopt.c",
+  "file": "/home/stel/game/nile/external/glfw-3.3/deps/getopt.c"
+},
+{
+  "directory": "/home/stel/game/nile/build/external/glfw-3.3/tests",
+  "command": "/usr/bin/cc -DENABLE_DOCTEST_IN_LIBRARY -I/home/stel/game/nile/build -I/home/stel/game/nile/external -I/home/stel/game/nile/external/glm -I/home/stel/game/nile/external/stb -I/home/stel/game/nile/external/glfw-3.3/deps -I/home/stel/game/nile/external/glfw-3.3/include  -g   -o CMakeFiles/clipboard.dir/__/deps/glad_gl.c.o   -c /home/stel/game/nile/external/glfw-3.3/deps/glad_gl.c",
+  "file": "/home/stel/game/nile/external/glfw-3.3/deps/glad_gl.c"
+},
+{
+  "directory": "/home/stel/game/nile/build/external/glfw-3.3/tests",
+  "command": "/usr/bin/cc -DENABLE_DOCTEST_IN_LIBRARY -I/home/stel/game/nile/build -I/home/stel/game/nile/external -I/home/stel/game/nile/external/glm -I/home/stel/game/nile/external/stb -I/home/stel/game/nile/external/glfw-3.3/deps -I/home/stel/game/nile/external/glfw-3.3/include  -g   -o CMakeFiles/title.dir/title.c.o   -c /home/stel/game/nile/external/glfw-3.3/tests/title.c",
+  "file": "/home/stel/game/nile/external/glfw-3.3/tests/title.c"
+},
+{
+  "directory": "/home/stel/game/nile/build/external/glfw-3.3/tests",
+  "command": "/usr/bin/cc -DENABLE_DOCTEST_IN_LIBRARY -I/home/stel/game/nile/build -I/home/stel/game/nile/external -I/home/stel/game/nile/external/glm -I/home/stel/game/nile/external/stb -I/home/stel/game/nile/external/glfw-3.3/deps -I/home/stel/game/nile/external/glfw-3.3/include  -g   -o CMakeFiles/title.dir/__/deps/glad_gl.c.o   -c /home/stel/game/nile/external/glfw-3.3/deps/glad_gl.c",
+  "file": "/home/stel/game/nile/external/glfw-3.3/deps/glad_gl.c"
+},
+{
+  "directory": "/home/stel/game/nile/build/external/glfw-3.3/tests",
+  "command": "/usr/bin/cc -DENABLE_DOCTEST_IN_LIBRARY -I/home/stel/game/nile/build -I/home/stel/game/nile/external -I/home/stel/game/nile/external/glm -I/home/stel/game/nile/external/stb -I/home/stel/game/nile/external/glfw-3.3/deps -I/home/stel/game/nile/external/glfw-3.3/include  -g   -o CMakeFiles/glfwinfo.dir/glfwinfo.c.o   -c /home/stel/game/nile/external/glfw-3.3/tests/glfwinfo.c",
+  "file": "/home/stel/game/nile/external/glfw-3.3/tests/glfwinfo.c"
+},
+{
+  "directory": "/home/stel/game/nile/build/external/glfw-3.3/tests",
+  "command": "/usr/bin/cc -DENABLE_DOCTEST_IN_LIBRARY -I/home/stel/game/nile/build -I/home/stel/game/nile/external -I/home/stel/game/nile/external/glm -I/home/stel/game/nile/external/stb -I/home/stel/game/nile/external/glfw-3.3/deps -I/home/stel/game/nile/external/glfw-3.3/include  -g   -o CMakeFiles/glfwinfo.dir/__/deps/getopt.c.o   -c /home/stel/game/nile/external/glfw-3.3/deps/getopt.c",
+  "file": "/home/stel/game/nile/external/glfw-3.3/deps/getopt.c"
+},
+{
+  "directory": "/home/stel/game/nile/build/external/glfw-3.3/tests",
+  "command": "/usr/bin/cc -DENABLE_DOCTEST_IN_LIBRARY -I/home/stel/game/nile/build -I/home/stel/game/nile/external -I/home/stel/game/nile/external/glm -I/home/stel/game/nile/external/stb -I/home/stel/game/nile/external/glfw-3.3/deps -I/home/stel/game/nile/external/glfw-3.3/include  -g   -o CMakeFiles/glfwinfo.dir/__/deps/glad_gl.c.o   -c /home/stel/game/nile/external/glfw-3.3/deps/glad_gl.c",
+  "file": "/home/stel/game/nile/external/glfw-3.3/deps/glad_gl.c"
+},
+{
+  "directory": "/home/stel/game/nile/build/external/glfw-3.3/tests",
+  "command": "/usr/bin/cc -DENABLE_DOCTEST_IN_LIBRARY -I/home/stel/game/nile/build -I/home/stel/game/nile/external -I/home/stel/game/nile/external/glm -I/home/stel/game/nile/external/stb -I/home/stel/game/nile/external/glfw-3.3/deps -I/home/stel/game/nile/external/glfw-3.3/include  -g   -o CMakeFiles/glfwinfo.dir/__/deps/glad_vulkan.c.o   -c /home/stel/game/nile/external/glfw-3.3/deps/glad_vulkan.c",
+  "file": "/home/stel/game/nile/external/glfw-3.3/deps/glad_vulkan.c"
+},
+{
+  "directory": "/home/stel/game/nile/build/external/glfw-3.3/tests",
+  "command": "/usr/bin/cc -DENABLE_DOCTEST_IN_LIBRARY -I/home/stel/game/nile/build -I/home/stel/game/nile/external -I/home/stel/game/nile/external/glm -I/home/stel/game/nile/external/stb -I/home/stel/game/nile/external/glfw-3.3/deps -I/home/stel/game/nile/external/glfw-3.3/include  -g   -o CMakeFiles/threads.dir/threads.c.o   -c /home/stel/game/nile/external/glfw-3.3/tests/threads.c",
+  "file": "/home/stel/game/nile/external/glfw-3.3/tests/threads.c"
+},
+{
+  "directory": "/home/stel/game/nile/build/external/glfw-3.3/tests",
+  "command": "/usr/bin/cc -DENABLE_DOCTEST_IN_LIBRARY -I/home/stel/game/nile/build -I/home/stel/game/nile/external -I/home/stel/game/nile/external/glm -I/home/stel/game/nile/external/stb -I/home/stel/game/nile/external/glfw-3.3/deps -I/home/stel/game/nile/external/glfw-3.3/include  -g   -o CMakeFiles/threads.dir/__/deps/tinycthread.c.o   -c /home/stel/game/nile/external/glfw-3.3/deps/tinycthread.c",
+  "file": "/home/stel/game/nile/external/glfw-3.3/deps/tinycthread.c"
+},
+{
+  "directory": "/home/stel/game/nile/build/external/glfw-3.3/tests",
+  "command": "/usr/bin/cc -DENABLE_DOCTEST_IN_LIBRARY -I/home/stel/game/nile/build -I/home/stel/game/nile/external -I/home/stel/game/nile/external/glm -I/home/stel/game/nile/external/stb -I/home/stel/game/nile/external/glfw-3.3/deps -I/home/stel/game/nile/external/glfw-3.3/include  -g   -o CMakeFiles/threads.dir/__/deps/glad_gl.c.o   -c /home/stel/game/nile/external/glfw-3.3/deps/glad_gl.c",
+  "file": "/home/stel/game/nile/external/glfw-3.3/deps/glad_gl.c"
+},
+{
+  "directory": "/home/stel/game/nile/build/external/glfw-3.3/tests",
+  "command": "/usr/bin/cc -DENABLE_DOCTEST_IN_LIBRARY -I/home/stel/game/nile/build -I/home/stel/game/nile/external -I/home/stel/game/nile/external/glm -I/home/stel/game/nile/external/stb -I/home/stel/game/nile/external/glfw-3.3/deps -I/home/stel/game/nile/external/glfw-3.3/include  -g   -o CMakeFiles/cursor.dir/cursor.c.o   -c /home/stel/game/nile/external/glfw-3.3/tests/cursor.c",
+  "file": "/home/stel/game/nile/external/glfw-3.3/tests/cursor.c"
+},
+{
+  "directory": "/home/stel/game/nile/build/external/glfw-3.3/tests",
+  "command": "/usr/bin/cc -DENABLE_DOCTEST_IN_LIBRARY -I/home/stel/game/nile/build -I/home/stel/game/nile/external -I/home/stel/game/nile/external/glm -I/home/stel/game/nile/external/stb -I/home/stel/game/nile/external/glfw-3.3/deps -I/home/stel/game/nile/external/glfw-3.3/include  -g   -o CMakeFiles/cursor.dir/__/deps/glad_gl.c.o   -c /home/stel/game/nile/external/glfw-3.3/deps/glad_gl.c",
+  "file": "/home/stel/game/nile/external/glfw-3.3/deps/glad_gl.c"
+},
+{
+  "directory": "/home/stel/game/nile/build/external/glfw-3.3/tests",
+  "command": "/usr/bin/cc -DENABLE_DOCTEST_IN_LIBRARY -I/home/stel/game/nile/build -I/home/stel/game/nile/external -I/home/stel/game/nile/external/glm -I/home/stel/game/nile/external/stb -I/home/stel/game/nile/external/glfw-3.3/deps -I/home/stel/game/nile/external/glfw-3.3/include  -g   -o CMakeFiles/inputlag.dir/inputlag.c.o   -c /home/stel/game/nile/external/glfw-3.3/tests/inputlag.c",
+  "file": "/home/stel/game/nile/external/glfw-3.3/tests/inputlag.c"
+},
+{
+  "directory": "/home/stel/game/nile/build/external/glfw-3.3/tests",
+  "command": "/usr/bin/cc -DENABLE_DOCTEST_IN_LIBRARY -I/home/stel/game/nile/build -I/home/stel/game/nile/external -I/home/stel/game/nile/external/glm -I/home/stel/game/nile/external/stb -I/home/stel/game/nile/external/glfw-3.3/deps -I/home/stel/game/nile/external/glfw-3.3/include  -g   -o CMakeFiles/inputlag.dir/__/deps/getopt.c.o   -c /home/stel/game/nile/external/glfw-3.3/deps/getopt.c",
+  "file": "/home/stel/game/nile/external/glfw-3.3/deps/getopt.c"
+},
+{
+  "directory": "/home/stel/game/nile/build/external/glfw-3.3/tests",
+  "command": "/usr/bin/cc -DENABLE_DOCTEST_IN_LIBRARY -I/home/stel/game/nile/build -I/home/stel/game/nile/external -I/home/stel/game/nile/external/glm -I/home/stel/game/nile/external/stb -I/home/stel/game/nile/external/glfw-3.3/deps -I/home/stel/game/nile/external/glfw-3.3/include  -g   -o CMakeFiles/inputlag.dir/__/deps/glad_gl.c.o   -c /home/stel/game/nile/external/glfw-3.3/deps/glad_gl.c",
+  "file": "/home/stel/game/nile/external/glfw-3.3/deps/glad_gl.c"
+},
+{
+  "directory": "/home/stel/game/nile/build/external/glfw-3.3/tests",
+  "command": "/usr/bin/cc -DENABLE_DOCTEST_IN_LIBRARY -I/home/stel/game/nile/build -I/home/stel/game/nile/external -I/home/stel/game/nile/external/glm -I/home/stel/game/nile/external/stb -I/home/stel/game/nile/external/glfw-3.3/deps -I/home/stel/game/nile/external/glfw-3.3/include  -g   -o CMakeFiles/monitors.dir/monitors.c.o   -c /home/stel/game/nile/external/glfw-3.3/tests/monitors.c",
+  "file": "/home/stel/game/nile/external/glfw-3.3/tests/monitors.c"
+},
+{
+  "directory": "/home/stel/game/nile/build/external/glfw-3.3/tests",
+  "command": "/usr/bin/cc -DENABLE_DOCTEST_IN_LIBRARY -I/home/stel/game/nile/build -I/home/stel/game/nile/external -I/home/stel/game/nile/external/glm -I/home/stel/game/nile/external/stb -I/home/stel/game/nile/external/glfw-3.3/deps -I/home/stel/game/nile/external/glfw-3.3/include  -g   -o CMakeFiles/monitors.dir/__/deps/getopt.c.o   -c /home/stel/game/nile/external/glfw-3.3/deps/getopt.c",
+  "file": "/home/stel/game/nile/external/glfw-3.3/deps/getopt.c"
+},
+{
+  "directory": "/home/stel/game/nile/build/external/glfw-3.3/tests",
+  "command": "/usr/bin/cc -DENABLE_DOCTEST_IN_LIBRARY -I/home/stel/game/nile/build -I/home/stel/game/nile/external -I/home/stel/game/nile/external/glm -I/home/stel/game/nile/external/stb -I/home/stel/game/nile/external/glfw-3.3/deps -I/home/stel/game/nile/external/glfw-3.3/include  -g   -o CMakeFiles/monitors.dir/__/deps/glad_gl.c.o   -c /home/stel/game/nile/external/glfw-3.3/deps/glad_gl.c",
+  "file": "/home/stel/game/nile/external/glfw-3.3/deps/glad_gl.c"
+},
+{
+  "directory": "/home/stel/game/nile/build/external/glfw-3.3/tests",
+  "command": "/usr/bin/cc -DENABLE_DOCTEST_IN_LIBRARY -I/home/stel/game/nile/build -I/home/stel/game/nile/external -I/home/stel/game/nile/external/glm -I/home/stel/game/nile/external/stb -I/home/stel/game/nile/external/glfw-3.3/deps -I/home/stel/game/nile/external/glfw-3.3/include  -g   -o CMakeFiles/iconify.dir/iconify.c.o   -c /home/stel/game/nile/external/glfw-3.3/tests/iconify.c",
+  "file": "/home/stel/game/nile/external/glfw-3.3/tests/iconify.c"
+},
+{
+  "directory": "/home/stel/game/nile/build/external/glfw-3.3/tests",
+  "command": "/usr/bin/cc -DENABLE_DOCTEST_IN_LIBRARY -I/home/stel/game/nile/build -I/home/stel/game/nile/external -I/home/stel/game/nile/external/glm -I/home/stel/game/nile/external/stb -I/home/stel/game/nile/external/glfw-3.3/deps -I/home/stel/game/nile/external/glfw-3.3/include  -g   -o CMakeFiles/iconify.dir/__/deps/getopt.c.o   -c /home/stel/game/nile/external/glfw-3.3/deps/getopt.c",
+  "file": "/home/stel/game/nile/external/glfw-3.3/deps/getopt.c"
+},
+{
+  "directory": "/home/stel/game/nile/build/external/glfw-3.3/tests",
+  "command": "/usr/bin/cc -DENABLE_DOCTEST_IN_LIBRARY -I/home/stel/game/nile/build -I/home/stel/game/nile/external -I/home/stel/game/nile/external/glm -I/home/stel/game/nile/external/stb -I/home/stel/game/nile/external/glfw-3.3/deps -I/home/stel/game/nile/external/glfw-3.3/include  -g   -o CMakeFiles/iconify.dir/__/deps/glad_gl.c.o   -c /home/stel/game/nile/external/glfw-3.3/deps/glad_gl.c",
+  "file": "/home/stel/game/nile/external/glfw-3.3/deps/glad_gl.c"
+},
+{
+  "directory": "/home/stel/game/nile/build/external/glfw-3.3/tests",
+  "command": "/usr/bin/cc -DENABLE_DOCTEST_IN_LIBRARY -I/home/stel/game/nile/build -I/home/stel/game/nile/external -I/home/stel/game/nile/external/glm -I/home/stel/game/nile/external/stb -I/home/stel/game/nile/external/glfw-3.3/deps -I/home/stel/game/nile/external/glfw-3.3/include  -g   -o CMakeFiles/joysticks.dir/joysticks.c.o   -c /home/stel/game/nile/external/glfw-3.3/tests/joysticks.c",
+  "file": "/home/stel/game/nile/external/glfw-3.3/tests/joysticks.c"
+},
+{
+  "directory": "/home/stel/game/nile/build/external/glfw-3.3/tests",
+  "command": "/usr/bin/cc -DENABLE_DOCTEST_IN_LIBRARY -I/home/stel/game/nile/build -I/home/stel/game/nile/external -I/home/stel/game/nile/external/glm -I/home/stel/game/nile/external/stb -I/home/stel/game/nile/external/glfw-3.3/deps -I/home/stel/game/nile/external/glfw-3.3/include  -g   -o CMakeFiles/joysticks.dir/__/deps/glad_gl.c.o   -c /home/stel/game/nile/external/glfw-3.3/deps/glad_gl.c",
+  "file": "/home/stel/game/nile/external/glfw-3.3/deps/glad_gl.c"
+},
+{
+  "directory": "/home/stel/game/nile/build/external/glfw-3.3/tests",
+  "command": "/usr/bin/cc -DENABLE_DOCTEST_IN_LIBRARY -I/home/stel/game/nile/build -I/home/stel/game/nile/external -I/home/stel/game/nile/external/glm -I/home/stel/game/nile/external/stb -I/home/stel/game/nile/external/glfw-3.3/deps -I/home/stel/game/nile/external/glfw-3.3/include  -g   -o CMakeFiles/opacity.dir/opacity.c.o   -c /home/stel/game/nile/external/glfw-3.3/tests/opacity.c",
+  "file": "/home/stel/game/nile/external/glfw-3.3/tests/opacity.c"
+},
+{
+  "directory": "/home/stel/game/nile/build/external/glfw-3.3/tests",
+  "command": "/usr/bin/cc -DENABLE_DOCTEST_IN_LIBRARY -I/home/stel/game/nile/build -I/home/stel/game/nile/external -I/home/stel/game/nile/external/glm -I/home/stel/game/nile/external/stb -I/home/stel/game/nile/external/glfw-3.3/deps -I/home/stel/game/nile/external/glfw-3.3/include  -g   -o CMakeFiles/opacity.dir/__/deps/glad_gl.c.o   -c /home/stel/game/nile/external/glfw-3.3/deps/glad_gl.c",
+  "file": "/home/stel/game/nile/external/glfw-3.3/deps/glad_gl.c"
+},
+{
+  "directory": "/home/stel/game/nile/build/external/glfw-3.3/tests",
+  "command": "/usr/bin/cc -DENABLE_DOCTEST_IN_LIBRARY -I/home/stel/game/nile/build -I/home/stel/game/nile/external -I/home/stel/game/nile/external/glm -I/home/stel/game/nile/external/stb -I/home/stel/game/nile/external/glfw-3.3/deps -I/home/stel/game/nile/external/glfw-3.3/include  -g   -o CMakeFiles/windows.dir/windows.c.o   -c /home/stel/game/nile/external/glfw-3.3/tests/windows.c",
+  "file": "/home/stel/game/nile/external/glfw-3.3/tests/windows.c"
+},
+{
+  "directory": "/home/stel/game/nile/build/external/glfw-3.3/tests",
+  "command": "/usr/bin/cc -DENABLE_DOCTEST_IN_LIBRARY -I/home/stel/game/nile/build -I/home/stel/game/nile/external -I/home/stel/game/nile/external/glm -I/home/stel/game/nile/external/stb -I/home/stel/game/nile/external/glfw-3.3/deps -I/home/stel/game/nile/external/glfw-3.3/include  -g   -o CMakeFiles/windows.dir/__/deps/getopt.c.o   -c /home/stel/game/nile/external/glfw-3.3/deps/getopt.c",
+  "file": "/home/stel/game/nile/external/glfw-3.3/deps/getopt.c"
+},
+{
+  "directory": "/home/stel/game/nile/build/external/glfw-3.3/tests",
+  "command": "/usr/bin/cc -DENABLE_DOCTEST_IN_LIBRARY -I/home/stel/game/nile/build -I/home/stel/game/nile/external -I/home/stel/game/nile/external/glm -I/home/stel/game/nile/external/stb -I/home/stel/game/nile/external/glfw-3.3/deps -I/home/stel/game/nile/external/glfw-3.3/include  -g   -o CMakeFiles/windows.dir/__/deps/glad_gl.c.o   -c /home/stel/game/nile/external/glfw-3.3/deps/glad_gl.c",
+  "file": "/home/stel/game/nile/external/glfw-3.3/deps/glad_gl.c"
+},
+{
+  "directory": "/home/stel/game/nile/build/external/glfw-3.3/tests",
+  "command": "/usr/bin/cc -DENABLE_DOCTEST_IN_LIBRARY -I/home/stel/game/nile/build -I/home/stel/game/nile/external -I/home/stel/game/nile/external/glm -I/home/stel/game/nile/external/stb -I/home/stel/game/nile/external/glfw-3.3/deps -I/home/stel/game/nile/external/glfw-3.3/include  -g   -o CMakeFiles/timeout.dir/timeout.c.o   -c /home/stel/game/nile/external/glfw-3.3/tests/timeout.c",
+  "file": "/home/stel/game/nile/external/glfw-3.3/tests/timeout.c"
+},
+{
+  "directory": "/home/stel/game/nile/build/external/glfw-3.3/tests",
+  "command": "/usr/bin/cc -DENABLE_DOCTEST_IN_LIBRARY -I/home/stel/game/nile/build -I/home/stel/game/nile/external -I/home/stel/game/nile/external/glm -I/home/stel/game/nile/external/stb -I/home/stel/game/nile/external/glfw-3.3/deps -I/home/stel/game/nile/external/glfw-3.3/include  -g   -o CMakeFiles/timeout.dir/__/deps/glad_gl.c.o   -c /home/stel/game/nile/external/glfw-3.3/deps/glad_gl.c",
+  "file": "/home/stel/game/nile/external/glfw-3.3/deps/glad_gl.c"
+},
+{
+  "directory": "/home/stel/game/nile/build/external/glad",
+  "command": "/usr/bin/cc -DENABLE_DOCTEST_IN_LIBRARY -I/home/stel/game/nile/build -I/home/stel/game/nile/external -I/home/stel/game/nile/external/glm -I/home/stel/game/nile/external/stb -I/home/stel/game/nile/external/glad/include  -g   -o CMakeFiles/glad.dir/src/glad.c.o   -c /home/stel/game/nile/external/glad/src/glad.c",
+  "file": "/home/stel/game/nile/external/glad/src/glad.c"
+},
+{
+  "directory": "/home/stel/game/nile/build/tests",
+  "command": "/home/stel/cc_args.py  g++   -DENABLE_DOCTEST_IN_LIBRARY -I/home/stel/game/nile/build -I/home/stel/game/nile/external -I/home/stel/game/nile/external/glm -I/home/stel/game/nile/external/stb -I/usr/include/SDL2 -I/home/stel/game/nile/include -I/home/stel/game/nile/external/doctest/doctest -I/home/stel/game/nile/external/glfw-3.3/include -I/home/stel/game/nile/external/glad/include  -g   -Wall -Wextra -Wpedantic -Wno-switch-enum -Werror -std=c++17 -o CMakeFiles/unit_tests.dir/main.cpp.o -c /home/stel/game/nile/tests/main.cpp",
+  "file": "/home/stel/game/nile/tests/main.cpp"
+}
+]
