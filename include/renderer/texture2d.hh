@@ -48,6 +48,15 @@ namespace nile {
     [[nodiscard]] inline u32 getHeight() const noexcept {
       return m_height;
     }
+
+    // Setters
+    void setInternalFormat( u32 format ) noexcept {
+      m_internalFormat = format;
+    }
+
+    void setImageFormat( u32 format ) noexcept {
+      m_imageFormat = format;
+    }
   };
 
 }    // namespace nile

@@ -19,8 +19,10 @@ namespace nile {
   using usize = std::size_t;
   using uptr = uintptr_t;
 
-  // Helpers macros used to disable copy/move
-  // constructors
+}    // namespace nile
+
+// Helpers macros used to disable copy/move
+// constructors
 
 #define NILE_DISABLE_COPY( Class )                                                                 \
   Class( const Class & ) = delete;                                                                 \
@@ -31,10 +33,10 @@ namespace nile {
   Class &operator=( const Class && ) = delete;
 
 #define ASSERT_M( condition, msg )                                                                 \
-  \ do {                                                                                           \
-    \ if ( !( condition ) ) {                                                                      \
-      \ fn::log::fatal( "%s(%d): Assertion failed with error - %s\n", __FILE__, __LINE__, msg );   \
-      \                                                                                            \
+   do {                                                                                           \
+     if ( !( condition ) ) {                                                                      \
+       nile::log::fatal( "%s(%d): Assertion failed with error - %s\n", __FILE__, __LINE__, msg ); \
+                                                                                                  \
     }                                                                                              \
   }                                                                                                \
   while ( 0 )                                                                                      \
@@ -43,8 +45,7 @@ namespace nile {
 #define ASSERT( condition )                                                                        \
   do {                                                                                             \
     if ( !( condition ) ) {                                                                        \
-      fn::log::fatal( "%s(%d): Assertion failed\n", __FILE__, __LINE__ );                          \
+      nile::log::fatal( "%s(%d): Assertion failed\n", __FILE__, __LINE__ );                        \
     }                                                                                              \
   } while ( 0 );
 
-}    // namespace nile
