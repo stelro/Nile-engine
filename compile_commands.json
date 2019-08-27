@@ -11,8 +11,38 @@
 },
 {
   "directory": "/home/stel/game/nile/build",
+  "command": "/home/stel/cc_args.py  g++   -DENABLE_DOCTEST_IN_LIBRARY -Dengine_EXPORTS -I/home/stel/game/nile/build -I/home/stel/game/nile/external -I/home/stel/game/nile/external/glm -I/home/stel/game/nile/external/stb -I/home/stel/game/nile/include -I/home/stel/game/nile/external/glfw-3.3/include -I/usr/include/SDL2 -I/home/stel/game/nile/external/doctest/doctest -I/home/stel/game/nile/external/glad/include  -g -fPIC   -Wall -Wextra -Wpedantic -Wno-switch-enum -Werror -std=c++17 -o CMakeFiles/engine.dir/src/core/settings.cc.o -c /home/stel/game/nile/src/core/settings.cc",
+  "file": "/home/stel/game/nile/src/core/settings.cc"
+},
+{
+  "directory": "/home/stel/game/nile/build",
   "command": "/home/stel/cc_args.py  g++   -DENABLE_DOCTEST_IN_LIBRARY -Dengine_EXPORTS -I/home/stel/game/nile/build -I/home/stel/game/nile/external -I/home/stel/game/nile/external/glm -I/home/stel/game/nile/external/stb -I/home/stel/game/nile/include -I/home/stel/game/nile/external/glfw-3.3/include -I/usr/include/SDL2 -I/home/stel/game/nile/external/doctest/doctest -I/home/stel/game/nile/external/glad/include  -g -fPIC   -Wall -Wextra -Wpedantic -Wno-switch-enum -Werror -std=c++17 -o CMakeFiles/engine.dir/src/renderer/shader.cc.o -c /home/stel/game/nile/src/renderer/shader.cc",
   "file": "/home/stel/game/nile/src/renderer/shader.cc"
+},
+{
+  "directory": "/home/stel/game/nile/build",
+  "command": "/home/stel/cc_args.py  g++   -DENABLE_DOCTEST_IN_LIBRARY -Dengine_EXPORTS -I/home/stel/game/nile/build -I/home/stel/game/nile/external -I/home/stel/game/nile/external/glm -I/home/stel/game/nile/external/stb -I/home/stel/game/nile/include -I/home/stel/game/nile/external/glfw-3.3/include -I/usr/include/SDL2 -I/home/stel/game/nile/external/doctest/doctest -I/home/stel/game/nile/external/glad/include  -g -fPIC   -Wall -Wextra -Wpedantic -Wno-switch-enum -Werror -std=c++17 -o CMakeFiles/engine.dir/src/renderer/texture2d.cc.o -c /home/stel/game/nile/src/renderer/texture2d.cc",
+  "file": "/home/stel/game/nile/src/renderer/texture2d.cc"
+},
+{
+  "directory": "/home/stel/game/nile/build",
+  "command": "/home/stel/cc_args.py  g++   -DENABLE_DOCTEST_IN_LIBRARY -Dengine_EXPORTS -I/home/stel/game/nile/build -I/home/stel/game/nile/external -I/home/stel/game/nile/external/glm -I/home/stel/game/nile/external/stb -I/home/stel/game/nile/include -I/home/stel/game/nile/external/glfw-3.3/include -I/usr/include/SDL2 -I/home/stel/game/nile/external/doctest/doctest -I/home/stel/game/nile/external/glad/include  -g -fPIC   -Wall -Wextra -Wpedantic -Wno-switch-enum -Werror -std=c++17 -o CMakeFiles/engine.dir/src/renderer/base_renderer.cc.o -c /home/stel/game/nile/src/renderer/base_renderer.cc",
+  "file": "/home/stel/game/nile/src/renderer/base_renderer.cc"
+},
+{
+  "directory": "/home/stel/game/nile/build",
+  "command": "/home/stel/cc_args.py  g++   -DENABLE_DOCTEST_IN_LIBRARY -Dengine_EXPORTS -I/home/stel/game/nile/build -I/home/stel/game/nile/external -I/home/stel/game/nile/external/glm -I/home/stel/game/nile/external/stb -I/home/stel/game/nile/include -I/home/stel/game/nile/external/glfw-3.3/include -I/usr/include/SDL2 -I/home/stel/game/nile/external/doctest/doctest -I/home/stel/game/nile/external/glad/include  -g -fPIC   -Wall -Wextra -Wpedantic -Wno-switch-enum -Werror -std=c++17 -o CMakeFiles/engine.dir/src/renderer/opengl_renderer.cc.o -c /home/stel/game/nile/src/renderer/opengl_renderer.cc",
+  "file": "/home/stel/game/nile/src/renderer/opengl_renderer.cc"
+},
+{
+  "directory": "/home/stel/game/nile/build",
+  "command": "/home/stel/cc_args.py  g++   -DENABLE_DOCTEST_IN_LIBRARY -Dengine_EXPORTS -I/home/stel/game/nile/build -I/home/stel/game/nile/external -I/home/stel/game/nile/external/glm -I/home/stel/game/nile/external/stb -I/home/stel/game/nile/include -I/home/stel/game/nile/external/glfw-3.3/include -I/usr/include/SDL2 -I/home/stel/game/nile/external/doctest/doctest -I/home/stel/game/nile/external/glad/include  -g -fPIC   -Wall -Wextra -Wpedantic -Wno-switch-enum -Werror -std=c++17 -o CMakeFiles/engine.dir/src/2d/sprite_renderer.cc.o -c /home/stel/game/nile/src/2d/sprite_renderer.cc",
+  "file": "/home/stel/game/nile/src/2d/sprite_renderer.cc"
+},
+{
+  "directory": "/home/stel/game/nile/build",
+  "command": "/home/stel/cc_args.py  g++   -DENABLE_DOCTEST_IN_LIBRARY -Dengine_EXPORTS -I/home/stel/game/nile/build -I/home/stel/game/nile/external -I/home/stel/game/nile/external/glm -I/home/stel/game/nile/external/stb -I/home/stel/game/nile/include -I/home/stel/game/nile/external/glfw-3.3/include -I/usr/include/SDL2 -I/home/stel/game/nile/external/doctest/doctest -I/home/stel/game/nile/external/glad/include  -g -fPIC   -Wall -Wextra -Wpedantic -Wno-switch-enum -Werror -std=c++17 -o CMakeFiles/engine.dir/src/resource/resource_manager.cc.o -c /home/stel/game/nile/src/resource/resource_manager.cc",
+  "file": "/home/stel/game/nile/src/resource/resource_manager.cc"
 },
 {
   "directory": "/home/stel/game/nile/build",
