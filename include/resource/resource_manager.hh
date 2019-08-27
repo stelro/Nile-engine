@@ -29,6 +29,23 @@ namespace nile {
   public:
     static ResourceManager *getInstance() noexcept;
     static void destroy() noexcept;
+
+    // Free all resources
+    static void clear() noexcept;
+
+    // Load shaders from file and returns the generated shader object
+    static std::shared_ptr<Shader> loadShader( std::string_view vshaderFile, std::string_view fshaderFile,
+                              std::string_view gshaderFile, const std::string &name ) noexcept;
+
+    // Load texture from file and returns the texture
+    static std::shared_ptr<Texture2D> loadTexture( std::string_view file, bool alpha,
+                                  const std::string &name ) noexcept;
+
+    // Retrives a stored shader
+    static std::shared_ptr<Shader> getShader( const std::string &name ) noexcept;
+
+    // Retrives a stored Texture
+    static std::shared_ptr<Texture2D> getTexture( const std::string &name ) noexcept;
   };
 
 }    // namespace nile
