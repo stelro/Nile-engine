@@ -1,22 +1,33 @@
 #include "2d/sprite_renderer.hh"
+#include "renderer/shader.hh"
 #include <GL/glew.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
 namespace nile {
 
-  void SpriteRenderer::draw( Texture2D &texture, glm::vec2 position, glm::vec2 size, f32 rotate,
-                             glm::vec3 color ) noexcept {
+  SpriteRenderer::SpriteRenderer( std::shared_ptr<Shader> shader ) noexcept
+      : m_shader( shader ) {
+    this->initRenderData();
+  }
 
-    this->m_shader.use();
+  SpriteRenderer::~SpriteRenderer() noexcept {
+    glDeleteVertexArrays( 1, &this->m_quadVAO );
+  }
+
+  void SpriteRenderer::draw( std::shared_ptr<Texture2D> texture, glm::vec2 position, glm::vec2 size,
+                             f32 rotate, glm::vec3 color ) noexcept {
+
+    this->m_shader->use();
+
 
     glm::mat4 model;
     model = glm::translate( model, glm::vec3( position, 0.0f ) );
 
     // Because we specified the quad's vertices with (0,0) as the top-left coordinate
-    // of the quad, all rotations witll rotate around this point of (0.0). Basically the 
+    // of the quad, all rotations witll rotate around this point of (0.0). Basically the
     // origin of rotation is the top-left of the quad which produces undesirable results.
-    // so we move the origin of rotation to the center of the quad, so the quad 
+    // so we move the origin of rotation to the center of the quad, so the quad
     // neatly rotates around this origin.
     model = glm::translate( model, glm::vec3( 0.5f * size.x, 0.5f * size.y, 0.0f ) );
     model = glm::rotate( model, rotate, glm::vec3( 0.0f, 0.0f, 1.0f ) );
@@ -24,11 +35,11 @@ namespace nile {
 
     model = glm::scale( model, glm::vec3( size, 1.0f ) );
 
-    this->m_shader.SetMatrix4( "model", model );
-    this->m_shader.SetVector3f( "spriteColor", color );
+    this->m_shader->SetMatrix4( "model", model );
+    this->m_shader->SetVector3f( "spriteColor", color );
 
     glActiveTexture( GL_TEXTURE0 );
-    texture.bind();
+    texture->bind();
 
     glBindVertexArray( this->m_quadVAO );
     glDrawArrays( GL_TRIANGLES, 0, 6 );

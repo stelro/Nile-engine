@@ -8,8 +8,8 @@
 int main() {
 
   auto settings = nile::Settings::Builder {}
-                      .setWidth( 1024 )
-                      .setHeight( 768 )
+                      .setWidth( 800 )
+                      .setHeight( 600 )
                       .setTitle( "Basic Renderer" )
                       .setWindowFlags( SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN )
                       .build();
