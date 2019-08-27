@@ -21,7 +21,7 @@ namespace nile {
     this->m_shader->use();
 
 
-    glm::mat4 model;
+    glm::mat4 model = glm::mat4(1.0f);
     model = glm::translate( model, glm::vec3( position, 0.0f ) );
 
     // Because we specified the quad's vertices with (0,0) as the top-left coordinate

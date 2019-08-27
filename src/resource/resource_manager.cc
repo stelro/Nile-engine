@@ -105,7 +105,7 @@ namespace nile {
     // Load image
     int width, height, nrChannels;
     unsigned char *image = nullptr;
-    image = stbi_load( file.data(), &width, &height, &nrChannels, 0 );
+    image = stbi_load( file.data(), &width, &height, &nrChannels, STBI_rgb_alpha );
 
     if ( !image ) {
       log::error( "Faile to load texture { %s }", file.data() );

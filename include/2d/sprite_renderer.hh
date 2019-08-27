@@ -21,8 +21,8 @@ namespace nile {
     SpriteRenderer( std::shared_ptr<Shader> shader ) noexcept;
     ~SpriteRenderer() noexcept;
 
-    void draw( std::shared_ptr<Texture2D> texture, glm::vec2 position, glm::vec2 size = glm::vec2( 10, 10 ),
-               f32 roate = 0.0f, glm::vec3 color = glm::vec3( 1.0f ) ) noexcept;
-
+    void draw( std::shared_ptr<Texture2D> texture, glm::vec2 position,
+               glm::vec2 size = glm::vec2( 10, 10 ), f32 roate = 0.0f,
+               glm::vec3 color = glm::vec3( 1.0f ) ) noexcept;
   };
 }    // namespace nile
