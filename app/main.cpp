@@ -1,9 +1,12 @@
 #include <iostream>
 #include <stdlib.h>
 
+#include <core/input_manager.hh>
 #include <core/settings.hh>
+#include <game/game.hh>
 #include <renderer/opengl_renderer.hh>
 
+using nile::u32;
 
 int main() {
 
@@ -14,8 +17,33 @@ int main() {
                       .setWindowFlags( SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN )
                       .build();
 
-  nile::OpenGLRenderer renderer( std::make_shared<nile::Settings>( settings ) );
-  renderer.run();
+  auto settings_ptr = std::make_shared<nile::Settings>( settings );
+  nile::OpenGLRenderer renderer( settings_ptr );
+
+  renderer.init();
+
+  nile::InputManager inputManager;
+
+  nile::Game game( settings_ptr );
+  game.init();
+
+
+  // Main renderer / game loop
+  while ( !inputManager.shouldClose() ) {
+
+    u32 delta = 0.0f;
+
+    inputManager.update( delta );
+
+    renderer.submitFrame();
+
+    // Game methods
+    game.update( delta );
+    game.render( delta );
+
+    renderer.endFrame();
+  }
+
 
   return 0;
 }
