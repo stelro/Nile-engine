@@ -3,9 +3,11 @@
 #include "core/nile.hh"
 #include "renderer/base_renderer.hh"
 #include <SDL2/SDL.h>
+
 #include <memory>
 
 namespace nile {
+
 
   class Settings;
 
@@ -16,7 +18,6 @@ namespace nile {
     // The main SDL window
     SDL_Window *m_window = nullptr;
     SDL_GLContext m_glContext;
-    SDL_Event m_event;
 
     // The main bool flag that keeps the main loop runing
     bool m_isRunning = false;
@@ -24,16 +25,18 @@ namespace nile {
     void initRenderer() noexcept override;
     // Create and initialize the main Window ( SDL )
     void initWindow() noexcept override;
-    // Run the renderer, this method calls all init functions
-    void cleanUp() noexcept override;
-    // the main renderer loop
-    // @note: maybe thransfer this elsewere?
-    void mainLoop() noexcept override;
+    
   public:
     explicit OpenGLRenderer( std::shared_ptr<Settings> settings ) noexcept;
     ~OpenGLRenderer() noexcept;
-    void run() noexcept override;
-    // cleanup and delete all resources
+    void init() noexcept override;
+    // Submit frame and perform specific actions
+    void submitFrame() noexcept;
+    // End the frame and preform specific actions
+    void endFrame() noexcept;
+    // Clean up all resources
+void destroy() noexcept override;
+
   };
 
 }    // namespace nile

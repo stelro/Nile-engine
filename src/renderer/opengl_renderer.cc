@@ -7,6 +7,8 @@
 
 #include <GL/glew.h>
 #include <glm/gtc/matrix_transform.hpp>
+#include <vector>
+
 
 namespace nile {
 
@@ -15,9 +17,12 @@ namespace nile {
 
   OpenGLRenderer::~OpenGLRenderer() noexcept {
     // Empty Destructor
+    std::vector<int> a;
+    a.size();
   }
 
   void OpenGLRenderer::initRenderer() noexcept {
+
 
     // Initialize SDL2 ( used for window creation and keyboard input)
     ASSERT_M( ( SDL_Init( SDL_INIT_VIDEO ) >= 0 ), "Failed to init SDL" )
@@ -29,6 +34,7 @@ namespace nile {
     m_window = SDL_CreateWindow( m_settings->getWindowTitle().c_str(), SDL_WINDOWPOS_CENTERED,
                                  SDL_WINDOWPOS_CENTERED, m_settings->getWidth(),
                                  m_settings->getHeight(), m_settings->getWindowFlags() );
+
 
     if ( !m_window ) {
       log::fatal( "SDL Window could not created! SDL Error: %s\n", SDL_GetError() );
@@ -52,62 +58,34 @@ namespace nile {
     glGetError();
 
     glViewport( 0, 0, m_settings->getWidth(), m_settings->getHeight() );
-    
-    glDisable(GL_DEPTH_TEST);
+
+    glDisable( GL_DEPTH_TEST );
     glEnable( GL_CULL_FACE );
     glEnable( GL_BLEND );
     glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
     m_isRunning = true;
   }
 
-  void OpenGLRenderer::run() noexcept {
+  void OpenGLRenderer::init() noexcept {
     this->initRenderer();
     this->initWindow();
-    this->mainLoop();
-    this->cleanUp();
   }
 
-  void OpenGLRenderer::cleanUp() noexcept {
+  void OpenGLRenderer::destroy() noexcept {
     ResourceManager::clear();
     SDL_DestroyWindow( m_window );
     m_window = nullptr;
     SDL_Quit();
   }
 
-  void OpenGLRenderer::mainLoop() noexcept {
-
-    ResourceManager::loadShader( "../shaders/sprite_vertex.glsl", "../shaders/sprite_fragment.glsl",
-                                 {}, "sprite" );
-
-    glm::mat4 projection =
-        glm::ortho( 0.0f, static_cast<f32>( m_settings->getWidth() ),
-                    static_cast<f32>( m_settings->getHeight() ), 0.0f, -1.0f, 1.0f );
-
-    auto sprite = ResourceManager::getShader( "sprite" );
-    sprite->use().SetInteger( "image", 0 );
-    sprite->use().SetMatrix4( "projection", projection );
-
-    SpriteRenderer *renderer = new SpriteRenderer( sprite );
-
-
-    auto face = ResourceManager::loadTexture( "../textures/awesomeface.png", true, "face" );
-
-    while ( m_isRunning ) {
-      while ( SDL_PollEvent( &m_event ) ) {
-        if ( m_event.type == SDL_QUIT ) {
-          m_isRunning = false;
-        }
-      }
-      // glClearColor( 0.2f, 0.3f, 0.3f, 1.0f );
-      glClearColor( 0.0f, 0.0f, 0.0f, 1.0f );
-
-      glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
-      renderer->draw( face, glm::vec2( 200, 200 ), glm::vec2( 300, 400 ), 45.0f,
-                      glm::vec3( 0.0f, 1.0f, 0.0f ) );
-
-
-      SDL_GL_SwapWindow( m_window );
-    }
+  void OpenGLRenderer::submitFrame() noexcept {
+    glClearColor( 0.2f, 0.3f, 0.3f, 1.0f );
+    glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
   }
+
+  void OpenGLRenderer::endFrame() noexcept {
+    SDL_GL_SwapWindow( m_window );
+  }
+
 
 }    // namespace nile
