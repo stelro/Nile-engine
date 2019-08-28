@@ -1,5 +1,6 @@
 #include "renderer/shader.hh"
 
+
 #include "core/logger.hh"
 #include <GL/glew.h>
 #include <glm/gtc/type_ptr.hpp>
@@ -10,6 +11,8 @@ namespace nile {
     glUseProgram( this->m_id );
     return *this;
   }
+
+  Shader::~Shader() noexcept { }
 
   void Shader::checkCompileErrors( u32 object, std::string_view type ) noexcept {
     GLint success;
