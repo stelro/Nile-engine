@@ -22,18 +22,18 @@ int main() {
 
   renderer.init();
 
-  nile::InputManager inputManager;
+  auto inputManager = nile::InputManager::getInstance();
 
   nile::Game game( settings_ptr );
   game.init();
 
 
   // Main renderer / game loop
-  while ( !inputManager.shouldClose() ) {
+  while ( !inputManager->shouldClose() ) {
 
     u32 delta = 0.0f;
 
-    inputManager.update( delta );
+    inputManager->update( delta );
 
     renderer.submitFrame();
 
@@ -44,6 +44,7 @@ int main() {
     renderer.endFrame();
   }
 
+  nile::InputManager::destroy();
 
   return 0;
 }
