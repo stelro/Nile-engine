@@ -1,9 +1,9 @@
 #include "game/game.hh"
 #include "2d/sprite_renderer.hh"
+#include "core/input_manager.hh"
 #include "core/settings.hh"
 #include "renderer/shader.hh"
 #include "resource/resource_manager.hh"
-#include "core/input_manager.hh"
 
 #include <GL/glew.h>
 #include <glm/gtc/matrix_transform.hpp>
@@ -40,7 +40,7 @@ namespace nile {
 
   void Game::render( [[maybe_unused]] float dt ) noexcept {
     m_spriteRenderer->draw( ResourceManager::getTexture( "background" ), glm::vec2( 1, 1 ),
-                            glm::vec2( 1078,224), 0.0f, glm::vec3( 1.0f, 1.0f, 1.0f ) );
+                            glm::vec2( 1078, 224 ), 0.0f, glm::vec3( 1.0f, 1.0f, 1.0f ) );
   }
 
 }    // namespace nile

@@ -12,7 +12,7 @@ namespace nile {
     return *this;
   }
 
-  Shader::~Shader() noexcept { }
+  Shader::~Shader() noexcept {}
 
   void Shader::checkCompileErrors( u32 object, std::string_view type ) noexcept {
     GLint success;

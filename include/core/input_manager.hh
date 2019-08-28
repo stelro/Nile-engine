@@ -19,7 +19,7 @@ namespace nile {
   public:
     // Get singleton instance of the class
     static InputManager *getInstance() noexcept;
-  
+
     // Destory the singleton
     static void destroy() noexcept;
 

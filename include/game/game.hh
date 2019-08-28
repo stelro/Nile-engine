@@ -12,9 +12,9 @@ namespace nile {
   private:
     std::shared_ptr<Settings> m_settings;
     std::unique_ptr<SpriteRenderer> m_spriteRenderer;
-    
+
     // Singleton instance
-    InputManager* m_inputManager;
+    InputManager *m_inputManager;
 
   public:
     Game( std::shared_ptr<Settings> settings ) noexcept;

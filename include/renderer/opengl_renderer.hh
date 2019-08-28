@@ -25,7 +25,7 @@ namespace nile {
     void initRenderer() noexcept override;
     // Create and initialize the main Window ( SDL )
     void initWindow() noexcept override;
-    
+
   public:
     explicit OpenGLRenderer( std::shared_ptr<Settings> settings ) noexcept;
     ~OpenGLRenderer() noexcept;
@@ -35,8 +35,7 @@ namespace nile {
     // End the frame and preform specific actions
     void endFrame() noexcept;
     // Clean up all resources
-void destroy() noexcept override;
-
+    void destroy() noexcept override;
   };
 
 }    // namespace nile
