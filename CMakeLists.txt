@@ -40,12 +40,14 @@ include(src/core/CMakeLists.txt)
 include(src/renderer/CMakeLists.txt)
 include(src/2d/CMakeLists.txt)
 include(src/resource/CMakeLists.txt)
+include(src/game/CMakeLists.txt)
 
 set(NILE_SRC
   ${NILE_CORE_SRC}
   ${NILE_RENDERER_SRC}
   ${NILE_2D_SRC}
   ${NILE_RESOURCE_SRC}
+  ${NILE_GAME_SRC}
   )
 
 # --------------------------------------------------------------------------------

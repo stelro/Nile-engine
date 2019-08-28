@@ -20,7 +20,7 @@ namespace nile {
 
   public:
     Shader() noexcept = default;
-
+~Shader() noexcept;
     // Set the shader as active
     Shader &use() noexcept;
 
