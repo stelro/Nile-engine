@@ -14,6 +14,7 @@ int main() {
                       .setWidth( 800 )
                       .setHeight( 600 )
                       .setTitle( "Basic Renderer" )
+                      .setDebugMode( true )
                       .setWindowFlags( SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN )
                       .build();
 
@@ -30,6 +31,10 @@ int main() {
 
   // Main renderer / game loop
   while ( !inputManager->shouldClose() ) {
+
+    if ( inputManager->isKeyPressed( SDLK_ESCAPE ) ) {
+      inputManager->terminateEngine();
+    }
 
     u32 delta = 0.0f;
 
