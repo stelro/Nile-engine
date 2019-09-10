@@ -1,20 +1,26 @@
 #pragma once
 
+#include "core/nile.hh"
 #include <memory>
 
 namespace nile {
 
   class Settings;
   class SpriteRenderer;
+  class SpriteSheet;
   class InputManager;
+  class Camera2D;
 
   class Game {
   private:
     std::shared_ptr<Settings> m_settings;
     std::unique_ptr<SpriteRenderer> m_spriteRenderer;
+    std::unique_ptr<SpriteSheet> m_spriteSheet;
+    std::unique_ptr<Camera2D> m_camera;
 
     // Singleton instance
     InputManager *m_inputManager;
+
 
   public:
     Game( std::shared_ptr<Settings> settings ) noexcept;
