@@ -11,13 +11,16 @@ namespace nile {
     u32 m_width;
     u32 m_height;
     u32 m_windowFlags;
+    bool m_debugMode;
     // Window title
     std::string m_windowTitle;
 
   public:
     class Builder;
 
-    Settings( u32 width, u32 height, u32 windowFlags, const std::string &title ) noexcept;
+    Settings( u32 width, u32 height, u32 windowFlags,bool m_debugMode,
+              const std::string &title ) noexcept;
+    ~Settings() noexcept;
 
     [[nodiscard]] inline u32 getWidth() const noexcept {
       return m_width;
@@ -34,6 +37,10 @@ namespace nile {
     [[nodiscard]] inline u32 getWindowFlags() const noexcept {
       return m_windowFlags;
     }
+
+    [[nodiscard]] inline bool getDebugMode() const noexcept {
+      return m_debugMode;
+    }
   };
 
   class Settings::Builder {
@@ -41,6 +48,7 @@ namespace nile {
     u32 m_width = 0;
     u32 m_height = 0;
     u32 m_windowFlags = 0x0;
+    bool m_debugMode = false;
     std::string m_windowTitle {};
 
   public:
@@ -64,8 +72,13 @@ namespace nile {
       return *this;
     }
 
+    Builder &setDebugMode( bool flag ) noexcept {
+      this->m_debugMode = flag;
+      return *this;
+    }
+
     Settings build() const noexcept {
-      return Settings( m_width, m_height, m_windowFlags, m_windowTitle );
+      return Settings( m_width, m_height, m_windowFlags, m_debugMode, m_windowTitle );
     }
   };
 
