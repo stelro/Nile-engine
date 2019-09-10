@@ -108,7 +108,7 @@ namespace nile {
     image = stbi_load( file.data(), &width, &height, &nrChannels, STBI_rgb_alpha );
 
     if ( !image ) {
-      log::error( "Faile to load texture { %s }", file.data() );
+      log::error( "Failed to load texture { %s }\n", file.data() );
     }
 
     texture.generate( width, height, image );
@@ -136,12 +136,24 @@ namespace nile {
 
   std::shared_ptr<Shader> ResourceManager::getShader( const std::string &name ) noexcept {
     // TODO @stel: check for shader if exist before return
-    return shaders[ name ];
+    auto it = shaders.find( name );
+    if ( it != shaders.end() ) {
+      return it->second;
+    } else {
+      log::error( "Couldn't find any shader with the id :  { %s }\n", name.c_str() );
+      return nullptr;
+    }
   }
 
   std::shared_ptr<Texture2D> ResourceManager::getTexture( const std::string &name ) noexcept {
     // TODO @stel: check for texture if exist before return
-    return textures[ name ];
+    auto it = textures.find( name );
+    if ( it != textures.end() ) {
+      return it->second;
+    } else {
+      log::error( "Couldn't find any texture with the id { %s }\n", name.c_str() );
+      return nullptr;
+    }
   }
 
 
