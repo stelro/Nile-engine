@@ -17,13 +17,9 @@ namespace nile {
 
   OpenGLRenderer::~OpenGLRenderer() noexcept {
     // Empty Destructor
-    std::vector<int> a;
-    a.size();
   }
 
   void OpenGLRenderer::initRenderer() noexcept {
-
-
     // Initialize SDL2 ( used for window creation and keyboard input)
     ASSERT_M( ( SDL_Init( SDL_INIT_VIDEO ) >= 0 ), "Failed to init SDL" )
   }
@@ -79,7 +75,11 @@ namespace nile {
   }
 
   void OpenGLRenderer::submitFrame() noexcept {
-    glClearColor( 0.2f, 0.3f, 0.3f, 1.0f );
+    if ( m_settings->getDebugMode() ) {
+      glClearColor( 0.2f, 0.3f, 0.3f, 1.0f );
+    } else {
+      glClearColor( 0.086f, 0.188f, 0.235f, 1.0f );
+    }
     glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
   }
 
