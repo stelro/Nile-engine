@@ -29,6 +29,10 @@ namespace nile {
       return m_shouldClose;
     }
 
+    inline void terminateEngine() noexcept {
+      this->m_shouldClose = true;
+    }
+
     // Checks if user has pressed any specifc key
     [[nodiscard]] bool isKeyPressed( SDL_Keycode key ) const noexcept {
       auto it = m_pressedKeys.find( key );
