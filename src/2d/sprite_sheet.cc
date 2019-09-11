@@ -33,7 +33,7 @@ namespace nile {
   }
 
   void SpriteSheet::draw_frame( const glm::vec2 &position, [[maybe_unused]] u32 frame_index,
-                               [[maybe_unused]] u32 speed ) noexcept {
+                                [[maybe_unused]] u32 speed ) noexcept {
 
     this->m_shader->use();
 
@@ -56,7 +56,10 @@ namespace nile {
     auto s = ( float )col / ( float )m_numberOfColumns;
     auto t = ( float )row / ( float )m_numberOfRows;
 
-    this->m_shader->SetVector2f( "st", glm::vec2( s, t ) ); this->m_shader->SetVector2f( "size", glm::vec2( static_cast<f32>( m_numberOfRows ), static_cast<f32>( m_numberOfColumns ) ) ); this->m_shader->SetMatrix4( "model", model );
+    this->m_shader->SetVector2f( "st", glm::vec2( s, t ) );
+    this->m_shader->SetVector2f( "size", glm::vec2( static_cast<f32>( m_numberOfRows ),
+                                                    static_cast<f32>( m_numberOfColumns ) ) );
+    this->m_shader->SetMatrix4( "model", model );
     this->m_shader->SetVector3f( "spriteColor", m_color );
 
     glActiveTexture( GL_TEXTURE0 );
@@ -68,7 +71,8 @@ namespace nile {
     glBindVertexArray( 0 );
   }
 
-  void SpriteSheet::playAnimation( [[maybe_unused]]const glm::vec2 &position, u32 speed ) noexcept {
+  void SpriteSheet::playAnimation( [[maybe_unused]] const glm::vec2 &position,
+                                   u32 speed ) noexcept {
     // This is used to perform the actuall animation
     // of the sprite
     if ( m_animationDelay + speed < SDL_GetTicks() ) {
@@ -79,7 +83,20 @@ namespace nile {
 
       m_animationDelay = SDL_GetTicks();
     }
-    this->draw_frame(position,m_currentFrame,speed);
+    this->draw_frame( position, m_currentFrame, speed );
+  }
+
+  void SpriteSheet::playAnimationAndHalt( [[maybe_unused]] const glm::vec2 &position,
+                                          u32 speed ) noexcept {
+
+    playAnimation( position, speed );
+
+    if ( m_currentFrame == ( m_numberOfColumns - 1 ) ) {
+      // emit a signal, that the current animation has finished
+      // and every frame has played, in meanwhile while the animation is on progress
+      // we should prevent eany events to happen
+      animation_signal.emit( true );
+    }
   }
 
   void SpriteSheet::initRenderData() noexcept {

@@ -1,8 +1,9 @@
 #pragma once
 
 #include "core/nile.hh"
-#include <glm/glm.hpp>
+#include "core/signal.hh"
 
+#include <glm/glm.hpp>
 #include <memory>
 
 namespace nile {
@@ -11,6 +12,7 @@ namespace nile {
   class Texture2D;
 
   class SpriteSheet {
+    OBSERVABLE
   private:
     std::shared_ptr<Shader> m_shader;
     std::shared_ptr<Texture2D> m_texture;
@@ -39,12 +41,24 @@ namespace nile {
     void initRenderData() noexcept;
 
   public:
+    using Animation_signal = Signal<bool>;
+
+    // This signal should be emitted when the method "playAnimationAndHalt" will play
+    // the whole animation, and the frame_count will reach the last frame. Then the sinal
+    // will emit(true), so input handlers will know that the input events can continue
+    // for example, if player want to attack, then specific animation 'attack' will take
+    // place, and we don't to interput this animation with other input, until it will end.
+    //
+    // TODO(stel): maybe there is a better way to handle this?
+    Animation_signal animation_signal;
+
     SpriteSheet( const std::shared_ptr<Shader> &shader, const std::shared_ptr<Texture2D> &texture,
                  const glm::ivec2 &dimensions ) noexcept;
     ~SpriteSheet() noexcept;
 
     void draw_frame( const glm::vec2 &position, u32 frame_index, u32 speed = 60 ) noexcept;
     void playAnimation( const glm::vec2 &position, u32 speed = 60 ) noexcept;
+    void playAnimationAndHalt( const glm::vec2 &position, u32 speed = 60 ) noexcept;
 
     // Setters
     void setColor( const glm::vec3 &color ) noexcept;
