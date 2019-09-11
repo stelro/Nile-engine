@@ -13,6 +13,6 @@ uniform vec2 size;
 out vec2 TexCoords;
 
 void main() {
-  TexCoords = vec2(vertex.z / size.y + st.s, vertex.w / size.x + st.t);
+  TexCoords = vec2( vertex.z / size.y + st.s, vertex.w / size.x + st.t );
   gl_Position = projection * model * vec4( vertex.xy, 0.0, 1.0 );
 }
