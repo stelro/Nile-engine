@@ -43,7 +43,9 @@ namespace nile {
     }
 
     // Checks if specifc key has released
-    [[nodiscard]] bool isKeyHasReleased( SDL_Keycode key ) const noexcept;
+    [[nodiscard]] bool isKeyHasReleased( SDL_Keycode key ) const noexcept {
+      return !isKeyPressed( key );
+    }
   };
 
 }    // namespace nile
