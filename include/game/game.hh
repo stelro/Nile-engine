@@ -19,7 +19,10 @@ namespace nile {
     {
       IDLE,
       RUNNING,
-      ATTACK
+      ATTACK,
+      JUMP_AND_FALL,
+      ROLL_STRIP,
+      SHIELD_STRIP
     };
 
     std::shared_ptr<Settings> m_settings;

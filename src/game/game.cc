@@ -68,6 +68,13 @@ namespace nile {
     ResourceManager::loadTexture( "../textures/Knight/knight_run.png", true, "knight_run" );
     ResourceManager::loadTexture( "../textures/Knight/knight_idle.png", true, "knight_idle" );
     ResourceManager::loadTexture( "../textures/Knight/knight_attack.png", true, "knight_attack" );
+    ResourceManager::loadTexture( "../textures/Knight/knight_jump_and_fall.png", true,
+                                  "knight_jump_and_fall" );
+    ResourceManager::loadTexture( "../textures/Knight/knight_roll_strip.png", true,
+                                  "knight_roll_strip" );
+    ResourceManager::loadTexture( "../textures/Knight/knight_shield_strip.png", true,
+                                  "knight_shield_strip" );
+
 
     // TODO(stel): all of this above should be moved to seperate class
     // that handles the main character!
@@ -91,6 +98,24 @@ namespace nile {
 
     m_knightSprite->getSpriteSheet( "knight_attack" )->scale( 2.4f );
 
+    m_knightSprite->addSpriteSheet( "knight_jump_and_fall", sprite_sheet_shader,
+                                    ResourceManager::getTexture( "knight_jump_and_fall" ),
+                                    glm::ivec2( 144, 64 ) );
+
+    m_knightSprite->getSpriteSheet( "knight_jump_and_fall" )->scale( 2.4f );
+
+    m_knightSprite->addSpriteSheet( "knight_roll_strip", sprite_sheet_shader,
+                                    ResourceManager::getTexture( "knight_roll_strip" ),
+                                    glm::ivec2( 180, 64 ) );
+
+    m_knightSprite->getSpriteSheet( "knight_roll_strip" )->scale( 2.4f );
+
+    m_knightSprite->addSpriteSheet( "knight_shield_strip", sprite_sheet_shader,
+                                    ResourceManager::getTexture( "knight_shield_strip" ),
+                                    glm::ivec2( 96, 64 ) );
+
+    m_knightSprite->getSpriteSheet( "knight_shield_strip" )->scale( 2.4f );
+
 
     m_inputManager = InputManager::getInstance();
   }
@@ -98,8 +123,9 @@ namespace nile {
   void Game::update( [[maybe_unused]] float dt ) noexcept {
 
 
-    f32 speed = 2.4f;
-    f32 zoomScale = 0.1f;
+    // TODO(stel): This is hardcoded for now, soon will be fixed!
+    const constexpr f32 speed = 2.4f;
+    const constexpr f32 zoomScale = 0.1f;
 
     if ( !m_shouldHaltTheEvents ) {
       if ( m_inputManager->isKeyPressed( SDLK_d ) ) {
@@ -109,13 +135,32 @@ namespace nile {
         m_camera->setPosition( m_camera->getPosition() + glm::vec2( speed, 0.0f ) );
         m_heroState = HeroStateEnum::RUNNING;
       } else if ( m_inputManager->isKeyPressed( SDLK_h ) ) {
-
         m_shouldHaltTheEvents = true;
-
         m_animationListener.connect(
             m_knightSprite->getSpriteSheet( "knight_attack" )->animation_signal, m_animationSlot );
 
         m_heroState = HeroStateEnum::ATTACK;
+      } else if ( m_inputManager->isKeyPressed( SDLK_SPACE ) ) {
+        // TODO(stel): Fix the hero position after he performs the jump and the animation
+        // has finished. Hero should move some steps forward after the sprite animation
+        m_shouldHaltTheEvents = true;
+        m_animationListener.connect(
+            m_knightSprite->getSpriteSheet( "knight_jump_and_fall" )->animation_signal,
+            m_animationSlot );
+        m_heroState = HeroStateEnum::JUMP_AND_FALL;
+      } else if ( m_inputManager->isKeyPressed( SDLK_j ) ) {
+        // TODO(stel): same as the above ( jump animation )
+        m_shouldHaltTheEvents = true;
+        m_animationListener.connect(
+            m_knightSprite->getSpriteSheet( "knight_roll_strip" )->animation_signal,
+            m_animationSlot );
+        m_heroState = HeroStateEnum::ROLL_STRIP;
+      } else if ( m_inputManager->isKeyPressed( SDLK_k ) ) {
+        m_shouldHaltTheEvents = true;
+        m_animationListener.connect(
+            m_knightSprite->getSpriteSheet( "knight_shield_strip" )->animation_signal,
+            m_animationSlot );
+        m_heroState = HeroStateEnum::SHIELD_STRIP;
       } else {
         m_heroState = HeroStateEnum::IDLE;
       }
@@ -140,13 +185,12 @@ namespace nile {
 
   void Game::render( [[maybe_unused]] float dt ) noexcept {
 
-    //log::print( m_shouldHaltTheEvents ? "true\n" : "false\n" );
+    // log::print( m_shouldHaltTheEvents ? "true\n" : "false\n" );
 
     // TODO(stel): hardcoded for now, in the near feature this will be fixed!
-    const auto tileWidth = 1078;
-    const auto tileHeight = 224;
-    const auto runs = 4;
-
+    const constexpr auto tileWidth = 1078;
+    const constexpr auto tileHeight = 224;
+    const constexpr auto runs = 4;
 
     for ( int i = 0; i < runs; i++ ) {
       m_spriteRenderer->draw( ResourceManager::getTexture( "background" ),
@@ -185,6 +229,15 @@ namespace nile {
       m_knightSprite->playAnimation( "knight_run", glm::vec2( 1, m_settings->getHeight() - 200 ) );
     } else if ( m_heroState == HeroStateEnum::ATTACK ) {
       m_knightSprite->playAnimationAndHalt( "knight_attack",
+                                            glm::vec2( 1, m_settings->getHeight() - 200 ) );
+    } else if ( m_heroState == HeroStateEnum::JUMP_AND_FALL ) {
+      m_knightSprite->playAnimationAndHalt( "knight_jump_and_fall",
+                                            glm::vec2( 1, m_settings->getHeight() - 200 ) );
+    } else if ( m_heroState == HeroStateEnum::ROLL_STRIP ) {
+      m_knightSprite->playAnimationAndHalt( "knight_roll_strip",
+                                            glm::vec2( 1, m_settings->getHeight() - 200 ) );
+    } else if ( m_heroState == HeroStateEnum::SHIELD_STRIP ) {
+      m_knightSprite->playAnimationAndHalt( "knight_shield_strip",
                                             glm::vec2( 1, m_settings->getHeight() - 200 ) );
     }
   }
