@@ -26,7 +26,7 @@ namespace nile {
     if ( it != m_spriteSheets.end() ) {
       it->second->playAnimationAndHalt( position, speed );
     } else {
-      log::error( "%s Sprite Sheet not found in SpriteSheetContext\n" );
+      log::error( "%s SpriteSheet not found in SpriteSheetContext\n" );
     }
   }
 
@@ -36,6 +36,7 @@ namespace nile {
     if ( it != m_spriteSheets.end() ) {
       return it->second;
     } else {
+      log::error( "oups, coudn't find SpriteSheet with the name { %s }\n", name.c_str() );
       return nullptr;
     }
   }
