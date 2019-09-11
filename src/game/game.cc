@@ -2,6 +2,7 @@
 #include "2d/2d_camera.hh"
 #include "2d/sprite_renderer.hh"
 #include "2d/sprite_sheet.hh"
+#include "2d/spritesheet_context.hh"
 #include "core/input_manager.hh"
 #include "core/settings.hh"
 #include "renderer/shader.hh"
@@ -21,11 +22,19 @@ namespace nile {
 
   void Game::init() noexcept {
 
+    m_animationSlot = [&]( bool value ) {
+      // When the animation actually ends, we want to continue to recive events
+      // as expcected, so we let know this object that the animation has ended
+      m_shouldHaltTheEvents = !value;
+    };
+
     ResourceManager::loadShader( "../shaders/sprite_vertex.glsl", "../shaders/sprite_fragment.glsl",
                                  {}, "sprite" );
 
     ResourceManager::loadShader( "../shaders/spritesheet_vertex.glsl",
                                  "../shaders/spritesheet_fragment.glsl", {}, "sprite_sheet" );
+
+    m_knightSprite = std::make_unique<SpriteSheetContext>();
 
     m_camera = std::make_unique<Camera2D>( m_settings );
     m_camera->setScale( glm::vec2( 1.5f ) );
@@ -57,44 +66,69 @@ namespace nile {
                                   "skeleton-attack" );
 
     ResourceManager::loadTexture( "../textures/Knight/knight_run.png", true, "knight_run" );
+    ResourceManager::loadTexture( "../textures/Knight/knight_idle.png", true, "knight_idle" );
+    ResourceManager::loadTexture( "../textures/Knight/knight_attack.png", true, "knight_attack" );
+
+    // TODO(stel): all of this above should be moved to seperate class
+    // that handles the main character!
+
+    m_knightSprite->addSpriteSheet( "knight_run", sprite_sheet_shader,
+                                    ResourceManager::getTexture( "knight_run" ),
+                                    glm::ivec2( 96, 64 ) );
+
+    m_knightSprite->getSpriteSheet( "knight_run" )->scale( 2.4f );
 
 
-    m_spriteSheet = std::make_unique<SpriteSheet>(
-        sprite_sheet_shader, ResourceManager::getTexture( "knight_run" ), glm::ivec2( 96, 64 ) );
-    m_spriteSheet->scale( 2.4f );
+    m_knightSprite->addSpriteSheet( "knight_idle", sprite_sheet_shader,
+                                    ResourceManager::getTexture( "knight_idle" ),
+                                    glm::ivec2( 64, 64 ) );
+
+    m_knightSprite->getSpriteSheet( "knight_idle" )->scale( 2.4f );
+
+    m_knightSprite->addSpriteSheet( "knight_attack", sprite_sheet_shader,
+                                    ResourceManager::getTexture( "knight_attack" ),
+                                    glm::ivec2( 144, 64 ) );
+
+    m_knightSprite->getSpriteSheet( "knight_attack" )->scale( 2.4f );
+
 
     m_inputManager = InputManager::getInstance();
   }
 
   void Game::update( [[maybe_unused]] float dt ) noexcept {
 
-    f32 speed = 4.2f;
+
+    f32 speed = 2.4f;
     f32 zoomScale = 0.1f;
 
-    if ( m_inputManager->isKeyPressed( SDLK_d ) ) {
-      m_camera->setPosition( m_camera->getPosition() - glm::vec2( speed, 0.0f ) );
+    if ( !m_shouldHaltTheEvents ) {
+      if ( m_inputManager->isKeyPressed( SDLK_d ) ) {
+        m_camera->setPosition( m_camera->getPosition() - glm::vec2( speed, 0.0f ) );
+        m_heroState = HeroStateEnum::RUNNING;
+      } else if ( m_inputManager->isKeyPressed( SDLK_a ) ) {
+        m_camera->setPosition( m_camera->getPosition() + glm::vec2( speed, 0.0f ) );
+        m_heroState = HeroStateEnum::RUNNING;
+      } else if ( m_inputManager->isKeyPressed( SDLK_h ) ) {
+
+        m_shouldHaltTheEvents = true;
+
+        m_animationListener.connect(
+            m_knightSprite->getSpriteSheet( "knight_attack" )->animation_signal, m_animationSlot );
+
+        m_heroState = HeroStateEnum::ATTACK;
+      } else {
+        m_heroState = HeroStateEnum::IDLE;
+      }
+
+      if ( m_inputManager->isKeyPressed( SDLK_r ) ) {
+        m_camera->setScale( m_camera->getScale() + glm::vec2( zoomScale ) );
+      }
+
+      if ( m_inputManager->isKeyPressed( SDLK_e ) ) {
+        m_camera->setScale( m_camera->getScale() - glm::vec2( zoomScale ) );
+      }
     }
 
-    if ( m_inputManager->isKeyPressed( SDLK_a ) ) {
-      m_camera->setPosition( m_camera->getPosition() + glm::vec2( speed, 0.0f ) );
-    }
-
-
-    // if ( m_inputManager->isKeyPressed( SDLK_w ) ) {
-    //   m_camera->setPosition( m_camera->getPosition() + glm::vec2( 0.0f, speed ) );
-    // }
-    //
-    // if ( m_inputManager->isKeyPressed( SDLK_s ) ) {
-    //   m_camera->setPosition( m_camera->getPosition() - glm::vec2( 0.0f, speed ) );
-    // }
-
-    if ( m_inputManager->isKeyPressed( SDLK_r ) ) {
-      m_camera->setScale( m_camera->getScale() + glm::vec2( zoomScale ) );
-    }
-
-    if ( m_inputManager->isKeyPressed( SDLK_e ) ) {
-      m_camera->setScale( m_camera->getScale() - glm::vec2( zoomScale ) );
-    }
     m_camera->update( dt );
 
     // We set projection matrix to the object that are "moving"
@@ -106,6 +140,9 @@ namespace nile {
 
   void Game::render( [[maybe_unused]] float dt ) noexcept {
 
+    //log::print( m_shouldHaltTheEvents ? "true\n" : "false\n" );
+
+    // TODO(stel): hardcoded for now, in the near feature this will be fixed!
     const auto tileWidth = 1078;
     const auto tileHeight = 224;
     const auto runs = 4;
@@ -142,8 +179,15 @@ namespace nile {
     }
 
 
-    // m_spriteSheet->draw_frame( glm::vec2( 1, m_settings->getHeight() - 220 ), 3 );
-    m_spriteSheet->playAnimation( glm::vec2( 1, m_settings->getHeight() - 220 ), 40 );
+    if ( m_heroState == HeroStateEnum::IDLE ) {
+      m_knightSprite->playAnimation( "knight_idle", glm::vec2( 1, m_settings->getHeight() - 200 ) );
+    } else if ( m_heroState == HeroStateEnum::RUNNING ) {
+      m_knightSprite->playAnimation( "knight_run", glm::vec2( 1, m_settings->getHeight() - 200 ) );
+    } else if ( m_heroState == HeroStateEnum::ATTACK ) {
+      m_knightSprite->playAnimationAndHalt( "knight_attack",
+                                            glm::vec2( 1, m_settings->getHeight() - 200 ) );
+    }
   }
+
 
 }    // namespace nile
