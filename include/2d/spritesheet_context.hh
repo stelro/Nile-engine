@@ -12,6 +12,7 @@ namespace nile {
   class SpriteSheetContext {
   private:
     std::unordered_map<std::string, std::shared_ptr<SpriteSheet>> m_spriteSheets;
+    TextureOrientation m_spriteOriantation = TextureOrientation::NE;
 
   public:
     SpriteSheetContext() noexcept;
@@ -27,10 +28,16 @@ namespace nile {
     // playAnimationAndHalt is basically playing all the frames of the sprite
     // and halts until all the frames are ended
     void playAnimationAndHalt( const std::string &name, const glm::vec2 &position,
-                        u32 speed = 60 ) noexcept;
+                               u32 speed = 60 ) noexcept;
 
+    // This will update the oriantation of all textures
+    void updateSpriteOriantion( TextureOrientation oriantaion ) noexcept;
 
-    std::shared_ptr<SpriteSheet> getSpriteSheet(const std::string& name) const noexcept;
+    [[nodiscard]] inline TextureOrientation getSpritesOriantation() const noexcept {
+      return m_spriteOriantation;
+    }
+
+    std::shared_ptr<SpriteSheet> getSpriteSheet( const std::string &name ) const noexcept;
   };
 
   template <typename... Args>

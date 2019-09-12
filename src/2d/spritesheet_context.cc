@@ -41,4 +41,11 @@ namespace nile {
     }
   }
 
+  void SpriteSheetContext::updateSpriteOriantion( TextureOrientation oriantaion ) noexcept {
+    m_spriteOriantation = oriantaion;
+    for ( auto &it : m_spriteSheets ) {
+      it.second->setTextureOrientation( oriantaion );
+    }
+  }
+
 }    // namespace nile
