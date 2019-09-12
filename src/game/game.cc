@@ -85,7 +85,6 @@ namespace nile {
 
     m_knightSprite->getSpriteSheet( "knight_run" )->scale( 2.4f );
 
-
     m_knightSprite->addSpriteSheet( "knight_idle", sprite_sheet_shader,
                                     ResourceManager::getTexture( "knight_idle" ),
                                     glm::ivec2( 64, 64 ) );
@@ -129,18 +128,26 @@ namespace nile {
 
     if ( !m_shouldHaltTheEvents ) {
       if ( m_inputManager->isKeyPressed( SDLK_d ) ) {
+
         m_camera->setPosition( m_camera->getPosition() - glm::vec2( speed, 0.0f ) );
+        m_heroOriantaion = TextureOrientation::NE;
         m_heroState = HeroStateEnum::RUNNING;
+
       } else if ( m_inputManager->isKeyPressed( SDLK_a ) ) {
+
         m_camera->setPosition( m_camera->getPosition() + glm::vec2( speed, 0.0f ) );
+        m_heroOriantaion = TextureOrientation::NW;
         m_heroState = HeroStateEnum::RUNNING;
+
       } else if ( m_inputManager->isKeyPressed( SDLK_h ) ) {
+
         m_shouldHaltTheEvents = true;
         m_animationListener.connect(
             m_knightSprite->getSpriteSheet( "knight_attack" )->animation_signal, m_animationSlot );
-
         m_heroState = HeroStateEnum::ATTACK;
+
       } else if ( m_inputManager->isKeyPressed( SDLK_SPACE ) ) {
+
         // TODO(stel): Fix the hero position after he performs the jump and the animation
         // has finished. Hero should move some steps forward after the sprite animation
         m_shouldHaltTheEvents = true;
@@ -148,20 +155,26 @@ namespace nile {
             m_knightSprite->getSpriteSheet( "knight_jump_and_fall" )->animation_signal,
             m_animationSlot );
         m_heroState = HeroStateEnum::JUMP_AND_FALL;
+
       } else if ( m_inputManager->isKeyPressed( SDLK_j ) ) {
+
         // TODO(stel): same as the above ( jump animation )
         m_shouldHaltTheEvents = true;
         m_animationListener.connect(
             m_knightSprite->getSpriteSheet( "knight_roll_strip" )->animation_signal,
             m_animationSlot );
         m_heroState = HeroStateEnum::ROLL_STRIP;
+
       } else if ( m_inputManager->isKeyPressed( SDLK_k ) ) {
+
         m_shouldHaltTheEvents = true;
         m_animationListener.connect(
             m_knightSprite->getSpriteSheet( "knight_shield_strip" )->animation_signal,
             m_animationSlot );
         m_heroState = HeroStateEnum::SHIELD_STRIP;
+
       } else {
+
         m_heroState = HeroStateEnum::IDLE;
       }
 
@@ -175,6 +188,12 @@ namespace nile {
     }
 
     m_camera->update( dt );
+
+    if ( m_knightSprite->getSpritesOriantation() != m_heroOriantaion ) {
+      // Check if the oriantation of the sprite has changed, if so then
+      // update the oriantation of every sprite sheet inside sprite context
+      m_knightSprite->updateSpriteOriantion( m_heroOriantaion );
+    }
 
     // We set projection matrix to the object that are "moving"
     // since the camera is static, and we shift the world
@@ -222,6 +241,7 @@ namespace nile {
                               glm::vec3( 1.0f, 1.0f, 1.0f ) );
     }
 
+    // TODO(stel): make it a switch statement, instead of this if/else chaos
 
     if ( m_heroState == HeroStateEnum::IDLE ) {
       m_knightSprite->playAnimation( "knight_idle", glm::vec2( 1, m_settings->getHeight() - 200 ) );
@@ -241,6 +261,5 @@ namespace nile {
                                             glm::vec2( 1, m_settings->getHeight() - 200 ) );
     }
   }
-
 
 }    // namespace nile

@@ -44,6 +44,9 @@ namespace nile {
     std::function<void( bool )> m_animationSlot;
     bool m_shouldHaltTheEvents = false;
 
+    // Default texture oriantion of the main hero ( north-east )
+    TextureOrientation m_heroOriantaion = TextureOrientation::NE;
+
   public:
     Game( std::shared_ptr<Settings> settings ) noexcept;
     ~Game() noexcept;
