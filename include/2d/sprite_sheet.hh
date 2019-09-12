@@ -11,6 +11,20 @@ namespace nile {
   class Shader;
   class Texture2D;
 
+  // NW         NE
+  //      N
+  // W ---|---  E
+  //      S
+  // SW         SE
+  
+  enum class TextureOrientation
+  {
+    NE,    // North East
+    SE,    // South East
+    SW,    // South West
+    NW,    // North West
+  };
+
   class SpriteSheet {
     OBSERVABLE
   private:
@@ -35,6 +49,8 @@ namespace nile {
 
     int m_animationDelay = 0;
     u32 m_currentFrame = 0;
+
+    TextureOrientation m_textureOrientation;
 
     // First Initializations happens here
     // TODO(stel): maybe we should to fix this?!
@@ -65,5 +81,8 @@ namespace nile {
     void setSize( const glm::vec2 &size ) noexcept;
     void setRotationAngle( f32 angle ) noexcept;
     void scale( f32 scalar ) noexcept;
+
+    // Flip the texture horizontally considering the current location it's looking
+    void setTextureOrientation(TextureOrientation orientation) noexcept;
   };
 }    // namespace nile

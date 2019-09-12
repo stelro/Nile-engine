@@ -18,7 +18,10 @@ namespace nile {
       , m_size( spriteDimensions )
       , m_rotateAngle( 0.0f )
       , m_numberOfColumns( 0 )
-      , m_numberOfRows( 0 ) {
+      , m_numberOfRows( 0 )
+      , m_animationDelay( 0 )
+      , m_currentFrame( 0 )
+      , m_textureOrientation( TextureOrientation::NE ) {
 
     // OpenGL, generate vertex attribute object
     // and vertex buffer objects
@@ -41,9 +44,9 @@ namespace nile {
     model = glm::translate( model, glm::vec3( position, 0.0f ) );
 
     // Because we specified the quad's vertices with (0,0) as the top-left coordinate
-    // of the quad, all rotations witll rotate around this point of (0.0). Basically the
+    // of the quad, all rotations will rotate around this point of (0.0). Basically the
     // origin of rotation is the top-left of the quad which produces undesirable results.
-    // so we move the origin of rotation to the center of the quad, so the quad
+    // so we move the origin of rotation to the centre of the quad, so the quad
     // neatly rotates around this origin.
     model = glm::translate( model, glm::vec3( 0.5f * m_size.x, 0.5f * m_size.y, 0.0f ) );
     model = glm::rotate( model, m_rotateAngle, glm::vec3( 0.0f, 0.0f, 1.0f ) );
@@ -56,9 +59,37 @@ namespace nile {
     auto s = ( float )col / ( float )m_numberOfColumns;
     auto t = ( float )row / ( float )m_numberOfRows;
 
+    i32 rows = m_numberOfRows;
+    i32 cols = m_numberOfColumns;
+
+      switch ( m_textureOrientation ) {
+      case TextureOrientation::NE:
+        // the sprite is facing right/up ( normal oriantation )
+        cols = m_numberOfColumns;
+        rows = m_numberOfRows;
+        break;
+      case TextureOrientation::SW:
+        // the sprite is facing left/down ( flipped to the left and down)
+        cols = -m_numberOfColumns;
+        rows = -m_numberOfRows;
+        break;
+      case TextureOrientation::SE:
+        // the sprite is facing right/down ( flipped to down )
+        cols = m_numberOfColumns;
+        rows = -m_numberOfRows;
+        break;
+      case TextureOrientation::NW:
+        // The sprite is facing left/up ( flipped to the left )
+        cols = -m_numberOfColumns;
+        rows = m_numberOfRows;
+        break;
+      default:
+        break;
+    }
+
     this->m_shader->SetVector2f( "st", glm::vec2( s, t ) );
-    this->m_shader->SetVector2f( "size", glm::vec2( static_cast<f32>( m_numberOfRows ),
-                                                    static_cast<f32>( m_numberOfColumns ) ) );
+    this->m_shader->SetVector2f( "size",
+                                 glm::vec2( static_cast<f32>( rows ), static_cast<f32>( cols ) ) );
     this->m_shader->SetMatrix4( "model", model );
     this->m_shader->SetVector3f( "spriteColor", m_color );
 
@@ -73,7 +104,7 @@ namespace nile {
 
   void SpriteSheet::playAnimation( [[maybe_unused]] const glm::vec2 &position,
                                    u32 speed ) noexcept {
-    // This is used to perform the actuall animation
+    // This is used to perform the actual animation
     // of the sprite
     if ( m_animationDelay + speed < SDL_GetTicks() ) {
       m_currentFrame++;
@@ -94,7 +125,7 @@ namespace nile {
     if ( m_currentFrame == ( m_numberOfColumns - 1 ) ) {
       // emit a signal, that the current animation has finished
       // and every frame has played, in meanwhile while the animation is on progress
-      // we should prevent eany events to happen
+      // we should prevent any events to happen
       animation_signal.emit( true );
     }
   }
@@ -104,7 +135,10 @@ namespace nile {
     m_numberOfColumns = m_texture->getWidth() / m_spriteDimensions.x;
     m_numberOfRows = m_texture->getHeight() / m_spriteDimensions.y;
 
+    // bottom-left corner is (0.0f, 0.0f) and top right corner is
+    // (1.0f, 1.0f). The order is clockwise
     f32 vertices[] = {0.0f, 1.0f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
+
                       0.0f, 1.0f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f, 1.0f, 0.0f};
 
 
@@ -134,6 +168,10 @@ namespace nile {
 
   void SpriteSheet::scale( f32 scalar ) noexcept {
     this->m_size = this->m_size * scalar;
+  }
+
+  void SpriteSheet::setTextureOrientation( TextureOrientation orientation ) noexcept {
+    m_textureOrientation = orientation;
   }
 
 }    // namespace nile
