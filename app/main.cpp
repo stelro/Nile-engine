@@ -11,9 +11,9 @@ using nile::u32;
 int main() {
 
   auto settings = nile::Settings::Builder {}
-                      .setWidth( 800 )
+                      .setWidth( 1024 )
                       .setHeight( 600 )
-                      .setTitle( "Basic Renderer" )
+                      .setTitle( "Deathmarch v0.1" )
                       .setDebugMode( true )
                       .setWindowFlags( SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN )
                       .build();

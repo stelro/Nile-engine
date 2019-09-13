@@ -34,6 +34,7 @@ include_directories(external/glm)
 include_directories(external/stb)
 add_subdirectory(external/glfw-3.3)
 add_subdirectory(external/glad)
+add_subdirectory(external/freetype)
 
 #Source Files
 include(src/core/CMakeLists.txt)
@@ -49,6 +50,8 @@ set(NILE_SRC
   ${NILE_RESOURCE_SRC}
   ${NILE_GAME_SRC}
   )
+
+SET(SOURCE ${SOURCE_FILES} ${ADD_SOURCE})
 
 # --------------------------------------------------------------------------------
 #                         Add Shaders folder
@@ -74,6 +77,15 @@ set(LIBRARY_NAME engine)  # Default name for the library built from src/*.cpp (c
 # find packages needed by this project
 find_package(SDL2 REQUIRED)
 find_package(SDL2_mixer REQUIRED)
+find_package(Freetype REQUIRED)
+
+
+IF (Freetype_FOUND)
+  message(STATUS ${Freetype_LIBRARY})
+ELSE()
+  message(FATAL_ERROR "Could not find Freetype library")
+ENDIF()
+
 
 IF (SDL2_FOUND)
   message(STATUS ${SDL2_LIBRARY})
@@ -97,16 +109,19 @@ add_library(${LIBRARY_NAME} SHARED ${NILE_SRC})
 
 # Lib needs its header files, and users of the library must also see these (PUBLIC). (No change needed)
 target_include_directories(${LIBRARY_NAME} PUBLIC ${PROJECT_SOURCE_DIR}/include)
-target_include_directories(engine PRIVATE external/glfw-3.3/include ${GLEW_INCLUDE_DIRS})
+target_include_directories(engine PRIVATE external/glfw-3.3/include
+  ${GLUT_INCLUDE_DIRS} ${GLEW_INCLUDE_DIRS} ${FREETYPE_INCLUDE_DIRS})
 
 include_directories(${SDL2_INCLUDE_DIR} ${SDL2_MIXER_INCLUDE_DIR})
 
 # There's also (probably) doctests within the library, so we need to see this as well.
 target_link_libraries(${LIBRARY_NAME} PUBLIC doctest ${SDL2_LIBRARY} ${SDL2_MIXER_LIBRARIES} glfw
+  ${GLUT_LIBRARY} ${GLEW_LIBRARIES} ${FREETYPE_LIBRARIES}
   glad GLEW)
 
 # Set the compile options you want (change as needed).
 target_set_warnings(${LIBRARY_NAME} ENABLE ALL AS_ERROR ALL DISABLE Annoying)
+# target_compile_options(${LIBRARY_NAME} ... )  # For setting manually.
 # target_compile_options(${LIBRARY_NAME} ... )  # For setting manually.
 
 # Add an executable for the file app/main.cpp.

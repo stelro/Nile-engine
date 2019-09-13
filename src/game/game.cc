@@ -5,13 +5,13 @@
 #include "2d/spritesheet_context.hh"
 #include "core/input_manager.hh"
 #include "core/settings.hh"
+#include "renderer/font_renderer.hh"
 #include "renderer/shader.hh"
 #include "resource/resource_manager.hh"
 
 #include <GL/glew.h>
 #include <glm/gtc/matrix_transform.hpp>
 #include <vector>
-
 
 namespace nile {
 
@@ -21,6 +21,7 @@ namespace nile {
   Game::~Game() noexcept {}
 
   void Game::init() noexcept {
+
 
     m_animationSlot = [&]( bool value ) {
       // When the animation actually ends, we want to continue to recive events
@@ -34,10 +35,16 @@ namespace nile {
     ResourceManager::loadShader( "../shaders/spritesheet_vertex.glsl",
                                  "../shaders/spritesheet_fragment.glsl", {}, "sprite_sheet" );
 
+    auto font_shader = ResourceManager::loadShader(
+        "../shaders/font_vertex.glsl", "../shaders/font_fragment.glsl", {}, "font_shader" );
+
     m_knightSprite = std::make_unique<SpriteSheetContext>();
 
+    m_fontRenderer =
+        std::make_unique<FontRenderer>( font_shader, m_settings, "../fonts/arial.ttf", 42 );
+
     m_camera = std::make_unique<Camera2D>( m_settings );
-    m_camera->setScale( glm::vec2( 1.5f ) );
+    m_camera->setScale( glm::vec2( 2.5f ) );
 
     auto sprite_shader = ResourceManager::getShader( "sprite" );
     auto sprite_sheet_shader = ResourceManager::getShader( "sprite_sheet" );
@@ -79,41 +86,43 @@ namespace nile {
     // TODO(stel): all of this above should be moved to seperate class
     // that handles the main character!
 
+    const f32 knight_scale_factor = 2.8f;
+
     m_knightSprite->addSpriteSheet( "knight_run", sprite_sheet_shader,
                                     ResourceManager::getTexture( "knight_run" ),
                                     glm::ivec2( 96, 64 ) );
 
-    m_knightSprite->getSpriteSheet( "knight_run" )->scale( 2.4f );
+    m_knightSprite->getSpriteSheet( "knight_run" )->scale( knight_scale_factor );
 
     m_knightSprite->addSpriteSheet( "knight_idle", sprite_sheet_shader,
                                     ResourceManager::getTexture( "knight_idle" ),
                                     glm::ivec2( 64, 64 ) );
 
-    m_knightSprite->getSpriteSheet( "knight_idle" )->scale( 2.4f );
+    m_knightSprite->getSpriteSheet( "knight_idle" )->scale( knight_scale_factor );
 
     m_knightSprite->addSpriteSheet( "knight_attack", sprite_sheet_shader,
                                     ResourceManager::getTexture( "knight_attack" ),
                                     glm::ivec2( 144, 64 ) );
 
-    m_knightSprite->getSpriteSheet( "knight_attack" )->scale( 2.4f );
+    m_knightSprite->getSpriteSheet( "knight_attack" )->scale( knight_scale_factor );
 
     m_knightSprite->addSpriteSheet( "knight_jump_and_fall", sprite_sheet_shader,
                                     ResourceManager::getTexture( "knight_jump_and_fall" ),
                                     glm::ivec2( 144, 64 ) );
 
-    m_knightSprite->getSpriteSheet( "knight_jump_and_fall" )->scale( 2.4f );
+    m_knightSprite->getSpriteSheet( "knight_jump_and_fall" )->scale( knight_scale_factor );
 
     m_knightSprite->addSpriteSheet( "knight_roll_strip", sprite_sheet_shader,
                                     ResourceManager::getTexture( "knight_roll_strip" ),
                                     glm::ivec2( 180, 64 ) );
 
-    m_knightSprite->getSpriteSheet( "knight_roll_strip" )->scale( 2.4f );
+    m_knightSprite->getSpriteSheet( "knight_roll_strip" )->scale( knight_scale_factor );
 
     m_knightSprite->addSpriteSheet( "knight_shield_strip", sprite_sheet_shader,
                                     ResourceManager::getTexture( "knight_shield_strip" ),
                                     glm::ivec2( 96, 64 ) );
 
-    m_knightSprite->getSpriteSheet( "knight_shield_strip" )->scale( 2.4f );
+    m_knightSprite->getSpriteSheet( "knight_shield_strip" )->scale( knight_scale_factor );
 
 
     m_inputManager = InputManager::getInstance();
@@ -203,6 +212,7 @@ namespace nile {
   }
 
   void Game::render( [[maybe_unused]] float dt ) noexcept {
+    m_fontRenderer->renderText( "test", 5.0f, 5.0f, 1.0f, glm::vec3( 1.0f, 1.0f, 1.0f ) );
 
     // log::print( m_shouldHaltTheEvents ? "true\n" : "false\n" );
 
@@ -210,55 +220,56 @@ namespace nile {
     const constexpr auto tileWidth = 1078;
     const constexpr auto tileHeight = 224;
     const constexpr auto runs = 4;
+    const constexpr auto on_screen_height = 20;
 
     for ( int i = 0; i < runs; i++ ) {
-      m_spriteRenderer->draw( ResourceManager::getTexture( "background" ),
-                              glm::vec2( i * tileWidth, m_settings->getHeight() / 5 ),
-                              glm::vec2( tileWidth, tileHeight ), 0.0f,
-                              glm::vec3( 1.0f, 1.0f, 1.0f ) );
+      m_spriteRenderer->draw(
+          ResourceManager::getTexture( "background" ), glm::vec2( i * tileWidth, on_screen_height ),
+          glm::vec2( tileWidth, tileHeight ), 0.0f, glm::vec3( 1.0f, 1.0f, 1.0f ) );
     }
 
     for ( int i = 0; i < runs; i++ ) {
-      m_spriteRenderer->draw( ResourceManager::getTexture( "far-trees" ),
-                              glm::vec2( ( i * tileWidth ) + m_camera->getPosition().x * 0.3f,
-                                         m_settings->getHeight() / 5 ),
-                              glm::vec2( tileWidth, tileHeight ), 0.0f,
-                              glm::vec3( 1.0f, 1.0f, 1.0f ) );
+      m_spriteRenderer->draw(
+          ResourceManager::getTexture( "far-trees" ),
+          glm::vec2( ( i * tileWidth ) + m_camera->getPosition().x * 0.3f, on_screen_height ),
+          glm::vec2( tileWidth, tileHeight ), 0.0f, glm::vec3( 1.0f, 1.0f, 1.0f ) );
     }
 
     for ( int i = 0; i < runs; i++ ) {
-      m_spriteRenderer->draw( ResourceManager::getTexture( "mid-trees" ),
-                              glm::vec2( ( i * tileWidth ) + m_camera->getPosition().x * 0.5f,
-                                         m_settings->getHeight() / 5 ),
-                              glm::vec2( tileWidth, tileHeight ), 0.0f,
-                              glm::vec3( 1.0f, 1.0f, 1.0f ) );
+      m_spriteRenderer->draw(
+          ResourceManager::getTexture( "mid-trees" ),
+          glm::vec2( ( i * tileWidth ) + m_camera->getPosition().x * 0.5f, on_screen_height ),
+          glm::vec2( tileWidth, tileHeight ), 0.0f, glm::vec3( 1.0f, 1.0f, 1.0f ) );
     }
 
     for ( int i = 0; i < runs; i++ ) {
-      m_spriteRenderer->draw( ResourceManager::getTexture( "trees" ),
-                              glm::vec2( ( i * tileWidth ), m_settings->getHeight() / 5 ),
-                              glm::vec2( tileWidth, tileHeight ), 0.0f,
-                              glm::vec3( 1.0f, 1.0f, 1.0f ) );
+      m_spriteRenderer->draw(
+          ResourceManager::getTexture( "trees" ), glm::vec2( ( i * tileWidth ), on_screen_height ),
+          glm::vec2( tileWidth, tileHeight ), 0.0f, glm::vec3( 1.0f, 1.0f, 1.0f ) );
     }
 
     // TODO(stel): make it a switch statement, instead of this if/else chaos
 
+    const i32 knight_height_offset = 180;
+
     if ( m_heroState == HeroStateEnum::IDLE ) {
-      m_knightSprite->playAnimation( "knight_idle", glm::vec2( 1, m_settings->getHeight() - 200 ) );
+      m_knightSprite->playAnimation(
+          "knight_idle", glm::vec2( 1, m_settings->getHeight() - knight_height_offset ) );
     } else if ( m_heroState == HeroStateEnum::RUNNING ) {
-      m_knightSprite->playAnimation( "knight_run", glm::vec2( 1, m_settings->getHeight() - 200 ) );
+      m_knightSprite->playAnimation(
+          "knight_run", glm::vec2( 1, m_settings->getHeight() - knight_height_offset ) );
     } else if ( m_heroState == HeroStateEnum::ATTACK ) {
-      m_knightSprite->playAnimationAndHalt( "knight_attack",
-                                            glm::vec2( 1, m_settings->getHeight() - 200 ) );
+      m_knightSprite->playAnimationAndHalt(
+          "knight_attack", glm::vec2( 1, m_settings->getHeight() - knight_height_offset ) );
     } else if ( m_heroState == HeroStateEnum::JUMP_AND_FALL ) {
-      m_knightSprite->playAnimationAndHalt( "knight_jump_and_fall",
-                                            glm::vec2( 1, m_settings->getHeight() - 200 ) );
+      m_knightSprite->playAnimationAndHalt(
+          "knight_jump_and_fall", glm::vec2( 1, m_settings->getHeight() - knight_height_offset ) );
     } else if ( m_heroState == HeroStateEnum::ROLL_STRIP ) {
-      m_knightSprite->playAnimationAndHalt( "knight_roll_strip",
-                                            glm::vec2( 1, m_settings->getHeight() - 200 ) );
+      m_knightSprite->playAnimationAndHalt(
+          "knight_roll_strip", glm::vec2( 1, m_settings->getHeight() - knight_height_offset ) );
     } else if ( m_heroState == HeroStateEnum::SHIELD_STRIP ) {
-      m_knightSprite->playAnimationAndHalt( "knight_shield_strip",
-                                            glm::vec2( 1, m_settings->getHeight() - 200 ) );
+      m_knightSprite->playAnimationAndHalt(
+          "knight_shield_strip", glm::vec2( 1, m_settings->getHeight() - knight_height_offset ) );
     }
   }
 

@@ -76,7 +76,9 @@ namespace nile {
 
   void OpenGLRenderer::submitFrame() noexcept {
     if ( m_settings->getDebugMode() ) {
-      glClearColor( 0.2f, 0.3f, 0.3f, 1.0f );
+      // glClearColor( 0.2f, 0.3f, 0.3f, 1.0f );
+      // TODO(stel): fix this
+      glClearColor( 0.086f, 0.188f, 0.235f, 1.0f );
     } else {
       glClearColor( 0.086f, 0.188f, 0.235f, 1.0f );
     }

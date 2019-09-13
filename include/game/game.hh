@@ -9,6 +9,7 @@ namespace nile {
   class Settings;
   class SpriteRenderer;
   class SpriteSheetContext;
+  class FontRenderer;
   class InputManager;
   class Camera2D;
 
@@ -29,6 +30,7 @@ namespace nile {
     std::unique_ptr<SpriteRenderer> m_spriteRenderer;
     std::unique_ptr<Camera2D> m_camera;
     std::unique_ptr<SpriteSheetContext> m_knightSprite;
+    std::unique_ptr<FontRenderer> m_fontRenderer;
 
     // Singleton instance
     InputManager *m_inputManager;
