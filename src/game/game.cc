@@ -223,12 +223,14 @@ namespace nile {
     const constexpr auto on_screen_height = 20;
 
     for ( int i = 0; i < runs; i++ ) {
+      // The background layer
       m_spriteRenderer->draw(
           ResourceManager::getTexture( "background" ), glm::vec2( i * tileWidth, on_screen_height ),
           glm::vec2( tileWidth, tileHeight ), 0.0f, glm::vec3( 1.0f, 1.0f, 1.0f ) );
     }
 
     for ( int i = 0; i < runs; i++ ) {
+      // Layer 3 ( layer 3 moves faster than layer 2 )
       m_spriteRenderer->draw(
           ResourceManager::getTexture( "far-trees" ),
           glm::vec2( ( i * tileWidth ) + m_camera->getPosition().x * 0.3f, on_screen_height ),
@@ -236,13 +238,15 @@ namespace nile {
     }
 
     for ( int i = 0; i < runs; i++ ) {
+      // Layer 2 ( layer 2 moves slower than layer 3 and faster than layer 1 )
       m_spriteRenderer->draw(
           ResourceManager::getTexture( "mid-trees" ),
-          glm::vec2( ( i * tileWidth ) + m_camera->getPosition().x * 0.5f, on_screen_height ),
+          glm::vec2( ( i * tileWidth ) + m_camera->getPosition().x * 0.2f, on_screen_height ),
           glm::vec2( tileWidth, tileHeight ), 0.0f, glm::vec3( 1.0f, 1.0f, 1.0f ) );
     }
 
     for ( int i = 0; i < runs; i++ ) {
+      // layer 1 ( the main layer )
       m_spriteRenderer->draw(
           ResourceManager::getTexture( "trees" ), glm::vec2( ( i * tileWidth ), on_screen_height ),
           glm::vec2( tileWidth, tileHeight ), 0.0f, glm::vec3( 1.0f, 1.0f, 1.0f ) );
