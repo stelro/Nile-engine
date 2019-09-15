@@ -1,6 +1,6 @@
-#include "2d/sprite_sheet.hh"
-#include "renderer/shader.hh"
-#include "renderer/texture2d.hh"
+#include "Nile/2d/sprite_sheet.hh"
+#include "Nile/renderer/shader.hh"
+#include "Nile/renderer/texture2d.hh"
 #include <GL/glew.h>
 #include <SDL2/SDL.h>
 #include <glm/glm.hpp>

@@ -5,7 +5,7 @@
    $Creator: Ro Stelmach $
    $Notice: (C) Copyright 2019 by Ro Orestis Stelmach. All Rights Reserved. $
    ======================================================================== */
-#include "core/logger.hh"
+#include "Nile/core/logger.hh"
 
 namespace nile {
 

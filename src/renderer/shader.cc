@@ -1,7 +1,7 @@
-#include "renderer/shader.hh"
+#include "Nile/renderer/shader.hh"
 
 
-#include "core/logger.hh"
+#include "Nile/core/logger.hh"
 #include <GL/glew.h>
 #include <glm/gtc/type_ptr.hpp>
 

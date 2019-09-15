@@ -1,151 +1,91 @@
-#This file specifies how the project should be built, using CMake.
-#If you are unfamiliar with CMake, don't worry about all the details.
-#The sections you might want to edit are marked as such, and
-#the comments should hopefully make most of it clear.
-#
-#For many purposes, you may not need to change anything about this file.
+cmake_minimum_required(VERSION 3.11)
+project(Nile CXX)
 
-cmake_minimum_required(VERSION 3.8.2)
+set(NILE_DIR ".")
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED on)
+set(CMAKE_CXX_EXTENSIONS off)
+set(CMAKE_CONFIGURATION_TYPES Debug Release)
 
-#Set project name, version and laguages here.( change as needed )
-#Version numbers are available by including "exampleConfig.h" in
-#the source.See exampleConfig.h.in for some more details.
-project(nile VERSION 0.0.0.1 LANGUAGES CXX)
-
-#Options : Things you can set via commandline options to cmake( e.g.- DENABLE_LTO = [ON | OFF] )
-option(ENABLE_WARNINGS_SETTINGS "Allow target_set_warnings to add flags and defines.
-                                 Set this to OFF if you want to provide your own warning parameters." ON)
-option(ENABLE_LTO "Enable link time optimization" ON)
-option(ENABLE_DOCTESTS "Include tests in the library. Setting this to OFF will remove all doctest related code.
-                        Tests in tests/*.cpp will still be enabled." ON)
-
-# Include stuff. No change needed.
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/")
-include(ConfigSafeGuards)
-include(Colors)
-include(CTest)
-include(Doctest)
-include(Documentation)
-include(LTO)
-include(Misc)
-include(Warnings)
-include_directories(external)
-include_directories(external/glm)
-include_directories(external/stb)
-add_subdirectory(external/glfw-3.3)
-add_subdirectory(external/glad)
-add_subdirectory(external/freetype)
 
-#Source Files
-include(src/core/CMakeLists.txt)
-include(src/renderer/CMakeLists.txt)
-include(src/2d/CMakeLists.txt)
-include(src/resource/CMakeLists.txt)
-include(src/game/CMakeLists.txt)
+source_group(2d               REGULAR_EXPRESSION "(include/Nile|src)/2d/*")
+source_group(core             REGULAR_EXPRESSION "(include/Nile|src)/core/*")
+source_group(game             REGULAR_EXPRESSION "(include/Nile|src)/game/*")
+source_group(renderer         REGULAR_EXPRESSION "(include/Nile|src)/renderer/*")
+source_group(resource         REGULAR_EXPRESSION "(include/Nile|src)/resource/*")
 
-set(NILE_SRC
-  ${NILE_CORE_SRC}
-  ${NILE_RENDERER_SRC}
-  ${NILE_2D_SRC}
-  ${NILE_RESOURCE_SRC}
-  ${NILE_GAME_SRC}
+set(NILE_SOURCES_CORE
+  ${NILE_DIR}/include/Nile/2d/2d_camera.hh
+  ${NILE_DIR}/include/Nile/2d/sprite_renderer.hh
+  ${NILE_DIR}/include/Nile/2d/sprite_sheet.hh
+  ${NILE_DIR}/include/Nile/2d/spritesheet_context.hh
+  ${NILE_DIR}/include/Nile/core/engine.hh
+  ${NILE_DIR}/include/Nile/core/input_manager.hh
+  ${NILE_DIR}/include/Nile/core/logger.hh
+  ${NILE_DIR}/include/Nile/core/nile.hh
+  ${NILE_DIR}/include/Nile/core/settings.hh
+  ${NILE_DIR}/include/Nile/core/signal.hh
+  ${NILE_DIR}/include/Nile/game/game.hh
+  ${NILE_DIR}/include/Nile/renderer/base_renderer.hh
+  ${NILE_DIR}/include/Nile/renderer/font_renderer.hh
+  ${NILE_DIR}/include/Nile/renderer/opengl_renderer.hh
+  ${NILE_DIR}/include/Nile/renderer/shader.hh
+  ${NILE_DIR}/include/Nile/renderer/texture2d.hh
+  ${NILE_DIR}/include/Nile/resource/resource_manager.hh
+  ${NILE_DIR}/src/2d/sprite_renderer.cc
+  ${NILE_DIR}/src/2d/sprite_sheet.cc
+  ${NILE_DIR}/src/2d/spritesheet_context.cc
+  ${NILE_DIR}/src/core/engine.cc
+  ${NILE_DIR}/src/core/input_manager.cc
+  ${NILE_DIR}/src/core/logger.cc
+  ${NILE_DIR}/src/core/settings.cc
+  ${NILE_DIR}/src/core/signal.cc
+  ${NILE_DIR}/src/game/game.cc
+  ${NILE_DIR}/src/renderer/base_renderer.cc
+  ${NILE_DIR}/src/renderer/font_renderer.cc
+  ${NILE_DIR}/src/renderer/opengl_renderer.cc
+  ${NILE_DIR}/src/renderer/shader.cc
+  ${NILE_DIR}/src/renderer/texture2d.cc
+  ${NILE_DIR}/src/resource/resource_manager.cc
   )
 
-SET(SOURCE ${SOURCE_FILES} ${ADD_SOURCE})
+set(SOURCE_FILES ${NILE_SOURCES_CORE})
 
-# --------------------------------------------------------------------------------
-#                         Add Shaders folder
-# --------------------------------------------------------------------------------
-set(SHADER_DIR shaders)
-file(GLOB SHADERS "${SHADER_DIR}/*.vert" "${SHADER_DIR}/*.frag" "${SHADER_DIR}/*.glsl" "${SHADER_DIR}/*.tesc" "${SHADER_DIR}/*.tese")
-source_group("Shaders" FILES ${SHADERS})
- 
-
-# Check for LTO support.
-find_lto(CXX)
-# --------------------------------------------------------------------------------
-#                         Locate files (change as needed).
-# --------------------------------------------------------------------------------
-# set(SOURCES          # All .cpp files in src/
-#   ${NILE_SRC}
-# )
-set(TESTFILES        # All .cpp files in tests/
-    tests/main.cpp
-)
-set(LIBRARY_NAME engine)  # Default name for the library built from src/*.cpp (change if you wish)
-
-# find packages needed by this project
-find_package(SDL2 REQUIRED)
-find_package(SDL2_mixer REQUIRED)
+# FreeType package
 find_package(Freetype REQUIRED)
+if (Freetype_FOUND)
+  message(STATUS ${Freetype_LIBRARY} "Freetype Library has been found!")
+  include_directories(${FREETYPE_INCLUDE_DIRS})
+else()
+  message(FATAL_ERROR "Cannot find FreeType Library!")
+endif()
+
+if(APPLE)
+  set(NILE_TARGET_PLATFORM "Mac"   CACHE STRING "Choose platform")
+  set(NILE_USE_GL4         true    CACHE BOOL   "Use OpenGL4")
+elseif(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+  set(NILE_TARGET_PLATFORM "Linux" CACHE STRING "Choose platform")
+  set(NILE_USE_GL4         true    CACHE BOOL   "Use OpenGL4")
+elseif(WIN32)
+  set(NILE_TARGET_PLATFORM "Win32" CACHE STRING "Choose platform")
+  set(NILE_USE_GL4         true    CACHE BOOL   "Use OpenGL4")
+endif()
 
 
-IF (Freetype_FOUND)
-  message(STATUS ${Freetype_LIBRARY})
-ELSE()
-  message(FATAL_ERROR "Could not find Freetype library")
-ENDIF()
+list(SORT SOURCE_FILES)
 
+# NOTE: Static library
+add_library(nile_static STATIC ${SOURCE_FILES})
 
-IF (SDL2_FOUND)
-  message(STATUS ${SDL2_LIBRARY})
-ELSE()
-  message(FATAL_ERROR "Could not find SDL2 library")
-ENDIF()
+if(UNIX)
+  # On Unix platforms, the library is called `libnile.a`.
+  set_target_properties(nile_static PROPERTIES OUTPUT_NAME nile)
+endif()
 
-
-IF (SDL2_MIXER_FOUND)
-  message(STATUS ${SDL2_MIXER_LIBRARIES}) 
-ELSE()
-  message(FATAL_ERROR "Could not find SDL2_MIXER library")
-ENDIF()
-
-
-# --------------------------------------------------------------------------------
-#                            Build! (Change as needed)
-# --------------------------------------------------------------------------------
-# Compile all sources into a library.
-add_library(${LIBRARY_NAME} SHARED ${NILE_SRC})
-
-# Lib needs its header files, and users of the library must also see these (PUBLIC). (No change needed)
-target_include_directories(${LIBRARY_NAME} PUBLIC ${PROJECT_SOURCE_DIR}/include)
-target_include_directories(engine PRIVATE external/glfw-3.3/include
-  ${GLUT_INCLUDE_DIRS} ${GLEW_INCLUDE_DIRS} ${FREETYPE_INCLUDE_DIRS})
-
-include_directories(${SDL2_INCLUDE_DIR} ${SDL2_MIXER_INCLUDE_DIR})
-
-# There's also (probably) doctests within the library, so we need to see this as well.
-target_link_libraries(${LIBRARY_NAME} PUBLIC doctest ${SDL2_LIBRARY} ${SDL2_MIXER_LIBRARIES} glfw
-  ${GLUT_LIBRARY} ${GLEW_LIBRARIES} ${FREETYPE_LIBRARIES}
-  glad GLEW)
-
-# Set the compile options you want (change as needed).
-target_set_warnings(${LIBRARY_NAME} ENABLE ALL AS_ERROR ALL DISABLE Annoying)
-# target_compile_options(${LIBRARY_NAME} ... )  # For setting manually.
-# target_compile_options(${LIBRARY_NAME} ... )  # For setting manually.
-
-# Add an executable for the file app/main.cpp.
-# If you add more executables, copy these lines accordingly.
-add_executable(main app/main.cpp)   # Name of exec. and location of file.
-target_link_libraries(main PRIVATE ${LIBRARY_NAME})  # Link the executable to library (if it uses it).
-target_set_warnings(main ENABLE ALL AS_ERROR ALL DISABLE Annoying) # Set warnings (if needed).
-target_enable_lto(main optimized)  # enable link-time-optimization if available for non-debug configurations
-
-# Set the properties you require, e.g. what C++ standard to use. Here applied to library and main (change as needed).
-set_target_properties(
-    ${LIBRARY_NAME} main 
-      PROPERTIES 
-        CXX_STANDARD 17 
-        CXX_STANDARD_REQUIRED YES 
-        CXX_EXTENSIONS NO
+target_include_directories(nile_static PRIVATE
+  ${NILE_DIR}/include
+  ${FREETYPE_INCUDE_DIRS}
 )
-set_property(GLOBAL PROPERTY USE_FOLDERS TRUE)
-set(${PROJECT_NAME}_DEFINITIONS CACHE INTERNAL "${PROJECT_NAME}: Definitions" FORCE)
 
-# Expose A's public includes (including the ones of A's dependencies
-# transitively) to other subprojects through cache variable.
-set(${PROJECT_NAME}_INCLUDE_DIRS ${PROJECT_SOURCE_DIR}
-        CACHE INTERNAL "${PROJECT_NAME}: Include Directories" FORCE)
-
-# Set up tests (see tests/CMakeLists.txt).
-add_subdirectory(tests)
+target_link_libraries(nile_static INTERFACE ${FREETYPE_LIBRARIES})

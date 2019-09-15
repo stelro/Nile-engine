@@ -1,7 +1,7 @@
-#include "renderer/font_renderer.hh"
-#include "core/logger.hh"
-#include "core/settings.hh"
-#include "renderer/shader.hh"
+#include "Nile/renderer/font_renderer.hh"
+#include "Nile/core/logger.hh"
+#include "Nile/core/settings.hh"
+#include "Nile/renderer/shader.hh"
 
 #include <GL/glew.h>
 #include <glm/gtc/matrix_transform.hpp>

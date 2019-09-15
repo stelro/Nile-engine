@@ -1,12 +1,12 @@
-#include "resource/resource_manager.hh"
+#include "Nile/resource/resource_manager.hh"
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 
-#include "core/logger.hh"
-#include "core/nile.hh"
-#include "renderer/shader.hh"
-#include "renderer/texture2d.hh"
+#include "Nile/core/logger.hh"
+#include "Nile/core/nile.hh"
+#include "Nile/renderer/shader.hh"
+#include "Nile/renderer/texture2d.hh"
 
 #include <fstream>
 #include <iostream>

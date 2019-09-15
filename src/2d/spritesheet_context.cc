@@ -1,4 +1,4 @@
-#include "2d/spritesheet_context.hh"
+#include "Nile/2d/spritesheet_context.hh"
 
 namespace nile {
 

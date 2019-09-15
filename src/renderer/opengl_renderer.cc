@@ -1,9 +1,9 @@
-#include "renderer/opengl_renderer.hh"
+#include "Nile/renderer/opengl_renderer.hh"
 
-#include "2d/sprite_renderer.hh"
-#include "core/settings.hh"
-#include "renderer/shader.hh"
-#include "resource/resource_manager.hh"
+#include "Nile/2d/sprite_renderer.hh"
+#include "Nile/core/settings.hh"
+#include "Nile/renderer/shader.hh"
+#include "Nile/resource/resource_manager.hh"
 
 #include <GL/glew.h>
 #include <glm/gtc/matrix_transform.hpp>

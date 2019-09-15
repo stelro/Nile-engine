@@ -1,4 +1,4 @@
-#include "renderer/texture2d.hh"
+#include "Nile/renderer/texture2d.hh"
 
 #include <GL/glew.h>
 

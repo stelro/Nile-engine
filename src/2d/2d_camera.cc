@@ -1,5 +1,5 @@
-#include "2d/2d_camera.hh"
-#include "core/settings.hh"
+#include "Nile/2d/2d_camera.hh"
+#include "Nile/core/settings.hh"
 #include <SDL2/SDL.h>
 
 namespace nile {

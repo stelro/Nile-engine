@@ -1,5 +1,5 @@
-#include "2d/sprite_renderer.hh" 
-#include "renderer/shader.hh"
+#include "Nile/2d/sprite_renderer.hh" 
+#include "Nile/renderer/shader.hh"
 #include <GL/glew.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>

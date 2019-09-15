@@ -1,4 +1,4 @@
-#include "core/settings.hh"
+#include "Nile/core/settings.hh"
 
 namespace nile {
 

@@ -1,4 +1,4 @@
-#include "core/input_manager.hh"
+#include "Nile/core/input_manager.hh"
 
 namespace nile {
 

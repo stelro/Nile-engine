@@ -1,13 +1,13 @@
-#include "game/game.hh"
-#include "2d/2d_camera.hh"
-#include "2d/sprite_renderer.hh"
-#include "2d/sprite_sheet.hh"
-#include "2d/spritesheet_context.hh"
-#include "core/input_manager.hh"
-#include "core/settings.hh"
-#include "renderer/font_renderer.hh"
-#include "renderer/shader.hh"
-#include "resource/resource_manager.hh"
+#include "Nile/game/game.hh"
+#include "Nile/2d/2d_camera.hh"
+#include "Nile/2d/sprite_renderer.hh"
+#include "Nile/2d/sprite_sheet.hh"
+#include "Nile/2d/spritesheet_context.hh"
+#include "Nile/core/input_manager.hh"
+#include "Nile/core/settings.hh"
+#include "Nile/renderer/font_renderer.hh"
+#include "Nile/renderer/shader.hh"
+#include "Nile/resource/resource_manager.hh"
 
 #include <GL/glew.h>
 #include <glm/gtc/matrix_transform.hpp>
