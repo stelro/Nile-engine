@@ -183,7 +183,6 @@ namespace nile {
         m_heroState = HeroStateEnum::SHIELD_STRIP;
 
       } else {
-
         m_heroState = HeroStateEnum::IDLE;
       }
 

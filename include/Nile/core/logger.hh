@@ -103,6 +103,7 @@ namespace nile {
         case LogType::PRINT:
           info_string += args_str;
           std::cout << info_string;
+          break;
         default:
           break;
       }
