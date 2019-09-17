@@ -31,9 +31,9 @@ namespace nile {
     ~OpenGLRenderer() noexcept;
     void init() noexcept override;
     // Submit frame and perform specific actions
-    void submitFrame() noexcept;
+    void submitFrame() noexcept override;
     // End the frame and preform specific actions
-    void endFrame() noexcept;
+    void endFrame() noexcept override;
     // Clean up all resources
     void destroy() noexcept override;
   };
