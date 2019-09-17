@@ -9,19 +9,14 @@ namespace nile {
 
   class InputManager {
   private:
-    InputManager() noexcept;
-    static InputManager *m_instance;
     SDL_Event m_event;
     bool m_shouldClose = false;
 
     std::unordered_map<SDL_Keycode, bool> m_pressedKeys;
 
   public:
-    // Get singleton instance of the class
-    static InputManager *getInstance() noexcept;
-
-    // Destory the singleton
-    static void destroy() noexcept;
+    InputManager() noexcept;
+    ~InputManager() noexcept;
 
     void update( [[maybe_unused]] f32 dt ) noexcept;
 
@@ -32,7 +27,6 @@ namespace nile {
     inline void terminateEngine() noexcept {
       this->m_shouldClose = true;
     }
-
     // Checks if user has pressed any specifc key
     [[nodiscard]] bool isKeyPressed( SDL_Keycode key ) const noexcept {
       auto it = m_pressedKeys.find( key );

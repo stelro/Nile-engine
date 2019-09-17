@@ -2,24 +2,12 @@
 
 namespace nile {
 
-  InputManager *InputManager::m_instance = nullptr;
-
   InputManager::InputManager() noexcept {
-    // Empty Constructor
+    // Empty constructor
   }
 
-  InputManager *InputManager::getInstance() noexcept {
-    if ( !m_instance ) {
-      m_instance = new InputManager;
-    }
-    return m_instance;
-  }
-
-  void InputManager::destroy() noexcept {
-    if ( m_instance ) {
-      delete m_instance;
-      m_instance = nullptr;
-    }
+  InputManager::~InputManager() noexcept {
+    // Empty Destructor
   }
 
   void InputManager::update( [[maybe_unused]] f32 dt ) noexcept {
