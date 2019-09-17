@@ -11,7 +11,9 @@ set(CMAKE_CONFIGURATION_TYPES Debug Release)
 source_group(src REGULAR_EXPRESSION "source/*")
 
 add_executable(${PRODUCT_NAME}
- src/main.cc
+ app/main.cc
+ src/platformer.hh
+ src/platformer.cc
   )
 
 target_include_directories(${PRODUCT_NAME} PRIVATE
