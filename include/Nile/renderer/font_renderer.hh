@@ -2,12 +2,14 @@
 
 #include "Nile/core/nile.hh"
 
+//#include <freetype/include/ft2build.h>
 #include <ft2build.h>
+#include FT_FREETYPE_H
+
 #include <glm/glm.hpp>
 #include <string>
 #include <map>
 #include <memory>
-#include FT_FREETYPE_H
 
 namespace nile {
 
