@@ -14,6 +14,8 @@ add_executable(${PRODUCT_NAME}
  app/main.cc
  src/platformer.hh
  src/platformer.cc
+ src/npc/main_character.cc
+ src/npc/main_character.hh
   )
 
 target_include_directories(${PRODUCT_NAME} PRIVATE
