@@ -50,12 +50,12 @@ namespace nile {
     // Open files
     std::ifstream vertexShaderFile( vshaderFile.data() );
     if ( !vertexShaderFile.is_open() ) {
-      log::error( "Failed to open { %s } file for vertex shader", vshaderFile.data() );
+      log::error( "Failed to open { %s } file for vertex shader\n", vshaderFile.data() );
     }
 
     std::ifstream fragmentShaderFile( fshaderFile.data() );
     if ( !fragmentShaderFile.is_open() ) {
-      log::error( "Failed to open { %s } file for fragment shader", fshaderFile.data() );
+      log::error( "Failed to open { %s } file for fragment shader\n", fshaderFile.data() );
     }
 
     std::stringstream vShaderStream, fShaderStream;
