@@ -1,3 +1,11 @@
+/* ================================================================================
+$File: spritesheet_context.hh
+$Date: $
+$Revision: $
+$Creator: Rostislav Orestis Stelmach
+$Notice: $
+================================================================================ */
+
 #pragma once
 
 #include "Nile/2d/sprite_sheet.hh"
@@ -10,6 +18,7 @@
 namespace nile {
 
   class SpriteSheetContext {
+
   private:
     std::unordered_map<std::string, std::shared_ptr<SpriteSheet>> m_spriteSheets;
     TextureOrientation m_spriteOriantation = TextureOrientation::NE;
