@@ -1,35 +1,33 @@
+/* ================================================================================
+$File: shaderset.hh
+$Date: $
+$Revision: $
+$Creator: Rostislav Orestis Stelmach
+$Notice: $
+================================================================================ */
+
 #pragma once
 
-#include "Nile/core/nile.hh"
+#include "Nile/asset/asset.hh"
+
 #include <glm/glm.hpp>
-#include <string_view>
+
+// ShaderSet - represent basically an OpenGL shader program object
+// coposed at least of 2 shaders ( vertex and fragment ), geometry shader is
+// optional, thous the name ShaderSet.
+// Keeps track of ProgramID, also we set Uniform Variable though this object
 
 namespace nile {
 
-  // General purpose shader object. Compiles from file, generates
-  // compile / link-time errors messages and hosts several utility
-  // functions for easy managment.
-
-  class Shader {
+  class ShaderSet : public Asset {
   private:
-    // Current shader state
-    u32 m_id;
-
-    // Checks if compilation or linking failed, and if so, print the error logs
-    void checkCompileErrors( u32 object, std::string_view type ) noexcept;
+    u32 m_programId;
 
   public:
-    Shader() noexcept = default;
-    ~Shader() noexcept;
-    // Set the shader as active
-    Shader &use() noexcept;
+    explicit ShaderSet( u32 id ) noexcept;
 
-    // Compiles the shader from given shouce code
-    // @note: geomtry source shader is optional
-    void compile( const char *vertexSource, const char *fragmentSource,
-                  const char *geometrySource = nullptr ) noexcept;
+    ShaderSet &use() noexcept;
 
-    // Utility functions
     void SetFloat( const char *name, f32 value, bool useShader = false ) noexcept;
     void SetInteger( const char *name, i32 value, bool useShader = false ) noexcept;
     void SetVector2f( const char *name, f32 x, f32 y, bool useShader = false ) noexcept;
