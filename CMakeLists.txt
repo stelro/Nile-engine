@@ -16,33 +16,39 @@ source_group(renderer         REGULAR_EXPRESSION "(include/Nile|src)/renderer/*"
 source_group(resource         REGULAR_EXPRESSION "(include/Nile|src)/resource/*")
 source_group(application      REGULAR_EXPRESSION "(include/Nile|src)/application/*")
 source_group(platform         REGULAR_EXPRESSION "(include/Nile|src)/platform/*")
+source_group(asset            REGULAR_EXPRESSION "(include/Nile|src)/asset/*")
 
 set(NILE_SOURCES_CORE
   ${NILE_DIR}/include/Nile/2d/2d_camera.hh
   ${NILE_DIR}/include/Nile/2d/sprite_renderer.hh
   ${NILE_DIR}/include/Nile/2d/sprite_sheet.hh
   ${NILE_DIR}/include/Nile/2d/spritesheet_context.hh
-  ${NILE_DIR}/include/Nile/core/engine.hh
   ${NILE_DIR}/include/Nile/core/input_manager.hh
   ${NILE_DIR}/include/Nile/core/logger.hh
   ${NILE_DIR}/include/Nile/core/nile.hh
   ${NILE_DIR}/include/Nile/core/settings.hh
   ${NILE_DIR}/include/Nile/core/signal.hh
+  ${NILE_DIR}/include/Nile/core/reference.hh
   ${NILE_DIR}/include/Nile/renderer/base_renderer.hh
   ${NILE_DIR}/include/Nile/renderer/font_renderer.hh
   ${NILE_DIR}/include/Nile/renderer/opengl_renderer.hh
-  ${NILE_DIR}/include/Nile/renderer/shader.hh
   ${NILE_DIR}/include/Nile/renderer/texture2d.hh
-  ${NILE_DIR}/include/Nile/resource/resource_manager.hh
   ${NILE_DIR}/include/Nile/application/game.hh
   ${NILE_DIR}/include/Nile/platform/game_host.hh
   ${NILE_DIR}/include/Nile/platform/x11/bootstrap.hh
   ${NILE_DIR}/include/Nile/platform/x11/game_host_x11.hh
+  ${NILE_DIR}/include/Nile/asset/asset_manager.hh
+  ${NILE_DIR}/include/Nile/asset/asset_container.hh
+  ${NILE_DIR}/include/Nile/asset/asset.hh
+  ${NILE_DIR}/include/Nile/asset/builder/asset_builder.hh
+  ${NILE_DIR}/include/Nile/asset/builder/shaderset_builder.hh
+  ${NILE_DIR}/include/Nile/asset/subsystem/asset_loader.hh
+  ${NILE_DIR}/include/Nile/asset/subsystem/texture_loader.hh
+  ${NILE_DIR}/include/Nile/renderer/shaderset.hh
   ${NILE_DIR}/src/2d/2d_camera.cc
   ${NILE_DIR}/src/2d/sprite_renderer.cc
   ${NILE_DIR}/src/2d/sprite_sheet.cc
   ${NILE_DIR}/src/2d/spritesheet_context.cc
-  ${NILE_DIR}/src/core/engine.cc
   ${NILE_DIR}/src/core/input_manager.cc
   ${NILE_DIR}/src/core/logger.cc
   ${NILE_DIR}/src/core/settings.cc
@@ -50,12 +56,16 @@ set(NILE_SOURCES_CORE
   ${NILE_DIR}/src/renderer/base_renderer.cc
   ${NILE_DIR}/src/renderer/font_renderer.cc
   ${NILE_DIR}/src/renderer/opengl_renderer.cc
-  ${NILE_DIR}/src/renderer/shader.cc
   ${NILE_DIR}/src/renderer/texture2d.cc
-  ${NILE_DIR}/src/resource/resource_manager.cc
   ${NILE_DIR}/src/application/game.cc
   ${NILE_DIR}/src/platform.x11/bootstrap.cc
   ${NILE_DIR}/src/platform.x11/game_host_x11.cc
+  ${NILE_DIR}/src/asset/builder/shaderset_builder.cc
+  ${NILE_DIR}/src/asset/subsystem/asset_loader.cc
+  ${NILE_DIR}/src/asset/subsystem/texture_loader.cc
+  ${NILE_DIR}/src/asset/asset_container.cc
+  ${NILE_DIR}/src/asset/asset_manager.cc
+  ${NILE_DIR}/src/renderer/shaderset.cc
   )
 
 set(SOURCE_FILES ${NILE_SOURCES_CORE})
