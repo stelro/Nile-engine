@@ -1,6 +1,8 @@
 #include "main_character.hh"
-#include <Nile/renderer/shader.hh>
-#include <Nile/resource/resource_manager.hh>
+#include <Nile/asset/builder/shaderset_builder.hh>
+#include <Nile/renderer/shaderset.hh>
+#include <Nile/renderer/texture2d.hh>
+
 
 namespace platformer {
 
@@ -8,11 +10,13 @@ namespace platformer {
 
   MainCharacter::MainCharacter( const std::shared_ptr<nile::Settings> &settings,
                                 const std::shared_ptr<InputManager> &inputManager,
-                                const std::shared_ptr<Camera2D> &camera ) noexcept
+                                const std::shared_ptr<Camera2D> &camera,
+                                const std::shared_ptr<AssetManager> &manager ) noexcept
       : m_settings( settings )
       , m_inputManager( inputManager )
       , m_spriteContext( std::make_unique<SpriteSheetContext>() )
-      , m_camera( camera ) {}
+      , m_camera( camera )
+      , m_assetManager( manager ) {}
 
 
   MainCharacter::~MainCharacter() noexcept {}
@@ -26,65 +30,68 @@ namespace platformer {
       m_shouldHaltTheEvents = !value;
     };
 
-    auto sprite_sheet_shader = ResourceManager::loadShader(
-        "../assets/shaders/spritesheet_vertex.glsl", "../assets/shaders/spritesheet_fragment.glsl",
-        {}, "sprite_sheet" );
+    auto spriteSheetShader =
+        m_assetManager->createBuilder<ShaderSet>()
+            .setVertexPath( "../assets/shaders/spritesheet_vertex.glsl" )
+            .setFragmentPath( "../assets/shaders/spritesheet_fragment.glsl" )
+            .build();
 
-    ResourceManager::loadTexture( "../assets/textures/Knight/knight_run.png", true, "knight_run" );
-    ResourceManager::loadTexture( "../assets/textures/Knight/knight_idle.png", true,
-                                  "knight_idle" );
-    ResourceManager::loadTexture( "../assets/textures/Knight/knight_attack.png", true,
-                                  "knight_attack" );
-    ResourceManager::loadTexture( "../assets/textures/Knight/knight_jump_and_fall.png", true,
-                                  "knight_jump_and_fall" );
-    ResourceManager::loadTexture( "../assets/textures/Knight/knight_roll_strip.png", true,
-                                  "knight_roll_strip" );
-    ResourceManager::loadTexture( "../assets/textures/Knight/knight_shield_strip.png", true,
-                                  "knight_shield_strip" );
+    m_assetManager->storeAsset<ShaderSet>( "spritesheet_shader", spriteSheetShader );
+
+    m_assetManager->loadAsset<Texture2D>( "knight_run",
+                                          "../assets/textures/Knight/knight_run.png" );
+    m_assetManager->loadAsset<Texture2D>( "knight_idle",
+                                          "../assets/textures/Knight/knight_idle.png" );
+    m_assetManager->loadAsset<Texture2D>( "knight_attack",
+                                          "../assets/textures/Knight/knight_attack.png" );
+    m_assetManager->loadAsset<Texture2D>( "knight_jump_and_fall",
+                                          "../assets/textures/Knight/knight_jump_and_fall.png" );
+    m_assetManager->loadAsset<Texture2D>( "knight_roll_strip",
+                                          "../assets/textures/Knight/knight_roll_strip.png" );
+    m_assetManager->loadAsset<Texture2D>( "knight_shield_strip",
+                                          "../assets/textures/Knight/knight_shield_strip.png" );
 
 
-    sprite_sheet_shader->use().SetMatrix4( "projection", m_camera->getCameraMatrix() );
-    sprite_sheet_shader->use().SetInteger( "image", 0 );
+    spriteSheetShader->use().SetMatrix4( "projection", m_camera->getCameraMatrix() );
+    spriteSheetShader->use().SetInteger( "image", 0 );
 
     const f32 knight_scale_factor = 2.8f;
 
-    m_spriteContext->addSpriteSheet( "knight_run", sprite_sheet_shader,
-                                     ResourceManager::getTexture( "knight_run" ),
+    m_spriteContext->addSpriteSheet( "knight_run", spriteSheetShader,
+                                     m_assetManager->getAsset<Texture2D>( "knight_run" ),
                                      glm::ivec2( 96, 64 ) );
 
     m_spriteContext->getSpriteSheet( "knight_run" )->scale( knight_scale_factor );
 
-    m_spriteContext->addSpriteSheet( "knight_idle", sprite_sheet_shader,
-                                     ResourceManager::getTexture( "knight_idle" ),
+    m_spriteContext->addSpriteSheet( "knight_idle", spriteSheetShader,
+                                     m_assetManager->getAsset<Texture2D>( "knight_idle" ),
                                      glm::ivec2( 64, 64 ) );
 
     m_spriteContext->getSpriteSheet( "knight_idle" )->scale( knight_scale_factor );
 
-    m_spriteContext->addSpriteSheet( "knight_attack", sprite_sheet_shader,
-                                     ResourceManager::getTexture( "knight_attack" ),
+    m_spriteContext->addSpriteSheet( "knight_attack", spriteSheetShader,
+                                     m_assetManager->getAsset<Texture2D>( "knight_attack" ),
                                      glm::ivec2( 144, 64 ) );
 
     m_spriteContext->getSpriteSheet( "knight_attack" )->scale( knight_scale_factor );
 
-    m_spriteContext->addSpriteSheet( "knight_jump_and_fall", sprite_sheet_shader,
-
-                                     ResourceManager::getTexture( "knight_jump_and_fall" ),
+    m_spriteContext->addSpriteSheet( "knight_jump_and_fall", spriteSheetShader,
+                                     m_assetManager->getAsset<Texture2D>( "knight_jump_and_fall" ),
                                      glm::ivec2( 144, 64 ) );
 
     m_spriteContext->getSpriteSheet( "knight_jump_and_fall" )->scale( knight_scale_factor );
 
-    m_spriteContext->addSpriteSheet( "knight_roll_strip", sprite_sheet_shader,
-                                     ResourceManager::getTexture( "knight_roll_strip" ),
+    m_spriteContext->addSpriteSheet( "knight_roll_strip", spriteSheetShader,
+                                     m_assetManager->getAsset<Texture2D>( "knight_roll_strip" ),
                                      glm::ivec2( 180, 64 ) );
 
     m_spriteContext->getSpriteSheet( "knight_roll_strip" )->scale( knight_scale_factor );
 
-    m_spriteContext->addSpriteSheet( "knight_shield_strip", sprite_sheet_shader,
-                                     ResourceManager::getTexture( "knight_shield_strip" ),
+    m_spriteContext->addSpriteSheet( "knight_shield_strip", spriteSheetShader,
+                                     m_assetManager->getAsset<Texture2D>( "knight_shield_strip" ),
                                      glm::ivec2( 96, 64 ) );
 
     m_spriteContext->getSpriteSheet( "knight_shield_strip" )->scale( knight_scale_factor );
-    
   }
 
   void MainCharacter::update( f32 deltaTime ) noexcept {

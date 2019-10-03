@@ -2,6 +2,7 @@
 
 #include <Nile/2d/2d_camera.hh>
 #include <Nile/2d/spritesheet_context.hh>
+#include <Nile/asset/asset_manager.hh>
 #include <Nile/core/input_manager.hh>
 #include <Nile/core/nile.hh>
 #include <Nile/core/settings.hh>
@@ -29,6 +30,7 @@ namespace platformer {
     std::shared_ptr<nile::InputManager> m_inputManager;
     std::shared_ptr<nile::SpriteSheetContext> m_spriteContext;
     std::shared_ptr<nile::Camera2D> m_camera;
+    std::shared_ptr<nile::AssetManager> m_assetManager;
 
     HeroStateEnum m_heroState = HeroStateEnum::IDLE;
 
@@ -47,7 +49,8 @@ namespace platformer {
   public:
     MainCharacter( const std::shared_ptr<nile::Settings> &settings,
                    const std::shared_ptr<nile::InputManager> &inputManager,
-                   const std::shared_ptr<nile::Camera2D> &camera ) noexcept;
+                   const std::shared_ptr<nile::Camera2D> &camera,
+                   const std::shared_ptr<nile::AssetManager> &manager ) noexcept;
     ~MainCharacter() noexcept;
 
     void initialize() noexcept;
