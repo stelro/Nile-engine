@@ -1,3 +1,11 @@
+/* ================================================================================
+$File: texture2d.cc
+$Date: $
+$Revision: $
+$Creator: Rostislav Orestis Stelmach
+$Notice: $
+================================================================================ */
+
 #include "Nile/renderer/texture2d.hh"
 
 #include <GL/glew.h>
@@ -31,6 +39,7 @@ namespace nile {
     glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, this->m_wrapT );
     glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, this->m_filterMin );
     glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, this->m_filterMax );
+
 
     // unbind texture
     glBindTexture( GL_TEXTURE_2D, 0 );

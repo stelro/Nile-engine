@@ -1,5 +1,14 @@
+/* ================================================================================
+$File: texture2d.hh
+$Date: $
+$Revision: $
+$Creator: Rostislav Orestis Stelmach
+$Notice: $
+================================================================================ */
+
 #pragma once
 
+#include "Nile/asset/asset.hh"
 #include "Nile/core/nile.hh"
 
 namespace nile {
@@ -7,7 +16,7 @@ namespace nile {
   // Texture2D is able to store and configure texture in OpenGL.
   // It also hosts utility funcitons for easy managment.
 
-  class Texture2D {
+  class Texture2D : public Asset {
   private:
     // Holds the ID of the texture object, used for all texture operations to
     // reference this particular texture
