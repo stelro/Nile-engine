@@ -1,10 +1,11 @@
-/* ========================================================================
-   $File: logger.cc $
-   $Date: Wed Apr 17 13:20:32 2019 $
-   $Revision: $
-   $Creator: Ro Stelmach $
-   $Notice: (C) Copyright 2019 by Ro Orestis Stelmach. All Rights Reserved. $
-   ======================================================================== */
+/* ================================================================================
+$File: logger.cc
+$Date: $
+$Revision: $
+$Creator: Rostislav Orestis Stelmach
+$Notice: $
+================================================================================ */
+
 #include "Nile/core/logger.hh"
 
 namespace nile {

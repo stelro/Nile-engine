@@ -1,12 +1,12 @@
-#pragma once
-/* ========================================================================
-   $File: logger.hh $
-   $Date: Wed Apr 17 13:19:58 2019 $
-   $Revision: $
-   $Creator: Ro Stelmach $
-   $Notice: (C) Copyright 2019 by Ro Orestis Stelmach. All Rights Reserved. $
-   ======================================================================== */
+/* ================================================================================
+$File: logger.hh
+$Date: $
+$Revision: $
+$Creator: Rostislav Orestis Stelmach
+$Notice: $
+================================================================================ */
 
+#pragma once
 
 #include <cstdarg>
 #include <fstream>
