@@ -1,5 +1,14 @@
+/* ================================================================================
+$File: sprite_sheet.cc
+$Date: $
+$Revision: $
+$Creator: Rostislav Orestis Stelmach
+$Notice: $
+================================================================================ */
+
+
 #include "Nile/2d/sprite_sheet.hh"
-#include "Nile/renderer/shader.hh"
+#include "Nile/renderer/shaderset.hh"
 #include "Nile/renderer/texture2d.hh"
 #include <GL/glew.h>
 #include <SDL2/SDL.h>
@@ -8,8 +17,7 @@
 
 namespace nile {
 
-  SpriteSheet::SpriteSheet( const std::shared_ptr<Shader> &shader,
-                            const std::shared_ptr<Texture2D> &texture,
+  SpriteSheet::SpriteSheet( ShaderSet *shader, Texture2D *texture,
                             const glm::ivec2 &spriteDimensions ) noexcept
       : m_shader( shader )
       , m_texture( texture )
@@ -62,7 +70,7 @@ namespace nile {
     i32 rows = m_numberOfRows;
     i32 cols = m_numberOfColumns;
 
-      switch ( m_textureOrientation ) {
+    switch ( m_textureOrientation ) {
       case TextureOrientation::NE:
         // the sprite is facing right/up ( normal oriantation )
         cols = m_numberOfColumns;

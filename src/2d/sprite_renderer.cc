@@ -1,12 +1,20 @@
-#include "Nile/2d/sprite_renderer.hh" 
-#include "Nile/renderer/shader.hh"
+/* ================================================================================
+$File: sprite_renderer.cc
+$Date: $
+$Revision: $
+$Creator: Rostislav Orestis Stelmach
+$Notice: $
+================================================================================ */
+
+#include "Nile/2d/sprite_renderer.hh"
+#include "Nile/renderer/shaderset.hh"
 #include <GL/glew.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
 namespace nile {
 
-  SpriteRenderer::SpriteRenderer( std::shared_ptr<Shader> shader ) noexcept
+  SpriteRenderer::SpriteRenderer( ShaderSet *shader ) noexcept
       : m_shader( shader ) {
     this->initRenderData();
   }
@@ -15,13 +23,12 @@ namespace nile {
     glDeleteVertexArrays( 1, &this->m_quadVAO );
   }
 
-  void SpriteRenderer::draw( std::shared_ptr<Texture2D> texture, glm::vec2 position, glm::vec2 size,
-                             f32 rotate, glm::vec3 color ) noexcept {
+  void SpriteRenderer::draw( Texture2D *texture, glm::vec2 position, glm::vec2 size, f32 rotate,
+                             glm::vec3 color ) noexcept {
 
     this->m_shader->use();
 
-
-    glm::mat4 model = glm::mat4(1.0f);
+    glm::mat4 model = glm::mat4( 1.0f );
     model = glm::translate( model, glm::vec3( position, 0.0f ) );
 
     // Because we specified the quad's vertices with (0,0) as the top-left coordinate
