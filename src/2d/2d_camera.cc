@@ -1,3 +1,11 @@
+/* ================================================================================
+$File: 2d_camera.cc
+$Date: $
+$Revision: $
+$Creator: Rostislav Orestis Stelmach
+$Notice: $
+================================================================================ */
+
 #include "Nile/2d/2d_camera.hh"
 #include "Nile/core/settings.hh"
 

@@ -1,3 +1,11 @@
+/* ================================================================================
+$File: bootstrap.cc
+$Date: $
+$Revision: $
+$Creator: Rostislav Orestis Stelmach
+$Notice: $
+================================================================================ */
+
 #include "Nile/platform/x11/bootstrap.hh"
 #include "Nile/application/game.hh"
 #include "Nile/core/nile.hh"

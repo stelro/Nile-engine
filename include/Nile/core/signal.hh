@@ -1,3 +1,11 @@
+/* ================================================================================
+$File: signal.hh
+$Date: $
+$Revision: $
+$Creator: Rostislav Orestis Stelmach
+$Notice: $
+================================================================================ */
+
 #pragma once
 
 #include <functional>

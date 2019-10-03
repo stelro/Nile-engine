@@ -1,9 +1,15 @@
+/* ================================================================================
+$File: opengl_renderer.cc
+$Date: $
+$Revision: $
+$Creator: Rostislav Orestis Stelmach
+$Notice: $
+================================================================================ */
+
 #include "Nile/renderer/opengl_renderer.hh"
 
 #include "Nile/2d/sprite_renderer.hh"
 #include "Nile/core/settings.hh"
-#include "Nile/renderer/shader.hh"
-#include "Nile/resource/resource_manager.hh"
 
 #include <GL/glew.h>
 #include <glm/gtc/matrix_transform.hpp>
@@ -68,7 +74,7 @@ namespace nile {
   }
 
   void OpenGLRenderer::destroy() noexcept {
-    ResourceManager::clear();
+    // ResourceManager::clear();
     SDL_DestroyWindow( m_window );
     m_window = nullptr;
     SDL_Quit();

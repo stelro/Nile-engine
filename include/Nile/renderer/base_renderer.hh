@@ -1,3 +1,11 @@
+/* ================================================================================
+$File: base_renderer.hh
+$Date: $
+$Revision: $
+$Creator: Rostislav Orestis Stelmach
+$Notice: $
+================================================================================ */
+
 #pragma once
 
 namespace nile {

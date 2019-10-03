@@ -1,3 +1,11 @@
+/* ================================================================================
+$File: settings.hh
+$Date: $
+$Revision: $
+$Creator: Rostislav Orestis Stelmach
+$Notice: $
+================================================================================ */
+
 #pragma once
 
 #include "Nile/core/nile.hh"

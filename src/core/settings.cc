@@ -1,3 +1,11 @@
+/* ================================================================================
+$File: settings.cc
+$Date: $
+$Revision: $
+$Creator: Rostislav Orestis Stelmach
+$Notice: $
+================================================================================ */
+
 #include "Nile/core/settings.hh"
 
 namespace nile {

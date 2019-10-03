@@ -1,3 +1,11 @@
+/* ================================================================================
+$File: project_config.h.in
+$Date: $
+$Revision: $
+$Creator: Rostislav Orestis Stelmach
+$Notice: $
+================================================================================ */
+
 /*
  * This file contains definitions made in CMakeLists.txt
  * that we want available in the source code.

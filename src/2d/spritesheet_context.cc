@@ -1,3 +1,11 @@
+/* ================================================================================
+$File: sprite_context.cc
+$Date: $
+$Revision: $
+$Creator: Rostislav Orestis Stelmach
+$Notice: $
+================================================================================ */
+
 #include "Nile/2d/spritesheet_context.hh"
 
 namespace nile {
