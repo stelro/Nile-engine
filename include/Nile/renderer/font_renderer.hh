@@ -1,3 +1,11 @@
+/* ================================================================================
+$File: font_renderer.hh
+$Date: $
+$Revision: $
+$Creator: Rostislav Orestis Stelmach
+$Notice: $
+================================================================================ */
+
 #pragma once
 
 #include "Nile/core/nile.hh"
@@ -7,13 +15,13 @@
 #include FT_FREETYPE_H
 
 #include <glm/glm.hpp>
-#include <string>
 #include <map>
 #include <memory>
+#include <string>
 
 namespace nile {
 
-  class Shader;
+  class ShaderSet;
   class Settings;
 
   struct Character {
@@ -29,10 +37,10 @@ namespace nile {
 
   class FontRenderer {
   private:
-    std::shared_ptr<Shader> m_shader;
+    ShaderSet *m_shader;
     FT_Library m_fontLib;
     FT_Face m_fontFace;
-    
+
     std::map<char, Character> m_characters;
 
     u32 m_vao;
@@ -43,10 +51,12 @@ namespace nile {
     void init() noexcept;
 
   public:
-    FontRenderer(const std::shared_ptr<Shader>& shader,const std::shared_ptr<Settings>& settings, const std::string &fontName, u32 fontSize ) noexcept;
+    FontRenderer( ShaderSet *shader, const std::shared_ptr<Settings> &settings,
+                  const std::string &fontName, u32 fontSize ) noexcept;
     ~FontRenderer() noexcept;
-    
-    void renderText(const std::string& text, f32 x, f32 y, f32 scale, const glm::vec3& color) noexcept;
+
+    void renderText( const std::string &text, f32 x, f32 y, f32 scale,
+                     const glm::vec3 &color ) noexcept;
   };
 
 }    // namespace nile

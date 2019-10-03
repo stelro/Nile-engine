@@ -1,14 +1,22 @@
+/* ================================================================================
+$File: font_renderer.cc
+$Date: $
+$Revision: $
+$Creator: Rostislav Orestis Stelmach
+$Notice: $
+================================================================================ */
+
 #include "Nile/renderer/font_renderer.hh"
 #include "Nile/core/logger.hh"
 #include "Nile/core/settings.hh"
-#include "Nile/renderer/shader.hh"
+#include "Nile/renderer/shaderset.hh"
 
 #include <GL/glew.h>
 #include <glm/gtc/matrix_transform.hpp>
 
 namespace nile {
 
-  FontRenderer::FontRenderer( const std::shared_ptr<Shader> &shader,
+  FontRenderer::FontRenderer( ShaderSet* shader,
                               const std::shared_ptr<Settings> &settings,
                               const std::string &fontName, u32 fontSize ) noexcept
       : m_shader( shader )
