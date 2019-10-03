@@ -1,3 +1,11 @@
+/* ================================================================================
+$File: input_manager.cc
+$Date: $
+$Revision: $
+$Creator: Rostislav Orestis Stelmach
+$Notice: $
+================================================================================ */
+
 #include "Nile/core/input_manager.hh"
 
 namespace nile {
