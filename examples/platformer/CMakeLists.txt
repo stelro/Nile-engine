@@ -16,6 +16,8 @@ add_executable(${PRODUCT_NAME}
  src/platformer.cc
  src/npc/main_character.cc
  src/npc/main_character.hh
+ src/enviroment/enviroment_items.cc
+ src/enviroment/enviroment_items.hh
   )
 
 target_include_directories(${PRODUCT_NAME} PRIVATE
