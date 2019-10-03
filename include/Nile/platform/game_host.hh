@@ -1,3 +1,11 @@
+/* ================================================================================
+$File: game_host.hh
+$Date: $
+$Revision: $
+$Creator: Rostislav Orestis Stelmach
+$Notice: $
+================================================================================ */
+
 #pragma once
 
 #include <memory>
@@ -7,6 +15,7 @@ namespace nile {
   class Settings;
   class BaseRenderer;
   class InputManager;
+  class AssetManager;
 
   class GameHost {
   protected:
@@ -22,6 +31,8 @@ namespace nile {
     [[nodiscard]] virtual std::shared_ptr<BaseRenderer> getRenderer() const noexcept = 0;
 
     [[nodiscard]] virtual std::shared_ptr<InputManager> getInputManager() const noexcept = 0;
+
+    [[nodiscard]] virtual std::shared_ptr<AssetManager> getAssetManager() const noexcept = 0;
   };
 
 }    // namespace nile

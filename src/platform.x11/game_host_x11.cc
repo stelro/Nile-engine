@@ -1,5 +1,14 @@
+/* ================================================================================
+$File: game_host_x11.cc
+$Date: $
+$Revision: $
+$Creator: Rostislav Orestis Stelmach
+$Notice: $
+================================================================================ */
+
 #include "Nile/platform/x11/game_host_x11.hh"
 #include "Nile/application/game.hh"
+#include "Nile/asset/asset_manager.hh"
 #include "Nile/core/input_manager.hh"
 #include "Nile/renderer/base_renderer.hh"
 #include "Nile/renderer/opengl_renderer.hh"
@@ -17,6 +26,7 @@ namespace nile::X11 {
     std::shared_ptr<Settings> settings;
     std::shared_ptr<BaseRenderer> renderer;
     std::shared_ptr<InputManager> inputManager;
+    std::shared_ptr<AssetManager> assetManager;
   };
 
   GameHostX11::Impl::Impl( const std::shared_ptr<Settings> &settings ) noexcept
@@ -26,6 +36,8 @@ namespace nile::X11 {
     renderer->init();
 
     inputManager = std::make_shared<InputManager>();
+
+    assetManager = std::make_shared<AssetManager>();
   }
 
   GameHostX11::Impl::~Impl() noexcept {}
@@ -72,4 +84,9 @@ namespace nile::X11 {
   [[nodiscard]] std::shared_ptr<InputManager> GameHostX11::getInputManager() const noexcept {
     return this->impl->inputManager;
   }
+
+  [[nodiscard]] std::shared_ptr<AssetManager> GameHostX11::getAssetManager() const noexcept {
+    return this->impl->assetManager;
+  }
+
 }    // namespace nile::X11
