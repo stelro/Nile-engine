@@ -1,6 +1,9 @@
 #include "platformer.hh"
 #include <Nile/asset/builder/shaderset_builder.hh>
 #include <Nile/asset/subsystem/texture_loader.hh>
+#include <Nile/ecs/components/renderable.hh>
+#include <Nile/ecs/components/transform.hh>
+#include <Nile/ecs/components/sprite.hh>
 
 
 namespace platformer {
@@ -12,7 +15,9 @@ namespace platformer {
       , m_inputManager( gameHost->getInputManager() )
       , m_renderer( gameHost->getRenderer() )
       , m_settings( gameHost->getSettings() )
-      , m_assetManager( gameHost->getAssetManager() ) {
+      , m_assetManager( gameHost->getAssetManager() )
+      , m_ecsCoordinator( gameHost->getEcsCoordinator() ) {
+
     // TODO(stel): fix this
     m_camera = std::make_unique<Camera2D>( m_settings );
     m_camera->setScale( glm::vec2( 2.5f ) );
@@ -21,25 +26,41 @@ namespace platformer {
 
   void Platformer::initialize() noexcept {
 
+    // ECS stuff -----------------------
+
+
+    // m_ecsCoordinator->addComponent<Transform>(
+    //     entity,
+    //     Transform {.position = glm::vec3( 1.0f ), .scale = glm::vec3( 1.0f ), .rotation = 1.0f}
+    //     );
+    // m_ecsCoordinator->addComponent<Renderable>( entity, Renderable {glm::vec3( 1.0f )} );
+    //
+    // ECS Stuff ends here ------------
+
 
     // Register loaders
     m_assetManager->registerLoader<Texture2D, TextureLoader>( true );
 
-    auto spriteShader = m_assetManager->createBuilder<ShaderSet>()
-                            .setVertexPath( "../assets/shaders/sprite_vertex.glsl" )
-                            .setFragmentPath( "../assets/shaders/sprite_fragment.glsl" )
-                            .build();
-
+    // auto spriteShader = m_assetManager->createBuilder<ShaderSet>()
+    //                         .setVertexPath( "../assets/shaders/sprite_vertex.glsl" )
+    //                         .setFragmentPath( "../assets/shaders/sprite_fragment.glsl" )
+    //                         .build();
+    //
     auto fontShader = m_assetManager->createBuilder<ShaderSet>()
                           .setVertexPath( "../assets/shaders/font_vertex.glsl" )
                           .setFragmentPath( "../assets/shaders/font_fragment.glsl" )
                           .build();
 
-    m_assetManager->storeAsset<ShaderSet>( "sprite_shader", spriteShader );
+    //   m_assetManager->storeAsset<ShaderSet>( "sprite_shader", spriteShader );
+    auto spriteShader = m_assetManager->getAsset<ShaderSet>( "sprite_shader" );
     m_assetManager->storeAsset<ShaderSet>( "font_shader", fontShader );
 
     m_fontRenderer =
         std::make_unique<FontRenderer>( fontShader, m_settings, "../assets/fonts/arial.ttf", 22 );
+    spriteShader->use().SetMatrix4( "projection", m_camera->getCameraMatrix() );
+    spriteShader->use().SetInteger( "image", 0 );
+
+    m_spriteRenderer = std::make_unique<SpriteRenderer>( spriteShader );
 
 
     // Initialize the main character
@@ -47,13 +68,9 @@ namespace platformer {
         std::make_unique<MainCharacter>( m_settings, m_inputManager, m_camera, m_assetManager );
     m_mainCharacter->initialize();
 
-    m_enviromentItems = std::make_unique<EnviromentItems>( m_settings, m_assetManager );
+    m_enviromentItems =
+        std::make_unique<EnviromentItems>( m_settings, m_assetManager, m_spriteRenderer, m_camera );
     m_enviromentItems->initialize();
-
-    spriteShader->use().SetMatrix4( "projection", m_camera->getCameraMatrix() );
-    spriteShader->use().SetInteger( "image", 0 );
-
-    m_spriteRenderer = std::make_unique<SpriteRenderer>( spriteShader );
 
     m_assetManager->loadAsset<Texture2D>( "background",
                                           "../assets/textures/layers/parallax-demon-woods-bg.png" );
@@ -66,6 +83,27 @@ namespace platformer {
 
     m_assetManager->loadAsset<Texture2D>(
         "trees", "../assets/textures/layers/parallax-demon-woods-close-trees.png" );
+
+    this->initializeEcs();
+  }
+
+  void Platformer::initializeEcs() noexcept {
+
+    const constexpr auto tileWidth = 1078;
+    const constexpr auto tileHeight = 224;
+    const constexpr auto on_screen_height = 20;
+
+
+    auto entity = m_ecsCoordinator->createEntity();
+
+    m_ecsCoordinator->addComponent<Transform>(
+        entity, Transform {.position = glm::vec3( 0, on_screen_height, 0.0f ),
+                           .scale = glm::vec3( tileWidth, tileHeight, 1.0f ),
+                           .rotation = 0.0f} );
+
+    m_ecsCoordinator->addComponent<Renderable>( entity, Renderable {.color = glm::vec3( 1.0f )} );
+
+    m_ecsCoordinator->addComponent<SpriteComponent>(entity, SpriteComponent{.texture = m_assetManager->getAsset<Texture2D>("background")});
   }
 
   void Platformer::draw( f32 deltaTime ) noexcept {

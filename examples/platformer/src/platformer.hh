@@ -9,6 +9,7 @@
 #include <Nile/platform/game_host.hh>
 #include <Nile/renderer/font_renderer.hh>
 #include <Nile/asset/asset_manager.hh>
+#include <Nile/ecs/ecs_coordinator.hh>
 
 #include <GL/glew.h>
 #include <glm/gtc/matrix_transform.hpp>
@@ -29,6 +30,7 @@ namespace platformer {
     std::shared_ptr<nile::BaseRenderer> m_renderer;
     std::shared_ptr<nile::Settings> m_settings;
     std::shared_ptr<nile::AssetManager> m_assetManager;
+    std::shared_ptr<nile::Coordinator> m_ecsCoordinator;
 
     std::shared_ptr<nile::SpriteRenderer> m_spriteRenderer;
     std::shared_ptr<nile::Camera2D> m_camera;
@@ -36,7 +38,8 @@ namespace platformer {
 
     std::unique_ptr<MainCharacter> m_mainCharacter;
     std::unique_ptr<EnviromentItems> m_enviromentItems;
-    
+ 
+    void initializeEcs() noexcept;
 
   public:
     Platformer( const std::shared_ptr<nile::GameHost> &gameHost ) noexcept;
@@ -46,5 +49,6 @@ namespace platformer {
     virtual void update( f32 deltaTime ) noexcept override;
   };
 
+    
 }    // namespace platformer
 
