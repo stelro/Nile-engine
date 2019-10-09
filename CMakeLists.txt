@@ -27,10 +27,12 @@ set(NILE_SOURCES_CORE
   ${NILE_DIR}/include/Nile/2d/sprite.hh
   ${NILE_DIR}/include/Nile/core/input_manager.hh
   ${NILE_DIR}/include/Nile/core/logger.hh
-  ${NILE_DIR}/include/Nile/core/nile.hh
+  ${NILE_DIR}/include/Nile/core/helper.hh
   ${NILE_DIR}/include/Nile/core/settings.hh
   ${NILE_DIR}/include/Nile/core/signal.hh
   ${NILE_DIR}/include/Nile/core/reference.hh
+  ${NILE_DIR}/include/Nile/core/types.hh
+  ${NILE_DIR}/include/Nile/core/assert.hh
   ${NILE_DIR}/include/Nile/renderer/base_renderer.hh
   ${NILE_DIR}/include/Nile/renderer/font_renderer.hh
   ${NILE_DIR}/include/Nile/renderer/opengl_renderer.hh
