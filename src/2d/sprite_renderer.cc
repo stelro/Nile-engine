@@ -53,6 +53,12 @@ namespace nile {
     glBindVertexArray( 0 );
   }
 
+  void SpriteRenderer::draw( const Sprite &sprite ) noexcept {
+    // @cleanup!
+    this->draw( sprite.getTexture(), sprite.getPosition(), sprite.getSize(), sprite.getRotation(),
+                sprite.getColor() );
+  }
+
   void SpriteRenderer::initRenderData() noexcept {
     u32 vbo;
     f32 vertices[] = {0.0f, 1.0f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
