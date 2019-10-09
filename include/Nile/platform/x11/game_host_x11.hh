@@ -35,6 +35,7 @@ namespace nile {
       [[nodiscard]] std::shared_ptr<BaseRenderer> getRenderer() const noexcept override;
       [[nodiscard]] std::shared_ptr<InputManager> getInputManager() const noexcept override;
       [[nodiscard]] std::shared_ptr<AssetManager> getAssetManager() const noexcept override;
+      [[nodiscard]] std::shared_ptr<Coordinator> getEcsCoordinator() const noexcept override;
     };
 
   }    // namespace X11

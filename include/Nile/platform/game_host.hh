@@ -16,6 +16,7 @@ namespace nile {
   class BaseRenderer;
   class InputManager;
   class AssetManager;
+  class Coordinator;
 
   class GameHost {
   protected:
@@ -33,6 +34,8 @@ namespace nile {
     [[nodiscard]] virtual std::shared_ptr<InputManager> getInputManager() const noexcept = 0;
 
     [[nodiscard]] virtual std::shared_ptr<AssetManager> getAssetManager() const noexcept = 0;
+
+    [[nodiscard]] virtual std::shared_ptr<Coordinator> getEcsCoordinator() const noexcept = 0;
   };
 
 }    // namespace nile
