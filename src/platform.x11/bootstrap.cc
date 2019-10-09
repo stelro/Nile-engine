@@ -8,8 +8,8 @@ $Notice: $
 
 #include "Nile/platform/x11/bootstrap.hh"
 #include "Nile/application/game.hh"
-#include "Nile/core/nile.hh"
 #include "Nile/platform/x11/game_host_x11.hh"
+#include "Nile/core/assert.hh"
 
 namespace nile::X11 {
 
@@ -25,6 +25,7 @@ namespace nile::X11 {
     std::shared_ptr<GameHostX11> gameHost;
     std::unique_ptr<Game> game;
 
+    // TODO(stel): We should consider other OSs too
     gameHost = std::make_shared<GameHostX11>( m_settings );
 
     game = createApp( gameHost );

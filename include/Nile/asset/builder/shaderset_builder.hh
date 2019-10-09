@@ -8,6 +8,7 @@ $Notice: $
 
 #pragma once
 
+#include "Nile/core/types.hh"
 #include "Nile/asset/builder/asset_builder.hh"
 #include "Nile/renderer/shaderset.hh"
 

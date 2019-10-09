@@ -6,7 +6,7 @@
 #include <Nile/2d/sprite_sheet.hh>
 #include <Nile/2d/spritesheet_context.hh>
 #include <Nile/asset/asset_manager.hh>
-#include <Nile/core/nile.hh>
+#include <Nile/core/types.hh>
 #include <Nile/core/settings.hh>
 #include <memory>
 #include <vector>

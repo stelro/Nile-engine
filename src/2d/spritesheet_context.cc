@@ -7,6 +7,7 @@ $Notice: $
 ================================================================================ */
 
 #include "Nile/2d/spritesheet_context.hh"
+#include "Nile/core/logger.hh"
 
 namespace nile {
 

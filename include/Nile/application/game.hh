@@ -1,14 +1,15 @@
 /* ================================================================================
 $File: game.hh
 $Date: $
-$Revision: $
+$Revision: 09 Oct 2019 $
 $Creator: Rostislav Orestis Stelmach
 $Notice: $
 ================================================================================ */
 
 #pragma once
 
-#include "Nile/core/nile.hh"
+#include "Nile/core/helper.hh"
+#include "Nile/core/types.hh"
 
 namespace nile {
 

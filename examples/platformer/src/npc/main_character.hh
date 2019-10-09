@@ -4,7 +4,7 @@
 #include <Nile/2d/spritesheet_context.hh>
 #include <Nile/asset/asset_manager.hh>
 #include <Nile/core/input_manager.hh>
-#include <Nile/core/nile.hh>
+#include <Nile/core/types.hh>
 #include <Nile/core/settings.hh>
 #include <Nile/core/signal.hh>
 

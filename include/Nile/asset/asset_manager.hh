@@ -11,7 +11,7 @@ $Notice: $
 #include "Nile/asset/asset_container.hh"
 #include "Nile/asset/builder/asset_builder.hh"
 #include "Nile/asset/subsystem/asset_loader.hh"
-#include "Nile/core/nile.hh"
+#include "Nile/core/assert.hh"
 
 #include <unordered_map>
 

@@ -8,7 +8,6 @@ $Notice: $
 
 #pragma once
 
-#include "Nile/core/nile.hh"
 #include "Nile/renderer/base_renderer.hh"
 #include <SDL2/SDL.h>
 

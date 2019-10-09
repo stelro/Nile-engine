@@ -8,11 +8,11 @@ $Notice: $
 
 #pragma once
 
+#include "Nile/core/helper.hh"
+
 #include <functional>
 #include <list>
 #include <memory>
-
-#include "Nile/core/nile.hh"
 
 // Let the users know that one class who uses 
 // singals, is observable, and the one who has listener is
@@ -36,8 +36,6 @@ namespace nile {
 
     ~Signal() {}
 
-    NILE_DISABLE_COPY( Signal )
-    // Implement move operations
 
     struct Listener {
       std::weak_ptr<listener_list> signal;

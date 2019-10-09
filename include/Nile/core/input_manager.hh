@@ -8,7 +8,7 @@ $Notice: $
 
 #pragma once
 
-#include "Nile/core/nile.hh"
+#include "Nile/core/types.hh"
 #include <SDL2/SDL.h>
 
 #include <unordered_map>

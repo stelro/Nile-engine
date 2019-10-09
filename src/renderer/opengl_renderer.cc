@@ -9,6 +9,8 @@ $Notice: $
 #include "Nile/renderer/opengl_renderer.hh"
 
 #include "Nile/2d/sprite_renderer.hh"
+#include "Nile/core/assert.hh"
+#include "Nile/core/logger.hh"
 #include "Nile/core/settings.hh"
 
 #include <GL/glew.h>
