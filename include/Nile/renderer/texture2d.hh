@@ -9,12 +9,13 @@ $Notice: $
 #pragma once
 
 #include "Nile/asset/asset.hh"
-#include "Nile/core/nile.hh"
+#include "Nile/core/types.hh"
 
 namespace nile {
 
   // Texture2D is able to store and configure texture in OpenGL.
   // It also hosts utility funcitons for easy managment.
+
 
   class Texture2D : public Asset {
   private:

@@ -8,11 +8,13 @@ $Notice: $
 
 #include "Nile/asset/subsystem/texture_loader.hh"
 #include "Nile/renderer/texture2d.hh"
+#include "Nile/core/logger.hh"
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 
 #include <GL/glew.h>
+
 
 namespace nile {
 
@@ -29,7 +31,9 @@ namespace nile {
       texture->setImageFormat( GL_RGBA );
     }
 
+
     // Load image
+    // TODO(stel): 
     int width, height, nrChannels;
     unsigned char *image = nullptr;
     image = stbi_load( filePath.data(), &width, &height, &nrChannels, STBI_rgb_alpha );
