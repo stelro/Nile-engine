@@ -25,7 +25,7 @@ namespace nile {
   public:
     Asset() noexcept
         : m_reference( new Reference() ) {}
-    ~Asset() noexcept {
+    virtual ~Asset() noexcept {
       delete m_reference;
     }
 
@@ -47,6 +47,14 @@ namespace nile {
 
     u32 getRefCount() const noexcept {
       return m_reference->getRefCount();
+    }
+
+    void inc() noexcept {
+      m_reference->inc();
+    }
+
+    void dec() noexcept {
+      m_reference->dec();
     }
   };
 
