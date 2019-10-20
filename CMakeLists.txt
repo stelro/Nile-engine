@@ -33,12 +33,14 @@ set(NILE_SOURCES_CORE
   ${NILE_DIR}/include/Nile/core/reference.hh
   ${NILE_DIR}/include/Nile/core/types.hh
   ${NILE_DIR}/include/Nile/core/assert.hh
+  ${NILE_DIR}/include/Nile/core/camera_system.hh
   ${NILE_DIR}/include/Nile/renderer/base_renderer.hh
   ${NILE_DIR}/include/Nile/renderer/font_renderer.hh
   ${NILE_DIR}/include/Nile/renderer/opengl_renderer.hh
   ${NILE_DIR}/include/Nile/renderer/texture2d.hh
   ${NILE_DIR}/include/Nile/renderer/rendering_system.hh
   ${NILE_DIR}/include/Nile/renderer/sprite_rendering_system.hh
+  ${NILE_DIR}/include/Nile/renderer/render_primitive_system.hh
   ${NILE_DIR}/include/Nile/application/game.hh
   ${NILE_DIR}/include/Nile/platform/game_host.hh
   ${NILE_DIR}/include/Nile/platform/x11/bootstrap.hh
@@ -54,6 +56,9 @@ set(NILE_SOURCES_CORE
   ${NILE_DIR}/include/Nile/ecs/components/renderable.hh
   ${NILE_DIR}/include/Nile/ecs/components/transform.hh
   ${NILE_DIR}/include/Nile/ecs/components/sprite.hh
+  ${NILE_DIR}/include/Nile/ecs/components/camera_component.hh
+  ${NILE_DIR}/include/Nile/ecs/components/primitive.hh
+  ${NILE_DIR}/include/Nile/ecs/components/mesh_component.hh
   ${NILE_DIR}/include/Nile/ecs/component_manager.hh
   ${NILE_DIR}/include/Nile/ecs/component_storage.hh
   ${NILE_DIR}/include/Nile/ecs/ecs_coordinator.hh
@@ -62,6 +67,7 @@ set(NILE_SOURCES_CORE
   ${NILE_DIR}/include/Nile/ecs/entity_manager.hh
   ${NILE_DIR}/include/Nile/ecs/handle.hh
   ${NILE_DIR}/include/Nile/ecs/handle_manager.hh
+  ${NILE_DIR}/include/Nile/ecs/ecs_field_detection.hh
   ${NILE_DIR}/src/2d/2d_camera.cc
   ${NILE_DIR}/src/2d/sprite_renderer.cc
   ${NILE_DIR}/src/2d/sprite_sheet.cc
@@ -72,12 +78,14 @@ set(NILE_SOURCES_CORE
   ${NILE_DIR}/src/core/logger.cc
   ${NILE_DIR}/src/core/settings.cc
   ${NILE_DIR}/src/core/signal.cc
+  ${NILE_DIR}/src/core/camera_system.cc
   ${NILE_DIR}/src/renderer/base_renderer.cc
   ${NILE_DIR}/src/renderer/font_renderer.cc
   ${NILE_DIR}/src/renderer/opengl_renderer.cc
   ${NILE_DIR}/src/renderer/texture2d.cc
   ${NILE_DIR}/src/renderer/rendering_system.cc
   ${NILE_DIR}/src/renderer/sprite_rendering_system.cc
+  ${NILE_DIR}/src/renderer/render_primitive_system.cc
   ${NILE_DIR}/src/application/game.cc
   ${NILE_DIR}/src/platform.x11/bootstrap.cc
   ${NILE_DIR}/src/platform.x11/game_host_x11.cc
