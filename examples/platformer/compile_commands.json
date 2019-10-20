@@ -1,0 +1,162 @@
+[
+{
+  "directory": "/home/stel/game/nile/examples/platformer/build/nile_build",
+  "command": "/usr/bin/clang++  -DDEBUG=1 -D_DEBUG -I/usr/include/SDL2 -I/home/stel/game/nile/examples/platformer/build/nile_build -I/home/stel/game/nile/./include -I/home/stel/game/nile/./external/stb -I/usr/include/freetype2  -g   -Wcomma -Wextra-semi -Wmost -Wmove -Wnewline-eof -Wignored-qualifiers -Winitializer-overrides -Wmissing-field-initializers -Wmissing-method-return-type -Wsemicolon-before-method-body -Wsign-compare -Wall -Werror -Wnon-virtual-dtor -g -O0 -std=c++17 -o CMakeFiles/nile_static.dir/src/2d/2d_camera.cc.o -c /home/stel/game/nile/src/2d/2d_camera.cc",
+  "file": "/home/stel/game/nile/src/2d/2d_camera.cc"
+},
+{
+  "directory": "/home/stel/game/nile/examples/platformer/build/nile_build",
+  "command": "/usr/bin/clang++  -DDEBUG=1 -D_DEBUG -I/usr/include/SDL2 -I/home/stel/game/nile/examples/platformer/build/nile_build -I/home/stel/game/nile/./include -I/home/stel/game/nile/./external/stb -I/usr/include/freetype2  -g   -Wcomma -Wextra-semi -Wmost -Wmove -Wnewline-eof -Wignored-qualifiers -Winitializer-overrides -Wmissing-field-initializers -Wmissing-method-return-type -Wsemicolon-before-method-body -Wsign-compare -Wall -Werror -Wnon-virtual-dtor -g -O0 -std=c++17 -o CMakeFiles/nile_static.dir/src/2d/sprite.cc.o -c /home/stel/game/nile/src/2d/sprite.cc",
+  "file": "/home/stel/game/nile/src/2d/sprite.cc"
+},
+{
+  "directory": "/home/stel/game/nile/examples/platformer/build/nile_build",
+  "command": "/usr/bin/clang++  -DDEBUG=1 -D_DEBUG -I/usr/include/SDL2 -I/home/stel/game/nile/examples/platformer/build/nile_build -I/home/stel/game/nile/./include -I/home/stel/game/nile/./external/stb -I/usr/include/freetype2  -g   -Wcomma -Wextra-semi -Wmost -Wmove -Wnewline-eof -Wignored-qualifiers -Winitializer-overrides -Wmissing-field-initializers -Wmissing-method-return-type -Wsemicolon-before-method-body -Wsign-compare -Wall -Werror -Wnon-virtual-dtor -g -O0 -std=c++17 -o CMakeFiles/nile_static.dir/src/2d/sprite_renderer.cc.o -c /home/stel/game/nile/src/2d/sprite_renderer.cc",
+  "file": "/home/stel/game/nile/src/2d/sprite_renderer.cc"
+},
+{
+  "directory": "/home/stel/game/nile/examples/platformer/build/nile_build",
+  "command": "/usr/bin/clang++  -DDEBUG=1 -D_DEBUG -I/usr/include/SDL2 -I/home/stel/game/nile/examples/platformer/build/nile_build -I/home/stel/game/nile/./include -I/home/stel/game/nile/./external/stb -I/usr/include/freetype2  -g   -Wcomma -Wextra-semi -Wmost -Wmove -Wnewline-eof -Wignored-qualifiers -Winitializer-overrides -Wmissing-field-initializers -Wmissing-method-return-type -Wsemicolon-before-method-body -Wsign-compare -Wall -Werror -Wnon-virtual-dtor -g -O0 -std=c++17 -o CMakeFiles/nile_static.dir/src/2d/sprite_set.cc.o -c /home/stel/game/nile/src/2d/sprite_set.cc",
+  "file": "/home/stel/game/nile/src/2d/sprite_set.cc"
+},
+{
+  "directory": "/home/stel/game/nile/examples/platformer/build/nile_build",
+  "command": "/usr/bin/clang++  -DDEBUG=1 -D_DEBUG -I/usr/include/SDL2 -I/home/stel/game/nile/examples/platformer/build/nile_build -I/home/stel/game/nile/./include -I/home/stel/game/nile/./external/stb -I/usr/include/freetype2  -g   -Wcomma -Wextra-semi -Wmost -Wmove -Wnewline-eof -Wignored-qualifiers -Winitializer-overrides -Wmissing-field-initializers -Wmissing-method-return-type -Wsemicolon-before-method-body -Wsign-compare -Wall -Werror -Wnon-virtual-dtor -g -O0 -std=c++17 -o CMakeFiles/nile_static.dir/src/2d/sprite_sheet.cc.o -c /home/stel/game/nile/src/2d/sprite_sheet.cc",
+  "file": "/home/stel/game/nile/src/2d/sprite_sheet.cc"
+},
+{
+  "directory": "/home/stel/game/nile/examples/platformer/build/nile_build",
+  "command": "/usr/bin/clang++  -DDEBUG=1 -D_DEBUG -I/usr/include/SDL2 -I/home/stel/game/nile/examples/platformer/build/nile_build -I/home/stel/game/nile/./include -I/home/stel/game/nile/./external/stb -I/usr/include/freetype2  -g   -Wcomma -Wextra-semi -Wmost -Wmove -Wnewline-eof -Wignored-qualifiers -Winitializer-overrides -Wmissing-field-initializers -Wmissing-method-return-type -Wsemicolon-before-method-body -Wsign-compare -Wall -Werror -Wnon-virtual-dtor -g -O0 -std=c++17 -o CMakeFiles/nile_static.dir/src/2d/spritesheet_context.cc.o -c /home/stel/game/nile/src/2d/spritesheet_context.cc",
+  "file": "/home/stel/game/nile/src/2d/spritesheet_context.cc"
+},
+{
+  "directory": "/home/stel/game/nile/examples/platformer/build/nile_build",
+  "command": "/usr/bin/clang++  -DDEBUG=1 -D_DEBUG -I/usr/include/SDL2 -I/home/stel/game/nile/examples/platformer/build/nile_build -I/home/stel/game/nile/./include -I/home/stel/game/nile/./external/stb -I/usr/include/freetype2  -g   -Wcomma -Wextra-semi -Wmost -Wmove -Wnewline-eof -Wignored-qualifiers -Winitializer-overrides -Wmissing-field-initializers -Wmissing-method-return-type -Wsemicolon-before-method-body -Wsign-compare -Wall -Werror -Wnon-virtual-dtor -g -O0 -std=c++17 -o CMakeFiles/nile_static.dir/src/application/game.cc.o -c /home/stel/game/nile/src/application/game.cc",
+  "file": "/home/stel/game/nile/src/application/game.cc"
+},
+{
+  "directory": "/home/stel/game/nile/examples/platformer/build/nile_build",
+  "command": "/usr/bin/clang++  -DDEBUG=1 -D_DEBUG -I/usr/include/SDL2 -I/home/stel/game/nile/examples/platformer/build/nile_build -I/home/stel/game/nile/./include -I/home/stel/game/nile/./external/stb -I/usr/include/freetype2  -g   -Wcomma -Wextra-semi -Wmost -Wmove -Wnewline-eof -Wignored-qualifiers -Winitializer-overrides -Wmissing-field-initializers -Wmissing-method-return-type -Wsemicolon-before-method-body -Wsign-compare -Wall -Werror -Wnon-virtual-dtor -g -O0 -std=c++17 -o CMakeFiles/nile_static.dir/src/asset/asset_container.cc.o -c /home/stel/game/nile/src/asset/asset_container.cc",
+  "file": "/home/stel/game/nile/src/asset/asset_container.cc"
+},
+{
+  "directory": "/home/stel/game/nile/examples/platformer/build/nile_build",
+  "command": "/usr/bin/clang++  -DDEBUG=1 -D_DEBUG -I/usr/include/SDL2 -I/home/stel/game/nile/examples/platformer/build/nile_build -I/home/stel/game/nile/./include -I/home/stel/game/nile/./external/stb -I/usr/include/freetype2  -g   -Wcomma -Wextra-semi -Wmost -Wmove -Wnewline-eof -Wignored-qualifiers -Winitializer-overrides -Wmissing-field-initializers -Wmissing-method-return-type -Wsemicolon-before-method-body -Wsign-compare -Wall -Werror -Wnon-virtual-dtor -g -O0 -std=c++17 -o CMakeFiles/nile_static.dir/src/asset/asset_manager.cc.o -c /home/stel/game/nile/src/asset/asset_manager.cc",
+  "file": "/home/stel/game/nile/src/asset/asset_manager.cc"
+},
+{
+  "directory": "/home/stel/game/nile/examples/platformer/build/nile_build",
+  "command": "/usr/bin/clang++  -DDEBUG=1 -D_DEBUG -I/usr/include/SDL2 -I/home/stel/game/nile/examples/platformer/build/nile_build -I/home/stel/game/nile/./include -I/home/stel/game/nile/./external/stb -I/usr/include/freetype2  -g   -Wcomma -Wextra-semi -Wmost -Wmove -Wnewline-eof -Wignored-qualifiers -Winitializer-overrides -Wmissing-field-initializers -Wmissing-method-return-type -Wsemicolon-before-method-body -Wsign-compare -Wall -Werror -Wnon-virtual-dtor -g -O0 -std=c++17 -o CMakeFiles/nile_static.dir/src/asset/builder/shaderset_builder.cc.o -c /home/stel/game/nile/src/asset/builder/shaderset_builder.cc",
+  "file": "/home/stel/game/nile/src/asset/builder/shaderset_builder.cc"
+},
+{
+  "directory": "/home/stel/game/nile/examples/platformer/build/nile_build",
+  "command": "/usr/bin/clang++  -DDEBUG=1 -D_DEBUG -I/usr/include/SDL2 -I/home/stel/game/nile/examples/platformer/build/nile_build -I/home/stel/game/nile/./include -I/home/stel/game/nile/./external/stb -I/usr/include/freetype2  -g   -Wcomma -Wextra-semi -Wmost -Wmove -Wnewline-eof -Wignored-qualifiers -Winitializer-overrides -Wmissing-field-initializers -Wmissing-method-return-type -Wsemicolon-before-method-body -Wsign-compare -Wall -Werror -Wnon-virtual-dtor -g -O0 -std=c++17 -o CMakeFiles/nile_static.dir/src/asset/subsystem/asset_loader.cc.o -c /home/stel/game/nile/src/asset/subsystem/asset_loader.cc",
+  "file": "/home/stel/game/nile/src/asset/subsystem/asset_loader.cc"
+},
+{
+  "directory": "/home/stel/game/nile/examples/platformer/build/nile_build",
+  "command": "/usr/bin/clang++  -DDEBUG=1 -D_DEBUG -I/usr/include/SDL2 -I/home/stel/game/nile/examples/platformer/build/nile_build -I/home/stel/game/nile/./include -I/home/stel/game/nile/./external/stb -I/usr/include/freetype2  -g   -Wcomma -Wextra-semi -Wmost -Wmove -Wnewline-eof -Wignored-qualifiers -Winitializer-overrides -Wmissing-field-initializers -Wmissing-method-return-type -Wsemicolon-before-method-body -Wsign-compare -Wall -Werror -Wnon-virtual-dtor -g -O0 -std=c++17 -o CMakeFiles/nile_static.dir/src/asset/subsystem/texture_loader.cc.o -c /home/stel/game/nile/src/asset/subsystem/texture_loader.cc",
+  "file": "/home/stel/game/nile/src/asset/subsystem/texture_loader.cc"
+},
+{
+  "directory": "/home/stel/game/nile/examples/platformer/build/nile_build",
+  "command": "/usr/bin/clang++  -DDEBUG=1 -D_DEBUG -I/usr/include/SDL2 -I/home/stel/game/nile/examples/platformer/build/nile_build -I/home/stel/game/nile/./include -I/home/stel/game/nile/./external/stb -I/usr/include/freetype2  -g   -Wcomma -Wextra-semi -Wmost -Wmove -Wnewline-eof -Wignored-qualifiers -Winitializer-overrides -Wmissing-field-initializers -Wmissing-method-return-type -Wsemicolon-before-method-body -Wsign-compare -Wall -Werror -Wnon-virtual-dtor -g -O0 -std=c++17 -o CMakeFiles/nile_static.dir/src/core/camera_system.cc.o -c /home/stel/game/nile/src/core/camera_system.cc",
+  "file": "/home/stel/game/nile/src/core/camera_system.cc"
+},
+{
+  "directory": "/home/stel/game/nile/examples/platformer/build/nile_build",
+  "command": "/usr/bin/clang++  -DDEBUG=1 -D_DEBUG -I/usr/include/SDL2 -I/home/stel/game/nile/examples/platformer/build/nile_build -I/home/stel/game/nile/./include -I/home/stel/game/nile/./external/stb -I/usr/include/freetype2  -g   -Wcomma -Wextra-semi -Wmost -Wmove -Wnewline-eof -Wignored-qualifiers -Winitializer-overrides -Wmissing-field-initializers -Wmissing-method-return-type -Wsemicolon-before-method-body -Wsign-compare -Wall -Werror -Wnon-virtual-dtor -g -O0 -std=c++17 -o CMakeFiles/nile_static.dir/src/core/input_manager.cc.o -c /home/stel/game/nile/src/core/input_manager.cc",
+  "file": "/home/stel/game/nile/src/core/input_manager.cc"
+},
+{
+  "directory": "/home/stel/game/nile/examples/platformer/build/nile_build",
+  "command": "/usr/bin/clang++  -DDEBUG=1 -D_DEBUG -I/usr/include/SDL2 -I/home/stel/game/nile/examples/platformer/build/nile_build -I/home/stel/game/nile/./include -I/home/stel/game/nile/./external/stb -I/usr/include/freetype2  -g   -Wcomma -Wextra-semi -Wmost -Wmove -Wnewline-eof -Wignored-qualifiers -Winitializer-overrides -Wmissing-field-initializers -Wmissing-method-return-type -Wsemicolon-before-method-body -Wsign-compare -Wall -Werror -Wnon-virtual-dtor -g -O0 -std=c++17 -o CMakeFiles/nile_static.dir/src/core/logger.cc.o -c /home/stel/game/nile/src/core/logger.cc",
+  "file": "/home/stel/game/nile/src/core/logger.cc"
+},
+{
+  "directory": "/home/stel/game/nile/examples/platformer/build/nile_build",
+  "command": "/usr/bin/clang++  -DDEBUG=1 -D_DEBUG -I/usr/include/SDL2 -I/home/stel/game/nile/examples/platformer/build/nile_build -I/home/stel/game/nile/./include -I/home/stel/game/nile/./external/stb -I/usr/include/freetype2  -g   -Wcomma -Wextra-semi -Wmost -Wmove -Wnewline-eof -Wignored-qualifiers -Winitializer-overrides -Wmissing-field-initializers -Wmissing-method-return-type -Wsemicolon-before-method-body -Wsign-compare -Wall -Werror -Wnon-virtual-dtor -g -O0 -std=c++17 -o CMakeFiles/nile_static.dir/src/core/settings.cc.o -c /home/stel/game/nile/src/core/settings.cc",
+  "file": "/home/stel/game/nile/src/core/settings.cc"
+},
+{
+  "directory": "/home/stel/game/nile/examples/platformer/build/nile_build",
+  "command": "/usr/bin/clang++  -DDEBUG=1 -D_DEBUG -I/usr/include/SDL2 -I/home/stel/game/nile/examples/platformer/build/nile_build -I/home/stel/game/nile/./include -I/home/stel/game/nile/./external/stb -I/usr/include/freetype2  -g   -Wcomma -Wextra-semi -Wmost -Wmove -Wnewline-eof -Wignored-qualifiers -Winitializer-overrides -Wmissing-field-initializers -Wmissing-method-return-type -Wsemicolon-before-method-body -Wsign-compare -Wall -Werror -Wnon-virtual-dtor -g -O0 -std=c++17 -o CMakeFiles/nile_static.dir/src/core/signal.cc.o -c /home/stel/game/nile/src/core/signal.cc",
+  "file": "/home/stel/game/nile/src/core/signal.cc"
+},
+{
+  "directory": "/home/stel/game/nile/examples/platformer/build/nile_build",
+  "command": "/usr/bin/clang++  -DDEBUG=1 -D_DEBUG -I/usr/include/SDL2 -I/home/stel/game/nile/examples/platformer/build/nile_build -I/home/stel/game/nile/./include -I/home/stel/game/nile/./external/stb -I/usr/include/freetype2  -g   -Wcomma -Wextra-semi -Wmost -Wmove -Wnewline-eof -Wignored-qualifiers -Winitializer-overrides -Wmissing-field-initializers -Wmissing-method-return-type -Wsemicolon-before-method-body -Wsign-compare -Wall -Werror -Wnon-virtual-dtor -g -O0 -std=c++17 -o CMakeFiles/nile_static.dir/src/ecs/component_storage.cc.o -c /home/stel/game/nile/src/ecs/component_storage.cc",
+  "file": "/home/stel/game/nile/src/ecs/component_storage.cc"
+},
+{
+  "directory": "/home/stel/game/nile/examples/platformer/build/nile_build",
+  "command": "/usr/bin/clang++  -DDEBUG=1 -D_DEBUG -I/usr/include/SDL2 -I/home/stel/game/nile/examples/platformer/build/nile_build -I/home/stel/game/nile/./include -I/home/stel/game/nile/./external/stb -I/usr/include/freetype2  -g   -Wcomma -Wextra-semi -Wmost -Wmove -Wnewline-eof -Wignored-qualifiers -Winitializer-overrides -Wmissing-field-initializers -Wmissing-method-return-type -Wsemicolon-before-method-body -Wsign-compare -Wall -Werror -Wnon-virtual-dtor -g -O0 -std=c++17 -o CMakeFiles/nile_static.dir/src/ecs/ecs_coordinator.cc.o -c /home/stel/game/nile/src/ecs/ecs_coordinator.cc",
+  "file": "/home/stel/game/nile/src/ecs/ecs_coordinator.cc"
+},
+{
+  "directory": "/home/stel/game/nile/examples/platformer/build/nile_build",
+  "command": "/usr/bin/clang++  -DDEBUG=1 -D_DEBUG -I/usr/include/SDL2 -I/home/stel/game/nile/examples/platformer/build/nile_build -I/home/stel/game/nile/./include -I/home/stel/game/nile/./external/stb -I/usr/include/freetype2  -g   -Wcomma -Wextra-semi -Wmost -Wmove -Wnewline-eof -Wignored-qualifiers -Winitializer-overrides -Wmissing-field-initializers -Wmissing-method-return-type -Wsemicolon-before-method-body -Wsign-compare -Wall -Werror -Wnon-virtual-dtor -g -O0 -std=c++17 -o CMakeFiles/nile_static.dir/src/ecs/ecs_system_manager.cc.o -c /home/stel/game/nile/src/ecs/ecs_system_manager.cc",
+  "file": "/home/stel/game/nile/src/ecs/ecs_system_manager.cc"
+},
+{
+  "directory": "/home/stel/game/nile/examples/platformer/build/nile_build",
+  "command": "/usr/bin/clang++  -DDEBUG=1 -D_DEBUG -I/usr/include/SDL2 -I/home/stel/game/nile/examples/platformer/build/nile_build -I/home/stel/game/nile/./include -I/home/stel/game/nile/./external/stb -I/usr/include/freetype2  -g   -Wcomma -Wextra-semi -Wmost -Wmove -Wnewline-eof -Wignored-qualifiers -Winitializer-overrides -Wmissing-field-initializers -Wmissing-method-return-type -Wsemicolon-before-method-body -Wsign-compare -Wall -Werror -Wnon-virtual-dtor -g -O0 -std=c++17 -o CMakeFiles/nile_static.dir/src/ecs/entity_manager.cc.o -c /home/stel/game/nile/src/ecs/entity_manager.cc",
+  "file": "/home/stel/game/nile/src/ecs/entity_manager.cc"
+},
+{
+  "directory": "/home/stel/game/nile/examples/platformer/build/nile_build",
+  "command": "/usr/bin/clang++  -DDEBUG=1 -D_DEBUG -I/usr/include/SDL2 -I/home/stel/game/nile/examples/platformer/build/nile_build -I/home/stel/game/nile/./include -I/home/stel/game/nile/./external/stb -I/usr/include/freetype2  -g   -Wcomma -Wextra-semi -Wmost -Wmove -Wnewline-eof -Wignored-qualifiers -Winitializer-overrides -Wmissing-field-initializers -Wmissing-method-return-type -Wsemicolon-before-method-body -Wsign-compare -Wall -Werror -Wnon-virtual-dtor -g -O0 -std=c++17 -o CMakeFiles/nile_static.dir/src/ecs/handle_manager.cc.o -c /home/stel/game/nile/src/ecs/handle_manager.cc",
+  "file": "/home/stel/game/nile/src/ecs/handle_manager.cc"
+},
+{
+  "directory": "/home/stel/game/nile/examples/platformer/build/nile_build",
+  "command": "/usr/bin/clang++  -DDEBUG=1 -D_DEBUG -I/usr/include/SDL2 -I/home/stel/game/nile/examples/platformer/build/nile_build -I/home/stel/game/nile/./include -I/home/stel/game/nile/./external/stb -I/usr/include/freetype2  -g   -Wcomma -Wextra-semi -Wmost -Wmove -Wnewline-eof -Wignored-qualifiers -Winitializer-overrides -Wmissing-field-initializers -Wmissing-method-return-type -Wsemicolon-before-method-body -Wsign-compare -Wall -Werror -Wnon-virtual-dtor -g -O0 -std=c++17 -o CMakeFiles/nile_static.dir/src/platform.x11/bootstrap.cc.o -c /home/stel/game/nile/src/platform.x11/bootstrap.cc",
+  "file": "/home/stel/game/nile/src/platform.x11/bootstrap.cc"
+},
+{
+  "directory": "/home/stel/game/nile/examples/platformer/build/nile_build",
+  "command": "/usr/bin/clang++  -DDEBUG=1 -D_DEBUG -I/usr/include/SDL2 -I/home/stel/game/nile/examples/platformer/build/nile_build -I/home/stel/game/nile/./include -I/home/stel/game/nile/./external/stb -I/usr/include/freetype2  -g   -Wcomma -Wextra-semi -Wmost -Wmove -Wnewline-eof -Wignored-qualifiers -Winitializer-overrides -Wmissing-field-initializers -Wmissing-method-return-type -Wsemicolon-before-method-body -Wsign-compare -Wall -Werror -Wnon-virtual-dtor -g -O0 -std=c++17 -o CMakeFiles/nile_static.dir/src/platform.x11/game_host_x11.cc.o -c /home/stel/game/nile/src/platform.x11/game_host_x11.cc",
+  "file": "/home/stel/game/nile/src/platform.x11/game_host_x11.cc"
+},
+{
+  "directory": "/home/stel/game/nile/examples/platformer/build/nile_build",
+  "command": "/usr/bin/clang++  -DDEBUG=1 -D_DEBUG -I/usr/include/SDL2 -I/home/stel/game/nile/examples/platformer/build/nile_build -I/home/stel/game/nile/./include -I/home/stel/game/nile/./external/stb -I/usr/include/freetype2  -g   -Wcomma -Wextra-semi -Wmost -Wmove -Wnewline-eof -Wignored-qualifiers -Winitializer-overrides -Wmissing-field-initializers -Wmissing-method-return-type -Wsemicolon-before-method-body -Wsign-compare -Wall -Werror -Wnon-virtual-dtor -g -O0 -std=c++17 -o CMakeFiles/nile_static.dir/src/renderer/base_renderer.cc.o -c /home/stel/game/nile/src/renderer/base_renderer.cc",
+  "file": "/home/stel/game/nile/src/renderer/base_renderer.cc"
+},
+{
+  "directory": "/home/stel/game/nile/examples/platformer/build/nile_build",
+  "command": "/usr/bin/clang++  -DDEBUG=1 -D_DEBUG -I/usr/include/SDL2 -I/home/stel/game/nile/examples/platformer/build/nile_build -I/home/stel/game/nile/./include -I/home/stel/game/nile/./external/stb -I/usr/include/freetype2  -g   -Wcomma -Wextra-semi -Wmost -Wmove -Wnewline-eof -Wignored-qualifiers -Winitializer-overrides -Wmissing-field-initializers -Wmissing-method-return-type -Wsemicolon-before-method-body -Wsign-compare -Wall -Werror -Wnon-virtual-dtor -g -O0 -std=c++17 -o CMakeFiles/nile_static.dir/src/renderer/font_renderer.cc.o -c /home/stel/game/nile/src/renderer/font_renderer.cc",
+  "file": "/home/stel/game/nile/src/renderer/font_renderer.cc"
+},
+{
+  "directory": "/home/stel/game/nile/examples/platformer/build/nile_build",
+  "command": "/usr/bin/clang++  -DDEBUG=1 -D_DEBUG -I/usr/include/SDL2 -I/home/stel/game/nile/examples/platformer/build/nile_build -I/home/stel/game/nile/./include -I/home/stel/game/nile/./external/stb -I/usr/include/freetype2  -g   -Wcomma -Wextra-semi -Wmost -Wmove -Wnewline-eof -Wignored-qualifiers -Winitializer-overrides -Wmissing-field-initializers -Wmissing-method-return-type -Wsemicolon-before-method-body -Wsign-compare -Wall -Werror -Wnon-virtual-dtor -g -O0 -std=c++17 -o CMakeFiles/nile_static.dir/src/renderer/opengl_renderer.cc.o -c /home/stel/game/nile/src/renderer/opengl_renderer.cc",
+  "file": "/home/stel/game/nile/src/renderer/opengl_renderer.cc"
+},
+{
+  "directory": "/home/stel/game/nile/examples/platformer/build/nile_build",
+  "command": "/usr/bin/clang++  -DDEBUG=1 -D_DEBUG -I/usr/include/SDL2 -I/home/stel/game/nile/examples/platformer/build/nile_build -I/home/stel/game/nile/./include -I/home/stel/game/nile/./external/stb -I/usr/include/freetype2  -g   -Wcomma -Wextra-semi -Wmost -Wmove -Wnewline-eof -Wignored-qualifiers -Winitializer-overrides -Wmissing-field-initializers -Wmissing-method-return-type -Wsemicolon-before-method-body -Wsign-compare -Wall -Werror -Wnon-virtual-dtor -g -O0 -std=c++17 -o CMakeFiles/nile_static.dir/src/renderer/render_primitive_system.cc.o -c /home/stel/game/nile/src/renderer/render_primitive_system.cc",
+  "file": "/home/stel/game/nile/src/renderer/render_primitive_system.cc"
+},
+{
+  "directory": "/home/stel/game/nile/examples/platformer/build/nile_build",
+  "command": "/usr/bin/clang++  -DDEBUG=1 -D_DEBUG -I/usr/include/SDL2 -I/home/stel/game/nile/examples/platformer/build/nile_build -I/home/stel/game/nile/./include -I/home/stel/game/nile/./external/stb -I/usr/include/freetype2  -g   -Wcomma -Wextra-semi -Wmost -Wmove -Wnewline-eof -Wignored-qualifiers -Winitializer-overrides -Wmissing-field-initializers -Wmissing-method-return-type -Wsemicolon-before-method-body -Wsign-compare -Wall -Werror -Wnon-virtual-dtor -g -O0 -std=c++17 -o CMakeFiles/nile_static.dir/src/renderer/rendering_system.cc.o -c /home/stel/game/nile/src/renderer/rendering_system.cc",
+  "file": "/home/stel/game/nile/src/renderer/rendering_system.cc"
+},
+{
+  "directory": "/home/stel/game/nile/examples/platformer/build/nile_build",
+  "command": "/usr/bin/clang++  -DDEBUG=1 -D_DEBUG -I/usr/include/SDL2 -I/home/stel/game/nile/examples/platformer/build/nile_build -I/home/stel/game/nile/./include -I/home/stel/game/nile/./external/stb -I/usr/include/freetype2  -g   -Wcomma -Wextra-semi -Wmost -Wmove -Wnewline-eof -Wignored-qualifiers -Winitializer-overrides -Wmissing-field-initializers -Wmissing-method-return-type -Wsemicolon-before-method-body -Wsign-compare -Wall -Werror -Wnon-virtual-dtor -g -O0 -std=c++17 -o CMakeFiles/nile_static.dir/src/renderer/shaderset.cc.o -c /home/stel/game/nile/src/renderer/shaderset.cc",
+  "file": "/home/stel/game/nile/src/renderer/shaderset.cc"
+},
+{
+  "directory": "/home/stel/game/nile/examples/platformer/build/nile_build",
+  "command": "/usr/bin/clang++  -DDEBUG=1 -D_DEBUG -I/usr/include/SDL2 -I/home/stel/game/nile/examples/platformer/build/nile_build -I/home/stel/game/nile/./include -I/home/stel/game/nile/./external/stb -I/usr/include/freetype2  -g   -Wcomma -Wextra-semi -Wmost -Wmove -Wnewline-eof -Wignored-qualifiers -Winitializer-overrides -Wmissing-field-initializers -Wmissing-method-return-type -Wsemicolon-before-method-body -Wsign-compare -Wall -Werror -Wnon-virtual-dtor -g -O0 -std=c++17 -o CMakeFiles/nile_static.dir/src/renderer/sprite_rendering_system.cc.o -c /home/stel/game/nile/src/renderer/sprite_rendering_system.cc",
+  "file": "/home/stel/game/nile/src/renderer/sprite_rendering_system.cc"
+},
+{
+  "directory": "/home/stel/game/nile/examples/platformer/build/nile_build",
+  "command": "/usr/bin/clang++  -DDEBUG=1 -D_DEBUG -I/usr/include/SDL2 -I/home/stel/game/nile/examples/platformer/build/nile_build -I/home/stel/game/nile/./include -I/home/stel/game/nile/./external/stb -I/usr/include/freetype2  -g   -Wcomma -Wextra-semi -Wmost -Wmove -Wnewline-eof -Wignored-qualifiers -Winitializer-overrides -Wmissing-field-initializers -Wmissing-method-return-type -Wsemicolon-before-method-body -Wsign-compare -Wall -Werror -Wnon-virtual-dtor -g -O0 -std=c++17 -o CMakeFiles/nile_static.dir/src/renderer/texture2d.cc.o -c /home/stel/game/nile/src/renderer/texture2d.cc",
+  "file": "/home/stel/game/nile/src/renderer/texture2d.cc"
+}
+]
