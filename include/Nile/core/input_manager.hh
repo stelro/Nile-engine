@@ -10,6 +10,7 @@ $Notice: $
 
 #include "Nile/core/types.hh"
 #include <SDL2/SDL.h>
+#include <glm/glm.hpp>
 
 #include <unordered_map>
 
@@ -19,6 +20,15 @@ namespace nile {
   private:
     SDL_Event m_event;
     bool m_shouldClose = false;
+    glm::ivec2 m_mousePosition;
+
+    struct {
+      bool left = false;
+      bool right = false;
+      bool middle = false;
+      bool button_x1 = false;
+      bool button_x2 = false;
+    } m_mouseButtonEvents;
 
     std::unordered_map<SDL_Keycode, bool> m_pressedKeys;
 
@@ -47,6 +57,22 @@ namespace nile {
     // Checks if specifc key has released
     [[nodiscard]] bool isKeyHasReleased( SDL_Keycode key ) const noexcept {
       return !isKeyPressed( key );
+    }
+
+    glm::ivec2 getMousePos() const noexcept {
+      return m_mousePosition;
+    }
+
+    bool mouseRightPressed() const noexcept {
+      return m_mouseButtonEvents.right;
+    }
+
+    bool mouseLeftPressed() const noexcept {
+      return m_mouseButtonEvents.left;
+    }
+
+    bool mouseMiddlePressed() const noexcept {
+      return m_mouseButtonEvents.middle;
     }
   };
 
