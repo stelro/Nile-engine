@@ -11,8 +11,8 @@
 int main() {
 
   auto settings = nile::Settings::Builder {}
-                      .setWidth( 1024 )
-                      .setHeight( 600 )
+                      .setWidth( 1280 )
+                      .setHeight( 720 )
                       .setTitle( "Deathmarch v0.1" )
                       .setDebugMode( true )
                       .setWindowFlags( SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN )
