@@ -7,7 +7,6 @@ $Notice: $
 ================================================================================ */
 #pragma once
 
-#include "Nile/ecs/ecs_coordinator.hh"
 #include "Nile/ecs/ecs_system.hh"
 
 #include <memory>
@@ -22,6 +21,7 @@ $Notice: $
 namespace nile {
 
   class ShaderSet;
+  class Coordinator;
 
   class SpriteRenderingSystem : public System {
   private:
@@ -33,7 +33,7 @@ namespace nile {
   public:
     SpriteRenderingSystem( const std::shared_ptr<Coordinator> &coordinator,
                            ShaderSet *shader ) noexcept;
-    void init() noexcept;
+    void create() noexcept;
     void destroy() noexcept;
     void update( float dt ) noexcept;
     void render( float dt ) noexcept;

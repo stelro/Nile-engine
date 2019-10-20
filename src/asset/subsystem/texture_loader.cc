@@ -37,6 +37,7 @@ namespace nile {
     int width, height, nrChannels;
     unsigned char *image = nullptr;
     image = stbi_load( filePath.data(), &width, &height, &nrChannels, STBI_rgb_alpha );
+    stbi_set_flip_vertically_on_load(true);
 
     if ( !image ) {
       log::error( "Failed to load texture { %s }\n", filePath.data() );
