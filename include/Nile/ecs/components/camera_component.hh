@@ -24,7 +24,7 @@ namespace nile {
     f32 far;
     f32 fieldOfView;
     glm::vec3 cameraFront {0.0f, 0.0f, -1.0f};
-    glm::vec3 cameraUp { 0.0f, 1.0f, 0.0f};
+    glm::vec3 cameraUp {0.0f, 1.0f, 0.0f};
     glm::mat4 projectionMatrix {1.0f};
     glm::mat4 viewMatrix {1.0f};
     glm::mat4 cameraMatrix {1.0f};
