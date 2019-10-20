@@ -56,6 +56,11 @@ namespace nile {
           break;
         case ProjectionType::PERSPECTIVE:
           // TODO(stel): create perspective projection matrix
+          cameraComponent.projectionMatrix =
+              glm::perspective( glm::radians( cameraComponent.fieldOfView ),
+                                static_cast<f32>( m_settings->getWidth() ) /
+                                    static_cast<f32>( m_settings->getHeight() ),
+                                cameraComponent.near, cameraComponent.far );
           break;
         default:
           break;
@@ -69,18 +74,17 @@ namespace nile {
       auto &transform = m_ecsCoordinator->getComponent<Transform>( entity );
       auto &cameraComponent = m_ecsCoordinator->getComponent<CameraComponent>( entity );
       if ( cameraComponent.shouldCameraUpdate ) {
-        log::print( "should updtate\n" );
-
         glm::vec3 translation = transform.position;
         cameraComponent.cameraMatrix =
             glm::translate( cameraComponent.projectionMatrix, translation );
-        cameraComponent.cameraMatrix = glm::scale( cameraComponent.cameraMatrix, transform.scale );
+        cameraComponent.cameraMatrix = glm::scale( cameraComponent.cameraMatrix, transform.scale
+        );
 
         // compute the view matrix
         cameraComponent.viewMatrix =
             lookAt( transform.position, transform.position + cameraComponent.cameraFront,
                     cameraComponent.cameraUp );
-        cameraComponent.shouldCameraUpdate = false;
+          cameraComponent.shouldCameraUpdate = false;
       }
     }
   }
