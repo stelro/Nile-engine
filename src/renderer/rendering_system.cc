@@ -34,6 +34,8 @@ namespace nile {
       auto& transform = m_ecsCoordinator->getComponent<Transform>(entity);
       auto& renderable = m_ecsCoordinator->getComponent<Renderable>(entity);
 
+      m_shader->use();
+
       glm::mat4 model = glm::mat4(1.0f);
       model = glm::translate(model, transform.position);
       model = glm::rotate(model , glm::radians(0.0f), glm::vec3(1.0f, 0.3f, 0.5f));
