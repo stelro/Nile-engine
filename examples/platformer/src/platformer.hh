@@ -43,11 +43,13 @@ namespace platformer {
     void createAxisLines() noexcept;
     void test3d() noexcept;
 
+    void processKeyboardEvents(f32 dt) noexcept;
+    void processMouseEvents(f32 dt) noexcept;
+    void processMouseScroll(f32 dt) noexcept;
+
     // Used for FPS-like camrea
-    f32 m_lastX = 400;
-    f32 m_lastY = 300;
-    f32 yaw = -90.0f;
-    f32 pitch = 0.0f;
+    f32 m_lastX;
+    f32 m_lastY;
     bool m_firstMouse = true;
     glm::ivec2 m_mouse_pos;
 

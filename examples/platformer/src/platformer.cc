@@ -7,7 +7,7 @@
 #include <Nile/ecs/components/renderable.hh>
 #include <Nile/ecs/components/sprite.hh>
 #include <Nile/ecs/components/transform.hh>
-
+#include <Nile/math/utils.hh>
 
 namespace platformer {
 
@@ -20,12 +20,11 @@ namespace platformer {
       , m_settings( gameHost->getSettings() )
       , m_assetManager( gameHost->getAssetManager() )
       , m_ecsCoordinator( gameHost->getEcsCoordinator() ) {
-  
 
-        m_lastX = m_settings->getWidth() / 2.0f;
-        m_lastY = m_settings->getHeight() / 2.0f;
 
-      }
+    m_lastX = m_settings->getWidth() / 2.0f;
+    m_lastY = m_settings->getHeight() / 2.0f;
+  }
 
 
   void Platformer::initialize() noexcept {
@@ -64,7 +63,7 @@ namespace platformer {
 
     m_cameraEntity = m_ecsCoordinator->createEntity();
     Transform camera_transform;
-    camera_transform.position = glm::vec3( 0.0f, 0.0f, 3.0f );
+    camera_transform.position = glm::vec3( 2.3589f, -6.9258f, 3.9583f );
     m_ecsCoordinator->addComponent<Transform>( m_cameraEntity, camera_transform );
 
     CameraComponent cameraComponent( 0.1f, 100.0f, 45.0f, ProjectionType::PERSPECTIVE );
@@ -72,8 +71,8 @@ namespace platformer {
 
 
     //  this->initializeEcs();
-    //  this->createAxisLines();
     this->test3d();
+    this->createAxisLines();
   }
 
   void Platformer::initializeEcs() noexcept {
@@ -128,34 +127,34 @@ namespace platformer {
     // primitive test
     Primitive primitive;
     primitive.begin = glm::vec2( 0.0f, 0.0f );
-    primitive.end = glm::vec2( 100.0f, 0.0f );
-    primitive.lineWidth = 2.2f;
+    primitive.end = glm::vec2( 1.0f, 0.0f );
 
-    Transform primitive_transform( glm::vec3( 22.0f, m_settings->getHeight() - 18.0f, 0.0f ),
-                                   glm::vec3( 1.0f ), 0.0f );
+    Transform primitive_transform( glm::vec3( 0.0f, 1.0f, -3.0f ), glm::vec3( 1.0f ), 0.0f );
 
     auto x_axis_line = m_ecsCoordinator->createEntity();
     m_ecsCoordinator->addComponent<Transform>( x_axis_line, primitive_transform );
     m_ecsCoordinator->addComponent<Renderable>( x_axis_line,
                                                 Renderable( glm::vec3( 0.957f, 0.263f, 0.212f ) ) );
     m_ecsCoordinator->addComponent<Primitive>( x_axis_line, primitive );
-
-    primitive_transform.rotation = 270.0f;
-
-    auto y_axis_line = m_ecsCoordinator->createEntity();
-    m_ecsCoordinator->addComponent<Transform>( y_axis_line, primitive_transform );
-    m_ecsCoordinator->addComponent<Renderable>( y_axis_line,
-                                                Renderable( glm::vec3( 0.298f, 0.686f, 0.314f ) ) );
-    m_ecsCoordinator->addComponent<Primitive>( y_axis_line, primitive );
-
-    primitive_transform.rotation = 315.0f;
-
-    primitive.end.x = 80.0f;
-    auto z_axis_line = m_ecsCoordinator->createEntity();
-    m_ecsCoordinator->addComponent<Transform>( z_axis_line, primitive_transform );
-    m_ecsCoordinator->addComponent<Renderable>( z_axis_line,
-                                                Renderable( glm::vec3( 0.157f, 0.208f, 0.576f ) ) );
-    m_ecsCoordinator->addComponent<Primitive>( z_axis_line, primitive );
+    //
+    // primitive_transform.rotation = 270.0f;
+    //
+    // auto y_axis_line = m_ecsCoordinator->createEntity();
+    // m_ecsCoordinator->addComponent<Transform>( y_axis_line, primitive_transform );
+    // m_ecsCoordinator->addComponent<Renderable>( y_axis_line,
+    //                                             Renderable( glm::vec3( 0.298f, 0.686f, 0.314f ) )
+    //                                             );
+    // m_ecsCoordinator->addComponent<Primitive>( y_axis_line, primitive );
+    //
+    // primitive_transform.rotation = 315.0f;
+    //
+    // primitive.end.x = 80.0f;
+    // auto z_axis_line = m_ecsCoordinator->createEntity();
+    // m_ecsCoordinator->addComponent<Transform>( z_axis_line, primitive_transform );
+    // m_ecsCoordinator->addComponent<Renderable>( z_axis_line,
+    //                                             Renderable( glm::vec3( 0.157f, 0.208f, 0.576f ) )
+    //                                             );
+    // m_ecsCoordinator->addComponent<Primitive>( z_axis_line, primitive );
   }
 
   void Platformer::draw( f32 deltaTime ) noexcept {
@@ -167,111 +166,41 @@ namespace platformer {
 
   void Platformer::update( f32 deltaTime ) noexcept {
 
-    const f32 zoomScale = 0.02f;
-    const f32 cameraSpeed = 0.02f * deltaTime;
+    this->processMouseEvents( deltaTime );
+    this->processKeyboardEvents( deltaTime );
+    this->processMouseScroll( deltaTime );
 
-    auto &camera_transform = m_ecsCoordinator->getComponent<Transform>( m_cameraEntity );
     auto &camera_component = m_ecsCoordinator->getComponent<CameraComponent>( m_cameraEntity );
 
-    if ( m_inputManager->isKeyPressed( SDLK_ESCAPE ) ) {
-      m_inputManager->terminateEngine();
-    }
-
-    if ( m_inputManager->isKeyPressed( SDLK_r ) ) {
-      camera_transform.scale += glm::vec3( zoomScale );
-      camera_component.shouldCameraUpdate = true;
-    }
-
-    if ( m_inputManager->isKeyPressed( SDLK_e ) ) {
-      camera_transform.scale -= glm::vec3( zoomScale );
-      camera_component.shouldCameraUpdate = true;
-    }
-
-    if ( m_inputManager->isKeyPressed( SDLK_w ) ) {
-      camera_transform.position += cameraSpeed * camera_component.cameraFront;
-      camera_component.shouldCameraUpdate = true;
-    }
-
-    if ( m_inputManager->isKeyPressed( SDLK_s ) ) {
-      camera_transform.position -= cameraSpeed * camera_component.cameraFront;
-      camera_component.shouldCameraUpdate = true;
-    }
-
-    if ( m_inputManager->isKeyPressed( SDLK_a ) ) {
-      camera_transform.position -=
-          glm::normalize( glm::cross( camera_component.cameraFront, camera_component.cameraUp ) ) *
-          cameraSpeed;
-      camera_component.shouldCameraUpdate = true;
-    }
-
-    if ( m_inputManager->isKeyPressed( SDLK_d ) ) {
-      camera_transform.position +=
-          glm::normalize( glm::cross( camera_component.cameraFront, camera_component.cameraUp ) ) *
-          cameraSpeed;
-      camera_component.shouldCameraUpdate = true;
-    }
+    auto &c_transform = m_ecsCoordinator->getComponent<Transform>( m_cameraEntity );
+    auto &c_camera = m_ecsCoordinator->getComponent<CameraComponent>( m_cameraEntity );
 
 
-    if ( m_mouse_pos != m_inputManager->getMousePos() && m_inputManager->mouseLeftPressed() ) {
-
-
-      if ( m_firstMouse ) {
-        m_lastX = m_mouse_pos.x;
-        m_lastY = m_mouse_pos.y;
-        m_firstMouse = false;
-      }
-
-      f32 xoffset = m_mouse_pos.x - m_lastX;
-      f32 yoffset = m_lastY - m_mouse_pos.y;
-
-      m_lastX = m_mouse_pos.x;
-      m_lastY = m_mouse_pos.y;
-
-      f32 sensitivity = 0.05f;
-      xoffset *= sensitivity;
-      yoffset *= sensitivity;
-
-      yaw += xoffset;
-      pitch += yoffset;
-
-      if ( pitch > 89.0f )
-        pitch = 89.0f;
-      if ( pitch < -89.0f )
-        pitch = -89.0f;
-
-      glm::vec3 front;
-      front.x = cos( glm::radians( yaw ) ) * cos( glm::radians( pitch ) );
-      front.y = sin( glm::radians( pitch ) );
-      front.z = sin( glm::radians( yaw ) ) * cos( glm::radians( pitch ) );
-
-      camera_component.cameraFront = glm::normalize( front );
-      camera_component.shouldCameraUpdate = true;
-    }
-
+    glm::mat4 view =
+        Math::lookAt( c_transform.position, c_transform.position + camera_component.cameraFront,
+                      camera_component.cameraUp );
+    glm::mat4 projection = glm::perspective( glm::radians( c_camera.fieldOfView ),
+                                             static_cast<f32>( m_settings->getWidth() ) /
+                                                 static_cast<f32>( m_settings->getHeight() ),
+                                             c_camera.near, c_camera.far );
 
     // We set projection matrix to the object that are "moving"
     // since the camera is static, and we shift the world
     m_assetManager->getAsset<ShaderSet>( "sprite_shader" )
         ->use()
-        .SetMatrix4( "projection", camera_component.cameraMatrix );
+        .SetMatrix4( "projection", projection );
 
-    m_assetManager->getAsset<ShaderSet>( "sprite_shader" )
-        ->use()
-        .SetMatrix4( "view", camera_component.viewMatrix );
+    m_assetManager->getAsset<ShaderSet>( "sprite_shader" )->use().SetMatrix4( "view", view );
 
     m_assetManager->getAsset<ShaderSet>( "line_shader" )
         ->use()
-        .SetMatrix4( "projection", camera_component.cameraMatrix );
+        .SetMatrix4( "projection", projection );
+
+    m_assetManager->getAsset<ShaderSet>( "mesh_shader" )->use().SetMatrix4( "view", view );
 
     m_assetManager->getAsset<ShaderSet>( "mesh_shader" )
         ->use()
-        .SetMatrix4( "view", camera_component.viewMatrix );
-
-    m_assetManager->getAsset<ShaderSet>( "mesh_shader" )
-        ->use()
-        .SetMatrix4( "projection", camera_component.cameraMatrix );
-
-    m_mouse_pos = m_inputManager->getMousePos();
+        .SetMatrix4( "projection", projection );
   }
 
 
@@ -290,6 +219,92 @@ namespace platformer {
     MeshComponent mesh;
     mesh.texture = m_assetManager->getAsset<Texture2D>( "grid" );
     m_ecsCoordinator->addComponent<MeshComponent>( entity, mesh );
+  }
+
+  void Platformer::processKeyboardEvents( f32 dt ) noexcept {
+
+    constexpr f32 movement_speed = 0.025f;
+    f32 velocity = movement_speed * dt;
+
+    // Camera components
+    auto &c_transform = m_ecsCoordinator->getComponent<Transform>( m_cameraEntity );
+    auto &c_camera = m_ecsCoordinator->getComponent<CameraComponent>( m_cameraEntity );
+
+    if ( m_inputManager->isKeyPressed( SDLK_w ) ) {
+      // Forward
+      c_transform.position += c_camera.cameraFront * velocity;
+    }
+
+    if ( m_inputManager->isKeyPressed( SDLK_s ) ) {
+      // Backward
+      c_transform.position -= c_camera.cameraFront * velocity;
+    }
+
+    if ( m_inputManager->isKeyPressed( SDLK_a ) ) {
+      // Left
+      c_transform.position -= c_camera.cameraRight * velocity;
+    }
+
+    if ( m_inputManager->isKeyPressed( SDLK_d ) ) {
+      // Right
+      c_transform.position += c_camera.cameraRight * velocity;
+    }
+
+
+    if ( m_inputManager->isKeyPressed( SDLK_ESCAPE ) ) {
+      m_inputManager->terminateEngine();
+    }
+  }
+
+
+  void Platformer::processMouseEvents( f32 dt ) noexcept {
+
+    auto &c_camera = m_ecsCoordinator->getComponent<CameraComponent>( m_cameraEntity );
+
+    if ( m_inputManager->mouseLeftPressed() ) {
+
+      if ( m_firstMouse ) {
+        m_lastX = m_inputManager->getMousePos().x;
+        m_lastY = m_inputManager->getMousePos().y;
+        m_firstMouse = false;
+      }
+
+      float xoffset = m_inputManager->getMousePos().x - m_lastX;
+      float yoffset = m_lastY - m_inputManager->getMousePos().y;
+
+      f32 sensitivity = 0.008f;
+
+      xoffset *= sensitivity;
+      yoffset *= sensitivity;
+
+      c_camera.yaw += xoffset;
+      c_camera.pitch += yoffset;
+
+      if ( c_camera.pitch > 89.0f )
+        c_camera.pitch = 89.0f;
+      if ( c_camera.pitch < -89.0f )
+        c_camera.pitch = -89.0f;
+
+
+      c_camera.shouldCameraUpdate = true;
+    }
+  }
+
+  void Platformer::processMouseScroll( f32 dt ) noexcept {
+
+    auto &c_camera = m_ecsCoordinator->getComponent<CameraComponent>( m_cameraEntity );
+
+    if ( c_camera.fieldOfView >= 1.0f && c_camera.fieldOfView <= 45.0f ) {
+      c_camera.fieldOfView -= m_inputManager->getVerticalWheel();
+    }
+
+    if ( c_camera.fieldOfView <= 1.0f ) {
+      c_camera.fieldOfView = 1.0f;
+    }
+
+    if ( c_camera.fieldOfView >= 45.0f ) {
+      c_camera.fieldOfView = 45.0f;
+    }
   }
 
 }    // namespace platformer
