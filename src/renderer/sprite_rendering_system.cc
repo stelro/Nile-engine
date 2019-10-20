@@ -10,9 +10,9 @@ $Notice: $
 #include "Nile/ecs/components/renderable.hh"
 #include "Nile/ecs/components/sprite.hh"
 #include "Nile/ecs/components/transform.hh"
+#include "Nile/ecs/ecs_coordinator.hh"
 #include "Nile/renderer/shaderset.hh"
 #include "Nile/renderer/texture2d.hh"
-#include "Nile/ecs/ecs_coordinator.hh"
 
 #include <GL/glew.h>
 #include <glm/glm.hpp>

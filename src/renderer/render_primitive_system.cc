@@ -30,6 +30,12 @@ namespace nile {
 
       this->m_primShader->use();
 
+      // f32 vertices[] = {primitive.begin.x, primitive.begin.y, primitive.end.x, primitive.end.y};
+      //
+      // glBindBuffer( GL_ARRAY_BUFFER, primitive.vbo );
+      // glBufferSubData( GL_ARRAY_BUFFER, 0, sizeof( vertices ), vertices );
+      // glBindBuffer( GL_ARRAY_BUFFER, 0 );
+      //
       glm::mat4 model = glm::mat4 {1.0f};
       model = glm::translate( model, transform.position );
       model =
@@ -47,8 +53,6 @@ namespace nile {
 
   void RenderPrimitiveSystem::initRenderData() noexcept {
 
-    glEnable(GL_LINE_SMOOTH);
-    glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
 
     for ( const auto &entity : m_entities ) {
       auto &primitive = m_ecsCoordinator->getComponent<Primitive>( entity );
