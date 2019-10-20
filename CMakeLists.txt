@@ -68,6 +68,7 @@ set(NILE_SOURCES_CORE
   ${NILE_DIR}/include/Nile/ecs/handle.hh
   ${NILE_DIR}/include/Nile/ecs/handle_manager.hh
   ${NILE_DIR}/include/Nile/ecs/ecs_field_detection.hh
+  ${NILE_DIR}/include/Nile/math/utils.hh
   ${NILE_DIR}/src/2d/2d_camera.cc
   ${NILE_DIR}/src/2d/sprite_renderer.cc
   ${NILE_DIR}/src/2d/sprite_sheet.cc
@@ -100,6 +101,7 @@ set(NILE_SOURCES_CORE
   ${NILE_DIR}/src/ecs/ecs_system_manager.cc
   ${NILE_DIR}/src/ecs/entity_manager.cc
   ${NILE_DIR}/src/ecs/handle_manager.cc
+  ${NILE_DIR}/src/math/utils.cc
   )
 
 set(SOURCE_FILES ${NILE_SOURCES_CORE})
@@ -225,7 +227,7 @@ target_compile_options(nile_static PRIVATE
   # Clang and GCC
   $<$<OR:$<CXX_COMPILER_ID:Clang>,$<CXX_COMPILER_ID:GNU>,$<STREQUAL:${CMAKE_GENERATOR},Xcode>>:
     -Wall
-    -Werror
+    #    -Werror
     -Wnon-virtual-dtor
     $<$<CONFIG:DEBUG>:-g;-O0>
     $<$<CONFIG:RELEASE>:-O3>
