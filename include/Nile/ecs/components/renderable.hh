@@ -13,7 +13,12 @@ $Notice: $
 namespace nile {
 
   struct Renderable {
-    glm::vec3 color;
+    Renderable() = default;
+
+    Renderable( const glm::vec3 &c )
+        : color( c ) {}
+
+    glm::vec3 color {};
   };
 
 }    // namespace nile
