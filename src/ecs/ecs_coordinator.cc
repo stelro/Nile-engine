@@ -28,5 +28,16 @@ namespace nile {
     m_systemManager->entityDestroyed( entity );
   }
 
+  void Coordinator::createSystems() noexcept {
+    m_systemManager->createSystems();
+  }
+
+  void Coordinator::update( float dt ) noexcept {
+    m_systemManager->update( dt );
+  }
+
+  void Coordinator::render( float dt ) noexcept {
+    m_systemManager->render( dt );
+  }
 
 }    // namespace nile

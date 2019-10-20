@@ -74,15 +74,23 @@ namespace nile {
       return m_componentManager->getComponentType<T>();
     }
 
-    template <typename T, typename ...Args>
-    std::shared_ptr<T> registerSystem(Args&& ...args) noexcept {
-      return m_systemManager->registerSystem<T>(std::forward<Args>(args)...);
+    template <typename T, typename... Args>
+    std::shared_ptr<T> registerSystem( Args &&... args ) noexcept {
+      return m_systemManager->registerSystem<T>( std::forward<Args>( args )... );
     }
 
     template <typename T>
     void setSystemSignature( Signature signature ) noexcept {
       m_systemManager->setSignature<T>( signature );
     }
+
+    // Wrapper method for ecs_system_manager createSystems, this should be called right
+    // before update
+    void createSystems() noexcept;
+
+    void update( float dt ) noexcept;
+
+    void render( float dt ) noexcept;
   };
 
 }    // namespace nile
