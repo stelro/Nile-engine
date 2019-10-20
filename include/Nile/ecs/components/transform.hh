@@ -14,9 +14,16 @@ $Notice: $
 namespace nile {
 
   struct Transform {
-    glm::vec3 position;
-    glm::vec3 scale;
-    f32 rotation;
+
+    Transform() = default;
+    Transform( const glm::vec3 &p, const glm::vec3 &s, f32 r ) noexcept
+        : position( p )
+        , scale( s )
+        , rotation( r ) {}
+
+    glm::vec3 position {1.0f};
+    glm::vec3 scale {1.0f};
+    f32 rotation {};
   };
 
 }    // namespace nile
