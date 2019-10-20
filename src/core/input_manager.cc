@@ -77,6 +77,10 @@ namespace nile {
           }
 
           break;
+        case SDL_MOUSEWHEEL:
+          m_mouseVerticalWheel = m_event.wheel.y;
+          m_mouseHorizontalWheel = m_event.wheel.x;
+          break;
         default:
           break;
       }

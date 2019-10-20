@@ -21,6 +21,11 @@ namespace nile {
     SDL_Event m_event;
     bool m_shouldClose = false;
     glm::ivec2 m_mousePosition;
+    // Mouse wheel events
+    // if y > 0 then it's scroll up, if < 0 it's scroll down
+    i32 m_mouseVerticalWheel = 0;
+    // if x > 0 its scroll right and if < 0 its scroll left
+    i32 m_mouseHorizontalWheel = 0;
 
     struct {
       bool left = false;
@@ -73,6 +78,14 @@ namespace nile {
 
     bool mouseMiddlePressed() const noexcept {
       return m_mouseButtonEvents.middle;
+    }
+
+    i32 getVerticalWheel() const noexcept {
+      return m_mouseVerticalWheel;
+    }
+
+    i32 getHorizontalWheel() const noexcept {
+      return m_mouseHorizontalWheel;
     }
   };
 
