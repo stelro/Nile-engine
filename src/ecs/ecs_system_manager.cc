@@ -39,4 +39,23 @@ namespace nile {
     }
   }
 
+  void EcsSystemManager::createSystems() noexcept {
+    for ( const auto &create_h : m_createHandles ) {
+      create_h();
+    }
+  }
+
+  void EcsSystemManager::update( float dt ) noexcept {
+    for ( const auto &update_h : m_updateHandles ) {
+      update_h( dt );
+    }
+  }
+
+  void EcsSystemManager::render( float dt ) noexcept {
+    for ( const auto &render_h : m_renderHandles ) {
+      render_h( dt );
+    }
+  }
+
+
 }    // namespace nile
