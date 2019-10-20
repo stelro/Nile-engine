@@ -12,6 +12,7 @@ $Notice: $
 #include "Nile/ecs/components/transform.hh"
 #include "Nile/renderer/shaderset.hh"
 #include "Nile/renderer/texture2d.hh"
+#include "Nile/ecs/ecs_coordinator.hh"
 
 #include <GL/glew.h>
 #include <glm/glm.hpp>
@@ -24,7 +25,7 @@ namespace nile {
       : m_ecsCoordinator( coordinator )
       , m_spriteShader( shader ) {}
 
-  void SpriteRenderingSystem::init() noexcept {
+  void SpriteRenderingSystem::create() noexcept {
     this->initRenderData();
   }
 
@@ -40,6 +41,7 @@ namespace nile {
       auto &transform = m_ecsCoordinator->getComponent<Transform>( entity );
       auto &renderable = m_ecsCoordinator->getComponent<Renderable>( entity );
       auto &sprite = m_ecsCoordinator->getComponent<SpriteComponent>( entity );
+
 
       this->m_spriteShader->use();
 

@@ -51,6 +51,10 @@ namespace nile {
       SDL_GL_SetAttribute( SDL_GL_CONTEXT_MINOR_VERSION, 3 );
       m_glContext = SDL_GL_CreateContext( m_window );
 
+      // adaptive vsync
+      // 0 for immidiate mode
+      // SDL_GL_SetSwapInterval(-1);
+
       if ( !m_glContext ) {
         log::fatal( "OpenGL Context could not be created! SDL Error: %s\n", SDL_GetError() );
       }
@@ -63,8 +67,8 @@ namespace nile {
 
     glViewport( 0, 0, m_settings->getWidth(), m_settings->getHeight() );
 
-    glDisable( GL_DEPTH_TEST );
-    glEnable( GL_CULL_FACE );
+//    glEnable( GL_CULL_FACE );
+    glEnable( GL_DEPTH_TEST );
     glEnable( GL_BLEND );
     glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
     m_isRunning = true;
@@ -76,7 +80,6 @@ namespace nile {
   }
 
   void OpenGLRenderer::destroy() noexcept {
-    // ResourceManager::clear();
     SDL_DestroyWindow( m_window );
     m_window = nullptr;
     SDL_Quit();
@@ -90,12 +93,11 @@ namespace nile {
     } else {
       glClearColor( 0.086f, 0.188f, 0.235f, 1.0f );
     }
-    glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+  glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
   }
 
   void OpenGLRenderer::endFrame() noexcept {
     SDL_GL_SwapWindow( m_window );
   }
-
 
 }    // namespace nile
