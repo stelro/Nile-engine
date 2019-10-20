@@ -10,15 +10,23 @@ $Notice: $
 #include "Nile/application/game.hh"
 #include "Nile/asset/asset_manager.hh"
 #include "Nile/asset/builder/shaderset_builder.hh"
+#include "Nile/core/camera_system.hh"
 #include "Nile/core/input_manager.hh"
+#include "Nile/ecs/components/camera_component.hh"
+#include "Nile/ecs/components/mesh_component.hh"
+#include "Nile/ecs/components/primitive.hh"
 #include "Nile/ecs/components/renderable.hh"
 #include "Nile/ecs/components/sprite.hh"
 #include "Nile/ecs/components/transform.hh"
 #include "Nile/ecs/ecs_coordinator.hh"
 #include "Nile/renderer/base_renderer.hh"
 #include "Nile/renderer/opengl_renderer.hh"
+#include "Nile/renderer/render_primitive_system.hh"
 #include "Nile/renderer/rendering_system.hh"
 #include "Nile/renderer/sprite_rendering_system.hh"
+
+#include <GL/glew.h>
+#include <SDL2/SDL.h>
 
 namespace nile::X11 {
 
@@ -26,6 +34,7 @@ namespace nile::X11 {
   private:
     std::shared_ptr<RenderingSystem> renderingSystem;
     std::shared_ptr<SpriteRenderingSystem> spriteRenderingSystem;
+    std::shared_ptr<RenderPrimitiveSystem> renderPrimitiveSystem;
 
   public:
     Impl( const std::shared_ptr<Settings> &settings ) noexcept;
@@ -56,6 +65,20 @@ namespace nile::X11 {
 
     assetManager->storeAsset<ShaderSet>( "sprite_shader", spriteShader );
 
+    auto lineShader = assetManager->createBuilder<ShaderSet>()
+                          .setVertexPath( "../assets/shaders/line_vertex.glsl" )
+                          .setFragmentPath( "../assets/shaders/line_fragment.glsl" )
+                          .build();
+
+    assetManager->storeAsset<ShaderSet>( "line_shader", lineShader );
+
+    auto meshShader = assetManager->createBuilder<ShaderSet>()
+                          .setVertexPath( "../assets/shaders/mesh_vertex.glsl" )
+                          .setFragmentPath( "../assets/shaders/mesh_fragment.glsl" )
+                          .build();
+
+    assetManager->storeAsset<ShaderSet>( "mesh_shader", meshShader );
+
 
     ecsCoordinator = std::make_shared<Coordinator>();
     ecsCoordinator->init();
@@ -65,50 +88,72 @@ namespace nile::X11 {
     ecsCoordinator->registerComponent<Transform>();
     ecsCoordinator->registerComponent<Renderable>();
     ecsCoordinator->registerComponent<SpriteComponent>();
-
-    // register systems to the entity-component-system
-    renderingSystem = ecsCoordinator->registerSystem<RenderingSystem>();
-    renderingSystem->init( ecsCoordinator );
+    ecsCoordinator->registerComponent<CameraComponent>();
+    ecsCoordinator->registerComponent<Primitive>();
+    ecsCoordinator->registerComponent<MeshComponent>();
 
 
     spriteRenderingSystem = ecsCoordinator->registerSystem<SpriteRenderingSystem>(
         ecsCoordinator, assetManager->getAsset<ShaderSet>( "sprite_shader" ) );
-    spriteRenderingSystem->init();
 
+    renderPrimitiveSystem = ecsCoordinator->registerSystem<RenderPrimitiveSystem>(
+        ecsCoordinator, assetManager->getAsset<ShaderSet>( "line_shader" ) );
+
+    renderingSystem = ecsCoordinator->registerSystem<RenderingSystem>(
+        ecsCoordinator, assetManager->getAsset<ShaderSet>( "mesh_shader" ) );
+
+    auto cameraSystem = ecsCoordinator->registerSystem<CameraSystem>( ecsCoordinator, settings );
 
     Signature signature;
     signature.set( ecsCoordinator->getComponentType<Transform>() );
     signature.set( ecsCoordinator->getComponentType<Renderable>() );
-    ecsCoordinator->setSystemSignature<RenderingSystem>( signature );
-
     signature.set( ecsCoordinator->getComponentType<SpriteComponent>() );
     ecsCoordinator->setSystemSignature<SpriteRenderingSystem>( signature );
+
+    Signature cameraSignature;
+    cameraSignature.set( ecsCoordinator->getComponentType<Transform>() );
+    cameraSignature.set( ecsCoordinator->getComponentType<CameraComponent>() );
+    ecsCoordinator->setSystemSignature<CameraSystem>( cameraSignature );
+
+    Signature primSignature;
+    primSignature.set( ecsCoordinator->getComponentType<Transform>() );
+    primSignature.set( ecsCoordinator->getComponentType<Renderable>() );
+    primSignature.set( ecsCoordinator->getComponentType<Primitive>() );
+    ecsCoordinator->setSystemSignature<RenderPrimitiveSystem>( primSignature );
+
+    Signature renderingSignature;
+    renderingSignature.set( ecsCoordinator->getComponentType<Transform>() );
+    renderingSignature.set( ecsCoordinator->getComponentType<Renderable>() );
+    renderingSignature.set( ecsCoordinator->getComponentType<MeshComponent>() );
+    ecsCoordinator->setSystemSignature<RenderingSystem>( renderingSignature );
   }
 
   GameHostX11::Impl::~Impl() noexcept {}
 
   void GameHostX11::Impl::run( Game &game ) noexcept {
+
     game.initialize();
+    ecsCoordinator->createSystems();
+    f64 lastStep = SDL_GetTicks();
 
     while ( !inputManager->shouldClose() ) {
 
       // TODO(stel): I should fix that ( calculate time between frames )
-      u32 delta = 0.0f;
+      f64 currentStep = SDL_GetTicks();
+      f64 delta = currentStep - lastStep;    // elapsed time
 
       inputManager->update( delta );
 
       renderer->submitFrame();
 
-      // TODO(Stel): this should be fixed in the ecs coordinator.
-      // the cooridinator should have it's own update function
-      // where will be call every others systems update methods
-     // renderingSystem->update( delta );
-      spriteRenderingSystem->update(delta);
-      spriteRenderingSystem->render(delta);
- //     game.update( delta );
-      // game.draw( delta );
+      ecsCoordinator->update( delta );
+      ecsCoordinator->render( delta );
+
+      game.update( delta );
 
       renderer->endFrame();
+
+      lastStep = currentStep;
     }
   }
 
