@@ -8,6 +8,7 @@ $Notice: $
 
 #include "Nile/2d/2d_camera.hh"
 #include "Nile/core/settings.hh"
+#include "Nile/core/logger.hh"
 
 namespace nile {
 
@@ -26,7 +27,6 @@ namespace nile {
   void Camera2D::update( [[maybe_unused]] float dt ) noexcept {
 
     if ( m_shouldCameraUpdate ) {
-
       glm::vec3 translation = glm::vec3( m_position, 1.0f );
       m_cameraMatrix = glm::translate( m_projectionMatrix, translation );
       glm::vec3 scale = glm::vec3( m_scale, 1.0f );
