@@ -19,4 +19,4 @@ $Notice: $
 #define PROJECT_VERSION_PATCH @PROJECT_VERSION_PATCH@
 #define PROJECT_VERSION_TWEAK @PROJECT_VERSION_TWEAK@
 
-const char* logl_root = "${CMAKE_SOURCE_DIR}";
+inline const char* logl_root = "${CMAKE_SOURCE_DIR}";

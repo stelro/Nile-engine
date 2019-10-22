@@ -60,6 +60,7 @@ namespace nile {
           ASSERT_M( false, "Could not find loader" );
         }
       }
+      
       return static_cast<T *>( asset );
     }
 

@@ -1,6 +1,7 @@
 #include "platformer.hh"
 #include <Nile/asset/builder/shaderset_builder.hh>
 #include <Nile/asset/subsystem/texture_loader.hh>
+#include <Nile/core/file_system.hh>
 #include <Nile/ecs/components/camera_component.hh>
 #include <Nile/ecs/components/mesh_component.hh>
 #include <Nile/ecs/components/primitive.hh>
@@ -12,6 +13,7 @@
 namespace platformer {
 
   using namespace nile;
+  using namespace nile::experimental;
 
   Platformer::Platformer( const std::shared_ptr<nile::GameHost> &gameHost ) noexcept
       : m_gameHost( gameHost )
@@ -33,16 +35,26 @@ namespace platformer {
     // Register loaders
     m_assetManager->registerLoader<Texture2D, TextureLoader>( true );
 
-    auto fontShader = m_assetManager->createBuilder<ShaderSet>()
-                          .setVertexPath( "../assets/shaders/font_vertex.glsl" )
-                          .setFragmentPath( "../assets/shaders/font_fragment.glsl" )
-                          .build();
+    auto fontShader =
+        m_assetManager->createBuilder<ShaderSet>()
+            .setVertexPath( FileSystem::getPath( "assets/shaders/font_vertex.glsl" ) )
+            .setFragmentPath( FileSystem::getPath( "assets/shaders/font_fragment.glsl" ) )
+            .build();
 
     auto spriteShader = m_assetManager->getAsset<ShaderSet>( "sprite_shader" );
     m_assetManager->storeAsset<ShaderSet>( "font_shader", fontShader );
 
-    m_fontRenderer =
-        std::make_unique<FontRenderer>( fontShader, m_settings, "../assets/fonts/arial.ttf", 22 );
+    auto modelShader =
+        m_assetManager->createBuilder<ShaderSet>()
+            .setVertexPath( FileSystem::getPath( "assets/shaders/model_vertex.glsl" ) )
+            .setFragmentPath( FileSystem::getPath( "assets/shaders/model_fragment.glsl" ) )
+            .build();
+
+    m_assetManager->storeAsset<ShaderSet>( "model_shader", modelShader );
+
+
+    m_fontRenderer = std::make_unique<FontRenderer>(
+        fontShader, m_settings, FileSystem::getPath( "assets/fonts/arial.ttf" ), 22 );
 
     m_spriteRenderer = std::make_unique<SpriteRenderer>( spriteShader );
 
@@ -51,28 +63,36 @@ namespace platformer {
                                           "../assets/textures/layers/parallax-demon-woods-bg.png" );
 
     m_assetManager->loadAsset<Texture2D>(
-        "far-trees", "../assets/textures/layers/parallax-demon-woods-far-trees.png" );
+        "far-trees",
+        FileSystem::getPath( "assets/textures/layers/parallax-demon-woods-far-trees.png" ) );
 
     m_assetManager->loadAsset<Texture2D>(
-        "mid-trees", "../assets/textures/layers/parallax-demon-woods-mid-trees.png" );
+        "mid-trees",
+        FileSystem::getPath( "assets/textures/layers/parallax-demon-woods-mid-trees.png" ) );
 
     m_assetManager->loadAsset<Texture2D>(
-        "trees", "../assets/textures/layers/parallax-demon-woods-close-trees.png" );
+        "trees",
+        FileSystem::getPath( "assets/textures/layers/parallax-demon-woods-close-trees.png" ) );
 
-    m_assetManager->loadAsset<Texture2D>( "grid", "../assets/textures/grid.jpg" );
+    m_assetManager->loadAsset<Texture2D>( "grid",
+                                          FileSystem::getPath( "assets/textures/grid.jpg" ) );
+    m_assetManager->loadAsset<Texture2D>( "container",
+                                          FileSystem::getPath( "assets/textures/container.jpg" ) );
+
 
     m_cameraEntity = m_ecsCoordinator->createEntity();
     Transform camera_transform;
-    camera_transform.position = glm::vec3( 2.3589f, -6.9258f, 3.9583f );
+    camera_transform.position = glm::vec3( 0.0f, 0.0f, 3.0f );
     m_ecsCoordinator->addComponent<Transform>( m_cameraEntity, camera_transform );
 
     CameraComponent cameraComponent( 0.1f, 100.0f, 45.0f, ProjectionType::PERSPECTIVE );
     m_ecsCoordinator->addComponent<CameraComponent>( m_cameraEntity, cameraComponent );
 
 
+    model = new Model( FileSystem::getPath( "assets/models/box.obj" ), m_assetManager );
     //  this->initializeEcs();
     this->test3d();
-    this->createAxisLines();
+    //   this->createAxisLines();
   }
 
   void Platformer::initializeEcs() noexcept {
@@ -94,9 +114,7 @@ namespace platformer {
 
     Transform transform( glm::vec3( 0, 1.0f, 0.0f ), glm::vec3( 1.0f, 1.0f, 1.0f ), 0.0f );
 
-
     Renderable renderable( glm::vec3( 1.0f ) );
-
 
     // Background
     m_ecsCoordinator->addComponent<Transform>( entities[ 0 ], transform );
@@ -169,6 +187,7 @@ namespace platformer {
     this->processMouseEvents( deltaTime );
     this->processKeyboardEvents( deltaTime );
     this->processMouseScroll( deltaTime );
+    // model->draw( m_assetManager->getAsset<ShaderSet>( "model_shader" ) );
 
     auto &camera_component = m_ecsCoordinator->getComponent<CameraComponent>( m_cameraEntity );
 
@@ -201,6 +220,12 @@ namespace platformer {
     m_assetManager->getAsset<ShaderSet>( "mesh_shader" )
         ->use()
         .SetMatrix4( "projection", projection );
+
+    m_assetManager->getAsset<ShaderSet>( "model_shader" )->use().SetMatrix4( "view", view );
+
+    m_assetManager->getAsset<ShaderSet>( "model_shader" )
+        ->use()
+        .SetMatrix4( "projection", projection );
   }
 
 
@@ -209,7 +234,8 @@ namespace platformer {
     auto entity = m_ecsCoordinator->createEntity();
 
     Transform transform;
-    transform.position = glm::vec3( 0.0f, 0.0f, -3.0f );
+    transform.position = glm::vec3( 0.0f, 0.0f, -4.0f );
+    transform.rotation = 45.0f;
     m_ecsCoordinator->addComponent<Transform>( entity, transform );
 
     Renderable renderable;
@@ -217,13 +243,13 @@ namespace platformer {
     m_ecsCoordinator->addComponent<Renderable>( entity, renderable );
 
     MeshComponent mesh;
-    mesh.texture = m_assetManager->getAsset<Texture2D>( "grid" );
+    mesh.texture = m_assetManager->getAsset<Texture2D>( "container" );
     m_ecsCoordinator->addComponent<MeshComponent>( entity, mesh );
   }
 
   void Platformer::processKeyboardEvents( f32 dt ) noexcept {
 
-    constexpr f32 movement_speed = 0.025f;
+    constexpr f32 movement_speed = 0.010f;
     f32 velocity = movement_speed * dt;
 
     // Camera components
@@ -272,7 +298,7 @@ namespace platformer {
       float xoffset = m_inputManager->getMousePos().x - m_lastX;
       float yoffset = m_lastY - m_inputManager->getMousePos().y;
 
-      f32 sensitivity = 0.008f;
+      f32 sensitivity = 0.004f;
 
       xoffset *= sensitivity;
       yoffset *= sensitivity;
@@ -285,7 +311,6 @@ namespace platformer {
       if ( c_camera.pitch < -89.0f )
         c_camera.pitch = -89.0f;
 
-
       c_camera.shouldCameraUpdate = true;
     }
   }
@@ -295,7 +320,7 @@ namespace platformer {
     auto &c_camera = m_ecsCoordinator->getComponent<CameraComponent>( m_cameraEntity );
 
     if ( c_camera.fieldOfView >= 1.0f && c_camera.fieldOfView <= 45.0f ) {
-      c_camera.fieldOfView -= m_inputManager->getVerticalWheel();
+      c_camera.fieldOfView -= m_inputManager->getVerticalWheel() * 0.4f;
     }
 
     if ( c_camera.fieldOfView <= 1.0f ) {

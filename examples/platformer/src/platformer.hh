@@ -10,6 +10,8 @@
 #include <Nile/platform/game_host.hh>
 #include <Nile/renderer/font_renderer.hh>
 
+#include <Nile/experimental/model.hh>
+
 #include "enviroment/enviroment_items.hh"
 #include "npc/main_character.hh"
 #include <GL/glew.h>
@@ -36,6 +38,8 @@ namespace platformer {
 
     std::unique_ptr<MainCharacter> m_mainCharacter;
     std::unique_ptr<EnviromentItems> m_enviromentItems;
+
+    nile::experimental::Model *model;
 
     nile::Entity m_cameraEntity;
 
