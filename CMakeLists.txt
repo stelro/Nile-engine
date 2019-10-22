@@ -34,6 +34,7 @@ set(NILE_SOURCES_CORE
   ${NILE_DIR}/include/Nile/core/types.hh
   ${NILE_DIR}/include/Nile/core/assert.hh
   ${NILE_DIR}/include/Nile/core/camera_system.hh
+  ${NILE_DIR}/include/Nile/core/file_system.hh
   ${NILE_DIR}/include/Nile/renderer/base_renderer.hh
   ${NILE_DIR}/include/Nile/renderer/font_renderer.hh
   ${NILE_DIR}/include/Nile/renderer/opengl_renderer.hh
@@ -80,6 +81,7 @@ set(NILE_SOURCES_CORE
   ${NILE_DIR}/src/core/settings.cc
   ${NILE_DIR}/src/core/signal.cc
   ${NILE_DIR}/src/core/camera_system.cc
+  ${NILE_DIR}/src/core/file_system.cc
   ${NILE_DIR}/src/renderer/base_renderer.cc
   ${NILE_DIR}/src/renderer/font_renderer.cc
   ${NILE_DIR}/src/renderer/opengl_renderer.cc
@@ -104,9 +106,19 @@ set(NILE_SOURCES_CORE
   ${NILE_DIR}/src/math/utils.cc
   )
 
-set(SOURCE_FILES ${NILE_SOURCES_CORE})
+set(NILE_SOURCE_EXPERIMENTAL 
+  ${NILE_DIR}/include/Nile/experimental/texture.hh
+  ${NILE_DIR}/include/Nile/experimental/vertex.hh
+  ${NILE_DIR}/include/Nile/experimental/mesh.hh
+  ${NILE_DIR}/include/Nile/experimental/model.hh
+  ${NILE_DIR}/src/experimental/mesh.cc
+  ${NILE_DIR}/src/experimental/model.cc
+  )
+
+set(SOURCE_FILES ${NILE_SOURCES_CORE} ${NILE_SOURCE_EXPERIMENTAL})
 
 add_subdirectory(external/freetype)
+add_subdirectory(external/assimp)
 
 # FreeType package
 find_package(Freetype REQUIRED)
@@ -165,6 +177,9 @@ configure_file(
   )
 
 include_directories("${PROJECT_BINARY_DIR}")
+
+
+set(ASSIMP_INCLUDE_DIRS "external/assimp/include")
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS 1)
 
@@ -260,7 +275,9 @@ if(NILE_TARGET_PLATFORM MATCHES "Linux")
 endif()
 
 target_include_directories(nile_static PUBLIC ${FREETYPE_INCLUDE_DIRS})
+target_include_directories(nile_static PUBLIC ${ASSIMP_INCLUDE_DIRS})
+
 
 target_link_libraries(nile_static PUBLIC ${SDL2_LIBRARY})
-target_link_libraries(nile_static INTERFACE ${GLEW_LIBRARIES} ${OPENGL_LIBRARIES})
-target_link_libraries(nile_static PUBLIC ${FREETYPE_LIBRARIES} )
+target_link_libraries(nile_static INTERFACE ${GLEW_LIBRARIES} ${OPENGL_LIBRARIES} )
+target_link_libraries(nile_static PUBLIC ${FREETYPE_LIBRARIES} assimp)
