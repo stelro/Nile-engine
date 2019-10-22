@@ -63,6 +63,7 @@ namespace nile {
         cameraComponent.up = glm::normalize(
             glm::cross( cameraComponent.cameraRight, cameraComponent.cameraFront ) );
         cameraComponent.shouldCameraUpdate = false;
+
       }
     }
   }

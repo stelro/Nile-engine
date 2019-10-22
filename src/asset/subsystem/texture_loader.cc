@@ -7,8 +7,8 @@ $Notice: $
 ================================================================================ */
 
 #include "Nile/asset/subsystem/texture_loader.hh"
-#include "Nile/renderer/texture2d.hh"
 #include "Nile/core/logger.hh"
+#include "Nile/renderer/texture2d.hh"
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
@@ -33,11 +33,11 @@ namespace nile {
 
 
     // Load image
-    // TODO(stel): 
+    // TODO(stel):
     int width, height, nrChannels;
     unsigned char *image = nullptr;
     image = stbi_load( filePath.data(), &width, &height, &nrChannels, STBI_rgb_alpha );
-    stbi_set_flip_vertically_on_load(true);
+    stbi_set_flip_vertically_on_load( true );
 
     if ( !image ) {
       log::error( "Failed to load texture { %s }\n", filePath.data() );

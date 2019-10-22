@@ -17,7 +17,6 @@ $Notice: $
 #include <glm/gtc/matrix_transform.hpp>
 #include <vector>
 
-
 namespace nile {
 
   OpenGLRenderer::OpenGLRenderer( std::shared_ptr<Settings> settings ) noexcept
