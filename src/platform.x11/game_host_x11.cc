@@ -137,6 +137,8 @@ namespace nile::X11 {
     ecsCoordinator->createSystems();
     f64 lastStep = SDL_GetTicks();
 
+    log::print("asset container size: %d\n", assetManager->getContainerSize());
+
     while ( !inputManager->shouldClose() ) {
 
 
