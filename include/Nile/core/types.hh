@@ -33,7 +33,7 @@ namespace nile {
   using ComponentType = std::uint8_t;
 
   namespace ecs {
-    constexpr Entity MAX_ENTITIES = 8192;
+    constexpr Entity MAX_ENTITIES = 32768;
     constexpr ComponentType MAX_COMPONENTS = 32;
   }    // namespace ecs
 
