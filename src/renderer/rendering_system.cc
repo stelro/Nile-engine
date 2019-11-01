@@ -5,6 +5,7 @@
 #include "Nile/ecs/ecs_coordinator.hh"
 #include "Nile/renderer/shaderset.hh"
 #include "Nile/renderer/texture2d.hh"
+#include "Nile/utils/vertex.hh"
 
 #include <GL/glew.h>
 #include <glm/glm.hpp>
@@ -32,69 +33,85 @@ namespace nile {
       auto &transform = m_ecsCoordinator->getComponent<Transform>( entity );
       auto &renderable = m_ecsCoordinator->getComponent<Renderable>( entity );
 
-      m_shader->use();
+      u32 diffuse_nr = 1;
+      u32 specular_nr = 1;
 
-      glm::mat4 model = glm::mat4( 1.0f );
+
+      for ( u32 i = 0; i < mesh.textures.size(); i++ ) {
+
+        glActiveTexture( GL_TEXTURE0 + i );
+
+        // @Fixme(stel): replace strings with string_view
+        std::string number;
+        auto type = mesh.textures[ i ]->getTextureType();
+
+        if ( type == TextureType::DIFFUSE )
+          number = std::to_string( diffuse_nr++ );
+        else if ( type == TextureType::SPECULAR )
+          number = std::to_string( specular_nr++ );
+
+        m_shader->SetFloat( ( "material." + TextureTypeStr( type ) + number ).c_str(), i );
+        mesh.textures[ i ]->bind();
+      }
+
+      glm::mat4 model = glm::mat4 {1.0f};
       model = glm::translate( model, transform.position );
       model =
-          glm::rotate( model, glm::radians( transform.rotation ), glm::vec3( 1.0f, 1.0f, 1.0f ) );
+          glm::rotate( model, glm::radians( transform.rotation ), glm::vec3( 0.0f, 0.0f, 1.0f ) );
+      model = glm::scale(model, transform.scale);
 
-      this->m_shader->SetMatrix4( "model", model );
-      this->m_shader->SetVector3f( "spriteColor", renderable.color );
+      m_shader->SetMatrix4( "model", model );
+      m_shader->SetVector3f( "color", renderable.color );
 
       glActiveTexture( GL_TEXTURE0 );
-      mesh.texture->bind();
 
-      glBindVertexArray( this->m_vao );
-      glDrawArrays( GL_TRIANGLES, 0, 36 );
+      glBindVertexArray( mesh.vao );
+      glDrawElements( GL_TRIANGLES, mesh.indices.size(), GL_UNSIGNED_INT, 0 );
       glBindVertexArray( 0 );
     }
   }
 
   void RenderingSystem::initRenderData() noexcept {
-    float vertices[] = {-0.5f, -0.5f, -0.5f, 0.0f, 0.0f, 0.5f,  -0.5f, -0.5f, 1.0f, 0.0f,
-                        0.5f,  0.5f,  -0.5f, 1.0f, 1.0f, 0.5f,  0.5f,  -0.5f, 1.0f, 1.0f,
-                        -0.5f, 0.5f,  -0.5f, 0.0f, 1.0f, -0.5f, -0.5f, -0.5f, 0.0f, 0.0f,
 
-                        -0.5f, -0.5f, 0.5f,  0.0f, 0.0f, 0.5f,  -0.5f, 0.5f,  1.0f, 0.0f,
-                        0.5f,  0.5f,  0.5f,  1.0f, 1.0f, 0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
-                        -0.5f, 0.5f,  0.5f,  0.0f, 1.0f, -0.5f, -0.5f, 0.5f,  0.0f, 0.0f,
+    for ( const auto &entity : m_entities ) {
 
-                        -0.5f, 0.5f,  0.5f,  1.0f, 0.0f, -0.5f, 0.5f,  -0.5f, 1.0f, 1.0f,
-                        -0.5f, -0.5f, -0.5f, 0.0f, 1.0f, -0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
-                        -0.5f, -0.5f, 0.5f,  0.0f, 0.0f, -0.5f, 0.5f,  0.5f,  1.0f, 0.0f,
+      auto &mesh = m_ecsCoordinator->getComponent<MeshComponent>( entity );
 
-                        0.5f,  0.5f,  0.5f,  1.0f, 0.0f, 0.5f,  0.5f,  -0.5f, 1.0f, 1.0f,
-                        0.5f,  -0.5f, -0.5f, 0.0f, 1.0f, 0.5f,  -0.5f, -0.5f, 0.0f, 1.0f,
-                        0.5f,  -0.5f, 0.5f,  0.0f, 0.0f, 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+      glGenVertexArrays( 1, &mesh.vao );
+      glGenBuffers( 1, &mesh.ebo );
+      glGenBuffers( 1, &mesh.vbo );
 
-                        -0.5f, -0.5f, -0.5f, 0.0f, 1.0f, 0.5f,  -0.5f, -0.5f, 1.0f, 1.0f,
-                        0.5f,  -0.5f, 0.5f,  1.0f, 0.0f, 0.5f,  -0.5f, 0.5f,  1.0f, 0.0f,
-                        -0.5f, -0.5f, 0.5f,  0.0f, 0.0f, -0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
+      glBindVertexArray( mesh.vao );
 
-                        -0.5f, 0.5f,  -0.5f, 0.0f, 1.0f, 0.5f,  0.5f,  -0.5f, 1.0f, 1.0f,
-                        0.5f,  0.5f,  0.5f,  1.0f, 0.0f, 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-                        -0.5f, 0.5f,  0.5f,  0.0f, 0.0f, -0.5f, 0.5f,  -0.5f, 0.0f, 1.0f};
 
-    u32 vbo;
-    glGenVertexArrays( 1, &this->m_vao );
-    glGenBuffers( 1, &vbo );
+      // Vertex buffer object
+      glBindBuffer( GL_ARRAY_BUFFER, mesh.vbo );
+      glBufferData( GL_ARRAY_BUFFER, mesh.vertices.size() * sizeof( Vertex ), &mesh.vertices[ 0 ],
+                    GL_STATIC_DRAW );
 
-    glBindVertexArray( m_vao );
+      // Element buffer object
+      glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, mesh.ebo );
+      glBufferData( GL_ELEMENT_ARRAY_BUFFER, mesh.indices.size() * sizeof( u32 ),
+                    &mesh.indices[ 0 ], GL_STATIC_DRAW );
 
-    glBindBuffer( GL_ARRAY_BUFFER, vbo );
-    glBufferData( GL_ARRAY_BUFFER, sizeof( vertices ), vertices, GL_STATIC_DRAW );
+      // Vertex positions
+      glEnableVertexAttribArray( 0 );
+      glVertexAttribPointer( 0, 3, GL_FLOAT, GL_FALSE, sizeof( Vertex ), ( void * )0 );
 
-    glVertexAttribPointer( 0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof( float ), ( void * )0 );
-    glEnableVertexAttribArray( 0 );
-    glVertexAttribPointer( 1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof( float ),
-                           ( void * )( 3 * sizeof( float ) ) );
-    glEnableVertexAttribArray( 1 );
+      // Vertex Normals
+      glEnableVertexAttribArray( 1 );
+      glVertexAttribPointer( 1, 3, GL_FLOAT, GL_FALSE, sizeof( Vertex ),
+                             ( void * )offsetof( Vertex, normal ) );
 
-    m_shader->SetInteger( "image", 0 );
+      // Uv coordinates
+      glEnableVertexAttribArray( 2 );
+      glVertexAttribPointer( 2, 2, GL_FLOAT, GL_FALSE, sizeof( Vertex ),
+                             ( void * )offsetof( Vertex, uv ) );
 
-    glBindBuffer( GL_ARRAY_BUFFER, 0 );
-    glBindVertexArray( 0 );
+      // Unbind
+      glBindBuffer( GL_ARRAY_BUFFER, 0 );
+      glBindVertexArray( 0 );
+    }
   }
 
 }    // namespace nile
