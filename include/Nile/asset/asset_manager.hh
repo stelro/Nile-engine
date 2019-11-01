@@ -49,7 +49,7 @@ namespace nile {
     T *loadAsset( const std::string &assetName, const std::string &assetPath ) noexcept {
 
       auto asset = m_assetContainer->getAsset( assetName );
-
+        
       if ( !asset ) {
         auto it = m_loaders.find( &typeid( T ) );
         if ( it != m_loaders.end() ) {
@@ -85,6 +85,8 @@ namespace nile {
       if ( auto asset = m_assetContainer->getAsset( assetName ) ) {
         return static_cast<T *>( asset );
       }
+
+      log::error("Could not find asset: %s\n", assetName.c_str());
 
       return nullptr;
     }
