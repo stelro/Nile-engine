@@ -1,4 +1,5 @@
 #include "platformer.hh"
+#include <Nile/asset/builder/model_builder.hh>
 #include <Nile/asset/builder/shaderset_builder.hh>
 #include <Nile/asset/subsystem/texture_loader.hh>
 #include <Nile/core/file_system.hh>
@@ -9,11 +10,11 @@
 #include <Nile/ecs/components/sprite.hh>
 #include <Nile/ecs/components/transform.hh>
 #include <Nile/math/utils.hh>
+#include <Nile/renderer/model.hh>
 
 namespace platformer {
 
   using namespace nile;
-  using namespace nile::experimental;
 
   Platformer::Platformer( const std::shared_ptr<nile::GameHost> &gameHost ) noexcept
       : m_gameHost( gameHost )
@@ -49,6 +50,13 @@ namespace platformer {
             .setVertexPath( FileSystem::getPath( "assets/shaders/model_vertex.glsl" ) )
             .setFragmentPath( FileSystem::getPath( "assets/shaders/model_fragment.glsl" ) )
             .build();
+
+    auto nanosuit_model =
+        m_assetManager->createBuilder<Model>( m_assetManager )
+            .setModelPath( FileSystem::getPath( "assets/models/nanosuit/nanosuit.obj" ) )
+            .build();
+
+    m_assetManager->storeAsset<Model>( "nanosuit", nanosuit_model );
 
     m_assetManager->storeAsset<ShaderSet>( "model_shader", modelShader );
 
@@ -89,10 +97,10 @@ namespace platformer {
     m_ecsCoordinator->addComponent<CameraComponent>( m_cameraEntity, cameraComponent );
 
 
-    model = new Model( FileSystem::getPath( "assets/models/box.obj" ), m_assetManager );
     //  this->initializeEcs();
-    this->test3d();
+    // this->test3d();
     //   this->createAxisLines();
+    this->testModel();
   }
 
   void Platformer::initializeEcs() noexcept {
@@ -187,7 +195,6 @@ namespace platformer {
     this->processMouseEvents( deltaTime );
     this->processKeyboardEvents( deltaTime );
     this->processMouseScroll( deltaTime );
-    // model->draw( m_assetManager->getAsset<ShaderSet>( "model_shader" ) );
 
     auto &camera_component = m_ecsCoordinator->getComponent<CameraComponent>( m_cameraEntity );
 
@@ -215,17 +222,11 @@ namespace platformer {
         ->use()
         .SetMatrix4( "projection", projection );
 
-    m_assetManager->getAsset<ShaderSet>( "mesh_shader" )->use().SetMatrix4( "view", view );
-
-    m_assetManager->getAsset<ShaderSet>( "mesh_shader" )
+    m_assetManager->getAsset<ShaderSet>( "model_shader" )
         ->use()
         .SetMatrix4( "projection", projection );
 
     m_assetManager->getAsset<ShaderSet>( "model_shader" )->use().SetMatrix4( "view", view );
-
-    m_assetManager->getAsset<ShaderSet>( "model_shader" )
-        ->use()
-        .SetMatrix4( "projection", projection );
   }
 
 
@@ -242,9 +243,9 @@ namespace platformer {
     renderable.color = glm::vec3( 1.0f, 1.0f, 1.0f );
     m_ecsCoordinator->addComponent<Renderable>( entity, renderable );
 
-    MeshComponent mesh;
-    mesh.texture = m_assetManager->getAsset<Texture2D>( "container" );
-    m_ecsCoordinator->addComponent<MeshComponent>( entity, mesh );
+    // MeshComponent mesh;
+    // mesh.texture = m_assetManager->getAsset<Texture2D>( "container" );
+    // m_ecsCoordinator->addComponent<MeshComponent>( entity, mesh );
   }
 
   void Platformer::processKeyboardEvents( f32 dt ) noexcept {
@@ -329,6 +330,30 @@ namespace platformer {
 
     if ( c_camera.fieldOfView >= 45.0f ) {
       c_camera.fieldOfView = 45.0f;
+    }
+  }
+
+  void Platformer::testModel() noexcept {
+
+    auto model = m_assetManager->getAsset<Model>( "nanosuit" );
+    auto meshes = model->meshes;
+
+    for ( const auto &i : meshes ) {
+      auto entity = m_ecsCoordinator->createEntity();
+      Transform transform;
+      transform.position = glm::vec3( 0.0f, -12.0f, -22.0f );
+
+      MeshComponent mesh;
+      mesh.vertices = i.verticies;
+      mesh.textures = i.textures;
+      mesh.indices = i.indices;
+
+      Renderable renderable;
+      renderable.color = glm::vec3( 1.0f, 1.0f, 1.0f );
+
+      m_ecsCoordinator->addComponent<Transform>( entity, transform );
+      m_ecsCoordinator->addComponent<Renderable>( entity, renderable );
+      m_ecsCoordinator->addComponent<MeshComponent>( entity, mesh );
     }
   }
 
