@@ -51,13 +51,6 @@ namespace platformer {
             .setFragmentPath( FileSystem::getPath( "assets/shaders/model_fragment.glsl" ) )
             .build();
 
-    auto nanosuit_model =
-        m_assetManager->createBuilder<Model>( m_assetManager )
-            .setModelPath( FileSystem::getPath( "assets/models/nanosuit/nanosuit.obj" ) )
-            .build();
-
-    m_assetManager->storeAsset<Model>( "nanosuit", nanosuit_model );
-
     m_assetManager->storeAsset<ShaderSet>( "model_shader", modelShader );
 
 
@@ -90,10 +83,10 @@ namespace platformer {
 
     m_cameraEntity = m_ecsCoordinator->createEntity();
     Transform camera_transform;
-    camera_transform.position = glm::vec3( 0.0f, 0.0f, 3.0f );
+    camera_transform.position = glm::vec3( -12.0f, 20.0f, 70.0f );
     m_ecsCoordinator->addComponent<Transform>( m_cameraEntity, camera_transform );
 
-    CameraComponent cameraComponent( 0.1f, 100.0f, 45.0f, ProjectionType::PERSPECTIVE );
+    CameraComponent cameraComponent( 0.1f, 1000.0f, 45.0f, ProjectionType::PERSPECTIVE );
     m_ecsCoordinator->addComponent<CameraComponent>( m_cameraEntity, cameraComponent );
 
 
@@ -335,25 +328,42 @@ namespace platformer {
 
   void Platformer::testModel() noexcept {
 
-    auto model = m_assetManager->getAsset<Model>( "nanosuit" );
+    auto crate_model =
+        m_assetManager->createBuilder<Model>( m_assetManager )
+            .setModelPath( FileSystem::getPath( "assets/models/container/container.obj" ) )
+            .build();
+
+    m_assetManager->storeAsset<Model>( "crate_model", crate_model );
+
+
+    auto model = m_assetManager->getAsset<Model>( "crate_model" );
     auto meshes = model->meshes;
 
-    for ( const auto &i : meshes ) {
-      auto entity = m_ecsCoordinator->createEntity();
-      Transform transform;
-      transform.position = glm::vec3( 0.0f, -12.0f, -22.0f );
+    for ( u32 row = 0; row < 6; row++ ) {
+      for ( u32 col = 0; col < 6; col++ ) {
 
-      MeshComponent mesh;
-      mesh.vertices = i.verticies;
-      mesh.textures = i.textures;
-      mesh.indices = i.indices;
+        u32 k = static_cast<f32>( row * 10.0f );
+        u32 m = static_cast<f32>( col * 10.0f );
 
-      Renderable renderable;
-      renderable.color = glm::vec3( 1.0f, 1.0f, 1.0f );
+        for ( const auto &i : meshes ) {
+          auto entity = m_ecsCoordinator->createEntity();
+          Transform transform;
+          transform.position = glm::vec3( k, 0.0f, m );
+          transform.scale = glm::vec3( 0.2f );
 
-      m_ecsCoordinator->addComponent<Transform>( entity, transform );
-      m_ecsCoordinator->addComponent<Renderable>( entity, renderable );
-      m_ecsCoordinator->addComponent<MeshComponent>( entity, mesh );
+          MeshComponent mesh;
+          mesh.vertices = i.verticies;
+          mesh.textures = i.textures;
+          mesh.indices = i.indices;
+
+          Renderable renderable;
+          renderable.color = glm::vec3( 1.0f, 1.0f, 1.0f );
+
+          m_ecsCoordinator->addComponent<Transform>( entity, transform );
+          m_ecsCoordinator->addComponent<Renderable>( entity, renderable );
+          m_ecsCoordinator->addComponent<MeshComponent>( entity, mesh );
+        }
+      }
     }
   }
 
