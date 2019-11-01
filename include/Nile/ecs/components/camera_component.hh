@@ -23,8 +23,8 @@ namespace nile {
     f32 near;
     f32 far;
     f32 fieldOfView = 45.0f;
-    f32 yaw = -90.0f;
-    f32 pitch = 0.0f;
+    f32 yaw = -45.0f;
+    f32 pitch = -20.0f;
     glm::vec3 cameraFront {0.0f, 0.0f, -1.0f};
     glm::vec3 cameraUp {0.0f, 1.0f, 0.0f};
     glm::vec3 cameraRight{0.0f, 0.0f, 0.0f};
