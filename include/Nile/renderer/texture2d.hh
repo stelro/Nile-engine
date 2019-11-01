@@ -16,6 +16,32 @@ namespace nile {
   // Texture2D is able to store and configure texture in OpenGL.
   // It also hosts utility funcitons for easy managment.
 
+  enum class TextureType : u32 {
+    DIFFUSE = 0,
+    SPECULAR,
+    NORMAL,
+    AMBIENT,
+    EMISSIVE,
+    TRANSPARENT,
+    NONE
+  };
+
+  inline std::string TextureTypeStr( TextureType type ) {
+    switch ( type ) {
+      case TextureType::DIFFUSE:
+        return "diffuse";
+      case TextureType::SPECULAR:
+        return "specular";
+      case TextureType::NORMAL:
+        return "normal";
+      case TextureType::AMBIENT:
+        return "ambient";
+      case TextureType::EMISSIVE:
+        return "emissive";
+      default:
+        return "none";
+    }
+  }
 
   class Texture2D : public Asset {
   private:
@@ -36,6 +62,8 @@ namespace nile {
     u32 m_wrapT;
     u32 m_filterMin;
     u32 m_filterMax;
+
+    TextureType m_textureType = TextureType::DIFFUSE;
 
   public:
     Texture2D() noexcept;
@@ -59,6 +87,10 @@ namespace nile {
       return m_height;
     }
 
+    [[nodiscard]] inline TextureType getTextureType() const noexcept {
+      return m_textureType;
+    }
+
     // Setters
     void setInternalFormat( u32 format ) noexcept {
       m_internalFormat = format;
@@ -66,6 +98,10 @@ namespace nile {
 
     void setImageFormat( u32 format ) noexcept {
       m_imageFormat = format;
+    }
+
+    void setTexturetype( TextureType type ) noexcept {
+      m_textureType = type;
     }
   };
 
