@@ -42,6 +42,9 @@ set(NILE_SOURCES_CORE
   ${NILE_DIR}/include/Nile/renderer/rendering_system.hh
   ${NILE_DIR}/include/Nile/renderer/sprite_rendering_system.hh
   ${NILE_DIR}/include/Nile/renderer/render_primitive_system.hh
+  ${NILE_DIR}/include/Nile/renderer/model.hh
+  ${NILE_DIR}/include/Nile/renderer/mesh.hh
+  ${NILE_DIR}/include/Nile/utils/vertex.hh
   ${NILE_DIR}/include/Nile/application/game.hh
   ${NILE_DIR}/include/Nile/platform/game_host.hh
   ${NILE_DIR}/include/Nile/platform/x11/bootstrap.hh
@@ -51,6 +54,7 @@ set(NILE_SOURCES_CORE
   ${NILE_DIR}/include/Nile/asset/asset.hh
   ${NILE_DIR}/include/Nile/asset/builder/asset_builder.hh
   ${NILE_DIR}/include/Nile/asset/builder/shaderset_builder.hh
+  ${NILE_DIR}/include/Nile/asset/builder/model_builder.hh
   ${NILE_DIR}/include/Nile/asset/subsystem/asset_loader.hh
   ${NILE_DIR}/include/Nile/asset/subsystem/texture_loader.hh
   ${NILE_DIR}/include/Nile/renderer/shaderset.hh
@@ -93,6 +97,7 @@ set(NILE_SOURCES_CORE
   ${NILE_DIR}/src/platform.x11/bootstrap.cc
   ${NILE_DIR}/src/platform.x11/game_host_x11.cc
   ${NILE_DIR}/src/asset/builder/shaderset_builder.cc
+  ${NILE_DIR}/src/asset/builder/model_builder.cc
   ${NILE_DIR}/src/asset/subsystem/asset_loader.cc
   ${NILE_DIR}/src/asset/subsystem/texture_loader.cc
   ${NILE_DIR}/src/asset/asset_container.cc
@@ -115,7 +120,7 @@ set(NILE_SOURCE_EXPERIMENTAL
   ${NILE_DIR}/src/experimental/model.cc
   )
 
-set(SOURCE_FILES ${NILE_SOURCES_CORE} ${NILE_SOURCE_EXPERIMENTAL})
+set(SOURCE_FILES ${NILE_SOURCES_CORE})
 
 add_subdirectory(external/freetype)
 add_subdirectory(external/assimp)
