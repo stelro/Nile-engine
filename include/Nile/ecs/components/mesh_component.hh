@@ -1,17 +1,21 @@
 #pragma once 
 
+#include "Nile/utils/vertex.hh"
+#include "Nile/core/types.hh"
+
+#include <vector>
+
 namespace nile {
 
   class Texture2D;
 
   struct MeshComponent {
-    MeshComponent()
-        : texture( nullptr ) {}
-    MeshComponent( Texture2D *tex )
-        : texture( tex ) {}
-    // TODO(stel): fix this, make texture as a handle
-    Texture2D *texture;
-
+    std::vector<Vertex> vertices;
+    std::vector<u32> indices;
+    std::vector<Texture2D*> textures;
+    u32 vbo;
+    u32 vao;
+    u32 ebo;
   };
 
 }
