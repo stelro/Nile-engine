@@ -72,12 +72,13 @@ namespace nile::X11 {
 
     assetManager->storeAsset<ShaderSet>( "line_shader", lineShader );
 
-    auto meshShader = assetManager->createBuilder<ShaderSet>()
-                          .setVertexPath( "../assets/shaders/mesh_vertex.glsl" )
-                          .setFragmentPath( "../assets/shaders/mesh_fragment.glsl" )
+    auto modelShader = assetManager->createBuilder<ShaderSet>()
+                          .setVertexPath( "../assets/shaders/model_vertex.glsl" )
+                          .setFragmentPath( "../assets/shaders/model_fragment.glsl" )
                           .build();
 
-    assetManager->storeAsset<ShaderSet>( "mesh_shader", meshShader );
+
+    assetManager->storeAsset<ShaderSet>( "model_shader", modelShader );
 
 
     ecsCoordinator = std::make_shared<Coordinator>();
@@ -100,7 +101,7 @@ namespace nile::X11 {
         ecsCoordinator, assetManager->getAsset<ShaderSet>( "line_shader" ) );
 
     renderingSystem = ecsCoordinator->registerSystem<RenderingSystem>(
-        ecsCoordinator, assetManager->getAsset<ShaderSet>( "mesh_shader" ) );
+        ecsCoordinator, assetManager->getAsset<ShaderSet>( "model_shader" ) );
 
     auto cameraSystem = ecsCoordinator->registerSystem<CameraSystem>( ecsCoordinator, settings );
 
@@ -137,6 +138,7 @@ namespace nile::X11 {
     f64 lastStep = SDL_GetTicks();
 
     while ( !inputManager->shouldClose() ) {
+
 
       // TODO(stel): I should fix that ( calculate time between frames )
       f64 currentStep = SDL_GetTicks();
