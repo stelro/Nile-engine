@@ -23,8 +23,11 @@ namespace nile::AssetBuilder {
       : m_assetManager( assetManager ) {}
 
   void Builder<Model>::loadModel() noexcept {
-    Assimp::Importer import;
-    const aiScene *scene = import.ReadFile( m_path, aiProcess_Triangulate | aiProcess_FlipUVs );
+    Assimp::Importer import; 
+    const aiScene *scene = import.ReadFile(
+        m_path, aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_FindInvalidData |
+                    aiProcess_FindDegenerates | aiProcess_JoinIdenticalVertices |
+                    aiProcess_OptimizeGraph | aiProcess_OptimizeMeshes );
 
     if ( !scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode ) {
       log::error( "Assimp: %s\n", import.GetErrorString() );
