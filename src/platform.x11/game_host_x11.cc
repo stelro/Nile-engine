@@ -19,6 +19,7 @@ $Notice: $
 #include "Nile/ecs/components/sprite.hh"
 #include "Nile/ecs/components/transform.hh"
 #include "Nile/ecs/ecs_coordinator.hh"
+#include "Nile/editor/editor.hh"
 #include "Nile/renderer/base_renderer.hh"
 #include "Nile/renderer/opengl_renderer.hh"
 #include "Nile/renderer/render_primitive_system.hh"
@@ -28,7 +29,10 @@ $Notice: $
 #include <GL/glew.h>
 #include <SDL2/SDL.h>
 
+
 namespace nile::X11 {
+
+  using namespace editor;
 
   class GameHostX11::Impl {
   private:
@@ -47,6 +51,8 @@ namespace nile::X11 {
     std::shared_ptr<InputManager> inputManager;
     std::shared_ptr<AssetManager> assetManager;
     std::shared_ptr<Coordinator> ecsCoordinator;
+
+    std::unique_ptr<Editor> editor;
   };
 
   GameHostX11::Impl::Impl( const std::shared_ptr<Settings> &settings ) noexcept
@@ -54,6 +60,9 @@ namespace nile::X11 {
 
     renderer = std::make_shared<OpenGLRenderer>( settings );
     renderer->init();
+
+    // Editor stuff
+    editor = std::make_unique<Editor>( renderer->getWindow(), renderer->getContext() );
 
     inputManager = std::make_shared<InputManager>();
     assetManager = std::make_shared<AssetManager>();
@@ -73,9 +82,9 @@ namespace nile::X11 {
     assetManager->storeAsset<ShaderSet>( "line_shader", lineShader );
 
     auto modelShader = assetManager->createBuilder<ShaderSet>()
-                          .setVertexPath( "../assets/shaders/model_vertex.glsl" )
-                          .setFragmentPath( "../assets/shaders/model_fragment.glsl" )
-                          .build();
+                           .setVertexPath( "../assets/shaders/model_vertex.glsl" )
+                           .setFragmentPath( "../assets/shaders/model_fragment.glsl" )
+                           .build();
 
 
     assetManager->storeAsset<ShaderSet>( "model_shader", modelShader );
@@ -137,7 +146,7 @@ namespace nile::X11 {
     ecsCoordinator->createSystems();
     f64 lastStep = SDL_GetTicks();
 
-    log::print("asset container size: %d\n", assetManager->getContainerSize());
+    log::print( "asset container size: %d\n", assetManager->getContainerSize() );
 
     while ( !inputManager->shouldClose() ) {
 
@@ -152,6 +161,9 @@ namespace nile::X11 {
 
       ecsCoordinator->update( delta );
       ecsCoordinator->render( delta );
+
+      editor->render( delta );
+      editor->update( delta );
 
       game.update( delta );
 
