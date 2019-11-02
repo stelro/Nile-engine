@@ -74,6 +74,10 @@ set(NILE_SOURCES_CORE
   ${NILE_DIR}/include/Nile/ecs/handle_manager.hh
   ${NILE_DIR}/include/Nile/ecs/ecs_field_detection.hh
   ${NILE_DIR}/include/Nile/math/utils.hh
+  ${NILE_DIR}/include/Nile/editor/editor.hh
+  ${NILE_DIR}/include/Nile/editor/debug_console.hh
+  ${NILE_DIR}/include/Nile/editor/info_window.hh
+  ${NILE_DIR}/include/Nile/utils/string_utils.hh
   ${NILE_DIR}/src/2d/2d_camera.cc
   ${NILE_DIR}/src/2d/sprite_renderer.cc
   ${NILE_DIR}/src/2d/sprite_sheet.cc
@@ -109,6 +113,9 @@ set(NILE_SOURCES_CORE
   ${NILE_DIR}/src/ecs/entity_manager.cc
   ${NILE_DIR}/src/ecs/handle_manager.cc
   ${NILE_DIR}/src/math/utils.cc
+  ${NILE_DIR}/src/editor/editor.cc
+  ${NILE_DIR}/src/editor/debug_console.cc
+  ${NILE_DIR}/src/editor/info_window.cc
   )
 
 set(NILE_SOURCE_EXPERIMENTAL 
@@ -120,7 +127,24 @@ set(NILE_SOURCE_EXPERIMENTAL
   ${NILE_DIR}/src/experimental/model.cc
   )
 
-set(SOURCE_FILES ${NILE_SOURCES_CORE})
+set(NILE_IMGUI_SRC 
+  ${NILE_DIR}/lib/imgui/imconfig.h
+  ${NILE_DIR}/lib/imgui/imgui_demo.cpp
+  ${NILE_DIR}/lib/imgui/imgui_draw.cpp
+  ${NILE_DIR}/lib/imgui/imgui_impl_opengl3.h
+  ${NILE_DIR}/lib/imgui/imgui_impl_opengl3.cpp
+  ${NILE_DIR}/lib/imgui/imgui_impl_sdl.h
+  ${NILE_DIR}/lib/imgui/imgui_impl_sdl.cpp
+  ${NILE_DIR}/lib/imgui/imgui_internal.h
+  ${NILE_DIR}/lib/imgui/imgui_widgets.cpp
+  ${NILE_DIR}/lib/imgui/imgui.cpp
+  ${NILE_DIR}/lib/imgui/imgui.h
+  ${NILE_DIR}/lib/imgui/imstb_rectpack.h
+  ${NILE_DIR}/lib/imgui/imstb_textedit.h
+  ${NILE_DIR}/lib/imgui/imstb_truetype.h
+  )
+
+set(SOURCE_FILES ${NILE_SOURCES_CORE} ${NILE_IMGUI_SRC})
 
 add_subdirectory(external/freetype)
 add_subdirectory(external/assimp)
@@ -201,9 +225,11 @@ endif()
 
 target_include_directories(nile_static PRIVATE
   ${NILE_DIR}/include
+  ${NILE_DIR}/lib
   ${FREETYPE_INCUDE_DIRS}
   ${NILE_DIR}/external/stb
 )
+
 
 target_compile_definitions(nile_static PRIVATE
   $<$<CONFIG:DEBUG>:_DEBUG;DEBUG=1>
@@ -285,4 +311,4 @@ target_include_directories(nile_static PUBLIC ${ASSIMP_INCLUDE_DIRS})
 
 target_link_libraries(nile_static PUBLIC ${SDL2_LIBRARY})
 target_link_libraries(nile_static INTERFACE ${GLEW_LIBRARIES} ${OPENGL_LIBRARIES} )
-target_link_libraries(nile_static PUBLIC ${FREETYPE_LIBRARIES} assimp)
+target_link_libraries(nile_static PUBLIC ${FREETYPE_LIBRARIES} assimp )
