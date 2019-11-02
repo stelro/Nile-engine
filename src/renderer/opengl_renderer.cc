@@ -66,9 +66,9 @@ namespace nile {
 
     glViewport( 0, 0, m_settings->getWidth(), m_settings->getHeight() );
 
-//    glEnable( GL_CULL_FACE );
+    //    glEnable( GL_CULL_FACE );
     glEnable( GL_DEPTH_TEST );
-//    glEnable( GL_BLEND );
+    //    glEnable( GL_BLEND );
     glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
     m_isRunning = true;
   }
@@ -92,7 +92,7 @@ namespace nile {
     } else {
       glClearColor( 0.086f, 0.188f, 0.235f, 1.0f );
     }
-  glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+    glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
   }
 
   void OpenGLRenderer::endFrame() noexcept {

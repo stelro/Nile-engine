@@ -43,6 +43,14 @@ namespace nile {
     void endFrame() noexcept override;
     // Clean up all resources
     void destroy() noexcept override;
+
+    inline SDL_Window *getWindow() noexcept override {
+      return m_window;
+    }
+
+    inline SDL_GLContext getContext() const noexcept override {
+      return m_glContext;
+    }
   };
 
 }    // namespace nile

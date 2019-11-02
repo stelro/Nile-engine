@@ -8,6 +8,8 @@ $Notice: $
 
 #pragma once
 
+#include <SDL2/SDL.h>
+
 namespace nile {
 
   class BaseRenderer {
@@ -19,6 +21,9 @@ namespace nile {
     virtual void submitFrame() noexcept = 0;
     virtual void endFrame() noexcept = 0;
     virtual void destroy() noexcept = 0;
+
+    virtual SDL_Window *getWindow() noexcept = 0;
+    virtual  SDL_GLContext getContext() const noexcept = 0;
   };
 
 }    // namespace nile
