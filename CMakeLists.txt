@@ -76,6 +76,7 @@ set(NILE_SOURCES_CORE
   ${NILE_DIR}/include/Nile/utils/string_utils.hh
   ${NILE_DIR}/include/Nile/editor/editor.hh
   ${NILE_DIR}/include/Nile/editor/info_window.hh
+  ${NILE_DIR}/include/Nile/editor/info_overlay_struct.hh
   ${NILE_DIR}/include/Nile/log/editor_console_logger.hh
   ${NILE_DIR}/include/Nile/log/file_logger.hh
   ${NILE_DIR}/include/Nile/log/log_type.hh
