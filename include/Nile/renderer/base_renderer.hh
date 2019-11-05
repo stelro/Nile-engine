@@ -23,7 +23,7 @@ namespace nile {
     virtual void destroy() noexcept = 0;
 
     virtual SDL_Window *getWindow() noexcept = 0;
-    virtual  SDL_GLContext getContext() const noexcept = 0;
+    virtual SDL_GLContext getContext() const noexcept = 0;
   };
 
 }    // namespace nile

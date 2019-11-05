@@ -2,15 +2,15 @@
 
 #include "Nile/core/types.hh"
 
-#include <vector>
 #include <string>
+#include <vector>
 
 namespace nile::editor {
 
   class InfoWindow {
   private:
     static const u32 MAX_LABELS_SIZE = 32;
-     bool m_infoWindowIsOpen = true;
+    bool m_infoWindowIsOpen = true;
 
     // Those are labels ( key/values ) paris that
     // will be printed in the infowindow
@@ -31,7 +31,7 @@ namespace nile::editor {
       return m_infoWindowIsOpen;
     }
 
-    void addLabel(const char* fmt, ...) noexcept;
+    void addLabel( const char *fmt, ... ) noexcept;
   };
 
 }    // namespace nile::editor

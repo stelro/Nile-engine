@@ -1,10 +1,15 @@
 #include "Nile/editor/editor.hh"
 
 #include "Nile/editor/info_window.hh"
+#include "Nile/log/editor_console_logger.hh"
+#include "Nile/log/log.hh"
+#include "Nile/log/stream_logger.hh"
 
 #include "imgui/imgui.h"
 #include "imgui/imgui_impl_opengl3.h"
 #include "imgui/imgui_impl_sdl.h"
+
+#include <functional>
 
 namespace nile::editor {
 
@@ -14,11 +19,13 @@ namespace nile::editor {
     SDL_GLContext m_context;
 
     InfoWindow m_infoWindow;
+    ConsoleLog m_consoleLog;
 
     bool m_showEditor = true;
     bool m_showDemo = false;
     bool m_showInfoWindow = true;
-
+    bool m_showDebugConsole = false;
+    bool m_showConsoleLog = true;
 
     void setup() noexcept;
 
@@ -29,8 +36,8 @@ namespace nile::editor {
       this->setup();
     }
 
-    EditorImpl( EditorImpl &&rhs ) noexcept = default;
-    EditorImpl &operator=( EditorImpl &&rhs ) noexcept = default;
+    // EditorImpl( EditorImpl &&rhs ) noexcept = default;
+    // EditorImpl &operator=( EditorImpl &&rhs ) noexcept = default;
 
     ~EditorImpl() noexcept;
 
@@ -60,7 +67,17 @@ namespace nile::editor {
     ImGui_ImplSDL2_InitForOpenGL( m_window, m_context );
     ImGui_ImplOpenGL3_Init( "#version 150" );
 
-    m_infoWindow.addLabel("hello %d", 23);
+
+    log::on_message.connect( &m_consoleLog, &ConsoleLog::appendLogToBuffer );
+    log::on_message.connect(
+        []( const char *msg, LogType type ) { StreamLogger::printToStream( msg, type ); } );
+
+    log::error( "This is error: \n" );
+    // log::warning( "This is warning: \n" );
+    // log::fatal( "This is fatal: \n" );
+    // log::notice( "This is notice: \n" );
+    // log::print( "This is print: \n" );
+    // log::console( "This is console: \n" );
   }
 
   void Editor::EditorImpl::render( float dt ) noexcept {
@@ -73,6 +90,8 @@ namespace nile::editor {
 
     if ( m_showInfoWindow )
       m_infoWindow.render( dt );
+    if ( m_showConsoleLog )
+      m_consoleLog.render( dt );
 
     ImGui::Render();
     ImGui_ImplOpenGL3_RenderDrawData( ImGui::GetDrawData() );
@@ -82,13 +101,14 @@ namespace nile::editor {
 
     if ( m_showInfoWindow )
       m_infoWindow.update( dt );
+    if ( m_showConsoleLog )
+      m_consoleLog.update( dt );
 
     m_showInfoWindow = m_infoWindow.isInfoWindowOpen();
+    m_showConsoleLog = m_consoleLog.logConsoleIsOpen();
   }
 
-
   // Editor
-
   Editor::Editor( SDL_Window *window, SDL_GLContext context ) noexcept
       : m_impl {std::make_unique<EditorImpl>( window, context )} {}
 
@@ -103,6 +123,5 @@ namespace nile::editor {
   Editor::~Editor() noexcept = default;
   Editor::Editor( Editor &&rhs ) noexcept = default;
   Editor &Editor::operator=( Editor &&rhs ) noexcept = default;
-
 
 }    // namespace nile::editor
