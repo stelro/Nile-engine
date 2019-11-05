@@ -116,8 +116,8 @@ namespace platformer {
       } else if ( m_inputManager->isKeyPressed( SDLK_h ) ) {
 
         m_shouldHaltTheEvents = true;
-        m_animationListener.connect(
-            m_spriteContext->getSpriteSheet( "knight_attack" )->animation_signal, m_animationSlot );
+        // m_animationListener.connect(
+        //     m_spriteContext->getSpriteSheet( "knight_attack" )->animation_signal, m_animationSlot );
         m_heroState = HeroStateEnum::ATTACK;
 
       } else if ( m_inputManager->isKeyPressed( SDLK_SPACE ) ) {
@@ -125,26 +125,26 @@ namespace platformer {
         // TODO(stel): Fix the hero position after he performs the jump and the animation
         // has finished. Hero should move some steps forward after the sprite animation
         m_shouldHaltTheEvents = true;
-        m_animationListener.connect(
-            m_spriteContext->getSpriteSheet( "knight_jump_and_fall" )->animation_signal,
-            m_animationSlot );
+        // m_animationListener.connect(
+        //     m_spriteContext->getSpriteSheet( "knight_jump_and_fall" )->animation_signal,
+        //     m_animationSlot );
         m_heroState = HeroStateEnum::JUMP_AND_FALL;
 
       } else if ( m_inputManager->isKeyPressed( SDLK_j ) ) {
 
         // TODO(stel): same as the above ( jump animation )
         m_shouldHaltTheEvents = true;
-        m_animationListener.connect(
-            m_spriteContext->getSpriteSheet( "knight_roll_strip" )->animation_signal,
-            m_animationSlot );
+        // m_animationListener.connect(
+        //     m_spriteContext->getSpriteSheet( "knight_roll_strip" )->animation_signal,
+        //     m_animationSlot );
         m_heroState = HeroStateEnum::ROLL_STRIP;
 
       } else if ( m_inputManager->isKeyPressed( SDLK_k ) ) {
 
         m_shouldHaltTheEvents = true;
-        m_animationListener.connect(
-            m_spriteContext->getSpriteSheet( "knight_shield_strip" )->animation_signal,
-            m_animationSlot );
+        // m_animationListener.connect(
+        //     m_spriteContext->getSpriteSheet( "knight_shield_strip" )->animation_signal,
+        //     m_animationSlot );
         m_heroState = HeroStateEnum::SHIELD_STRIP;
 
       } else {

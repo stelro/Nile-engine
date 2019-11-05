@@ -33,7 +33,6 @@ namespace nile {
   };
 
   class SpriteSheet {
-    OBSERVABLE
   private:
     ShaderSet *m_shader;
     Texture2D *m_texture;
@@ -67,7 +66,7 @@ namespace nile {
     using Animation_signal = Signal<bool>;
 
     // This signal should be emitted when the method "playAnimationAndHalt" will play
-    // the whole animation, and the frame_count will reach the last frame. Then the sinal
+    // the whole animation, and the frame_count will reach the last frame. Then the signal
     // will emit(true), so input handlers will know that the input events can continue
     // for example, if player want to attack, then specific animation 'attack' will take
     // place, and we don't to interput this animation with other input, until it will end.

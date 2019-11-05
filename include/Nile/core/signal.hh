@@ -8,86 +8,98 @@ $Notice: $
 
 #pragma once
 
-#include "Nile/core/helper.hh"
+#include "Nile/core/types.hh"
 
 #include <functional>
-#include <list>
-#include <memory>
+#include <unordered_map>
 
-// Let the users know that one class who uses 
-// singals, is observable, and the one who has listener is
-// observer
-#define OBSERVABLE
-#define OBSERVER
+// Signals-slots design pattern, pretty much like the one used by Boost
+// and Qt framework. It basically implements the observer pattern.
+//
+// A signal object may call multiple slots with the same signature.
+// We can connect functions to the signal or class methods, which will be
+// called when the emit() method on the signal object is invoked.
+//
+// Simple usage
+//
+// class Player {
+// public:
+//   Signal<bool> on_jump;
+// };
+//
+// class Wall {
+// public:
+//   void break() const {
+//     std::cout << "Wall is broken now" << '\n';
+//  }
+// };
+//
+// int main() {
+//
+//  Player player;
+//  Wall wall;
+//
+//  player.on_jump.connect(&wall, &Message::break);
+//  player.on_jump.emmit(true);
+//
+// }
 
 namespace nile {
 
   template <typename... Args>
   class Signal {
   private:
-    std::shared_ptr<std::list<std::function<void( Args... )>>> m_signals;
+    using Slot = std::function<void( Args... )>;
+
+    mutable std::unordered_map<u32, Slot> m_slots;
+    mutable u32 m_currentSlotId = 0;
 
   public:
-    using slot = std::function<void( Args... )>;
-    using listener_list = std::list<slot>;
+    Signal() noexcept
+        : m_currentSlotId( 0 ) {}
 
-    Signal()
-        : m_signals( std::make_shared<listener_list>() ) {}
+    Signal( const Signal &rhs )
+        : m_currentSlotId( 0 ) {}
 
-    ~Signal() {}
-
-
-    struct Listener {
-      std::weak_ptr<listener_list> signal;
-      typename listener_list::iterator iterator;
-
-      Listener() {
-        // Empty constroctur
-      }
-
-      Listener( Signal &t_signal, slot t_slot ) {
-        observe( t_signal, t_slot );
-      }
-
-      Listener( Listener &&rhs ) {
-        this->signal = rhs.signal;
-        iterator = rhs.iterator;
-        rhs.signal.reset();
-      }
-
-      Listener &operator=( Listener &&rhs ) {
-        if ( *this != &rhs ) {
-          reset();
-          this->signal = rhs.signal;
-          iterator = rhs.iterator;
-          rhs.signal.reset();
-        }
-        return *this;
-      }
-
-      NILE_DISABLE_COPY( Listener )
-
-      void connect( Signal &t_signal, slot t_slot ) {
-        reset();
-        this->signal = t_signal.m_signals;
-        iterator = t_signal.m_signals->insert( t_signal.m_signals->end(), t_slot );
-      }
-
-      void reset() {
-        if ( !signal.expired() )
-          signal.lock()->erase( iterator );
-        signal.reset();
-      }
-    };
-
-    void emit( Args... args ) noexcept {
-      for ( auto &f : *m_signals ) {
-        f( args... );
-      }
+    // Create new Signal
+    Signal &operator=( const Signal &rhs ) noexcept {
+      m_currentSlotId = 0;
+      this->deattachAll();
+      return *this;
     }
 
-    Listener connect( slot t_slot ) {
-      return Listener( *this, t_slot );
+    // attach a slot of type std::function to this signal.
+    u32 connect( const Slot &slot ) const noexcept {
+      m_slots.insert( std::make_pair( ++m_currentSlotId, slot ) );
+      return m_currentSlotId;
+    }
+
+    // attach a member method to this signal
+    template <typename T>
+    u32 connect( T *instance, void ( T::*function )( Args... ) ) {
+      return connect( [=]( Args... args ) { ( instance->*function )( args... ); } );
+    }
+
+    // attach a const member method to this signal
+    template <typename T>
+    u32 connect( T *instance, void ( T::*function )( Args... ) const ) {
+      return connect( [=]( Args... args ) { ( instance->*function )( args... ); } );
+    }
+
+    // deattach a connected slot by id
+    void deattach( u32 id ) noexcept {
+      m_slots.erase( id );
+    }
+
+    // deattach all slots from current signal
+    void deattachAll() noexcept {
+      m_slots.clear();
+    }
+
+    void emit( Args... args ) {
+      for ( const auto &i : m_slots ) {
+        i.second( std::forward<Args>( args )... );
+      }
     }
   };
 

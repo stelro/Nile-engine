@@ -36,7 +36,7 @@ namespace platformer {
 
     // This is the listener who listens to signals from
     // SpriteSheet class
-    nile::SpriteSheet::Animation_signal::Listener m_animationListener;
+//    nile::SpriteSheet::Animation_signal::Listener m_animationListener;
 
     // This is the animation slot function that is called in response to
     // a particular signal from animationListener
