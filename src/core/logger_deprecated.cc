@@ -6,7 +6,7 @@ $Creator: Rostislav Orestis Stelmach
 $Notice: $
 ================================================================================ */
 
-#include "Nile/core/logger.hh"
+#include "Nile/core/logger_deprecated.hh"
 
 namespace nile {
 

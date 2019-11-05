@@ -7,7 +7,7 @@ $Notice: $
 ================================================================================ */
 
 #include "Nile/renderer/font_renderer.hh"
-#include "Nile/core/logger.hh"
+#include "Nile/log/log.hh"
 #include "Nile/core/settings.hh"
 #include "Nile/renderer/shaderset.hh"
 

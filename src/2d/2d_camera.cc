@@ -8,7 +8,6 @@ $Notice: $
 
 #include "Nile/2d/2d_camera.hh"
 #include "Nile/core/settings.hh"
-#include "Nile/core/logger.hh"
 
 namespace nile {
 

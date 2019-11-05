@@ -20,6 +20,7 @@ $Notice: $
 #include "Nile/ecs/components/transform.hh"
 #include "Nile/ecs/ecs_coordinator.hh"
 #include "Nile/editor/editor.hh"
+#include "Nile/log/log.hh"
 #include "Nile/renderer/base_renderer.hh"
 #include "Nile/renderer/opengl_renderer.hh"
 #include "Nile/renderer/render_primitive_system.hh"
@@ -63,6 +64,7 @@ namespace nile::X11 {
 
     // Editor stuff
     editor = std::make_unique<Editor>( renderer->getWindow(), renderer->getContext() );
+
 
     inputManager = std::make_shared<InputManager>();
     assetManager = std::make_shared<AssetManager>();
@@ -146,11 +148,7 @@ namespace nile::X11 {
     ecsCoordinator->createSystems();
     f64 lastStep = SDL_GetTicks();
 
-    log::print( "asset container size: %d\n", assetManager->getContainerSize() );
-
     while ( !inputManager->shouldClose() ) {
-
-
       // TODO(stel): I should fix that ( calculate time between frames )
       f64 currentStep = SDL_GetTicks();
       f64 delta = currentStep - lastStep;    // elapsed time

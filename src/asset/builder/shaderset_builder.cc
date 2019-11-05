@@ -7,7 +7,7 @@ $Notice: $
 ================================================================================ */
 
 #include "Nile/asset/builder/shaderset_builder.hh"
-#include "Nile/core/logger.hh"
+#include "Nile/log/log.hh"
 
 #include <GL/glew.h>
 

@@ -7,7 +7,7 @@ $Notice: $
 ================================================================================ */
 
 #include "Nile/core/input_manager.hh"
-#include "Nile/core/logger.hh"
+#include "Nile/log/log.hh"
 
 namespace nile {
 

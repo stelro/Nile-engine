@@ -10,8 +10,8 @@ $Notice: $
 
 #include "Nile/2d/sprite_renderer.hh"
 #include "Nile/core/assert.hh"
-#include "Nile/core/logger.hh"
 #include "Nile/core/settings.hh"
+#include "Nile/log/log.hh"
 
 #include <GL/glew.h>
 #include <glm/gtc/matrix_transform.hpp>

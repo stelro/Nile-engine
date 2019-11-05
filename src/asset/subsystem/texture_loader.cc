@@ -7,7 +7,7 @@ $Notice: $
 ================================================================================ */
 
 #include "Nile/asset/subsystem/texture_loader.hh"
-#include "Nile/core/logger.hh"
+#include "Nile/log/log.hh"
 #include "Nile/renderer/texture2d.hh"
 
 #define STB_IMAGE_IMPLEMENTATION
