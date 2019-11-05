@@ -26,7 +26,6 @@ set(NILE_SOURCES_CORE
   ${NILE_DIR}/include/Nile/2d/sprite_set.hh
   ${NILE_DIR}/include/Nile/2d/sprite.hh
   ${NILE_DIR}/include/Nile/core/input_manager.hh
-  ${NILE_DIR}/include/Nile/core/logger.hh
   ${NILE_DIR}/include/Nile/core/helper.hh
   ${NILE_DIR}/include/Nile/core/settings.hh
   ${NILE_DIR}/include/Nile/core/signal.hh
@@ -74,10 +73,15 @@ set(NILE_SOURCES_CORE
   ${NILE_DIR}/include/Nile/ecs/handle_manager.hh
   ${NILE_DIR}/include/Nile/ecs/ecs_field_detection.hh
   ${NILE_DIR}/include/Nile/math/utils.hh
+  ${NILE_DIR}/include/Nile/utils/string_utils.hh
   ${NILE_DIR}/include/Nile/editor/editor.hh
   ${NILE_DIR}/include/Nile/editor/debug_console.hh
   ${NILE_DIR}/include/Nile/editor/info_window.hh
-  ${NILE_DIR}/include/Nile/utils/string_utils.hh
+  ${NILE_DIR}/include/Nile/log/editor_console_logger.hh
+  ${NILE_DIR}/include/Nile/log/file_logger.hh
+  ${NILE_DIR}/include/Nile/log/log_type.hh
+  ${NILE_DIR}/include/Nile/log/log.hh
+  ${NILE_DIR}/include/Nile/log/stream_logger.hh
   ${NILE_DIR}/src/2d/2d_camera.cc
   ${NILE_DIR}/src/2d/sprite_renderer.cc
   ${NILE_DIR}/src/2d/sprite_sheet.cc
@@ -85,7 +89,6 @@ set(NILE_SOURCES_CORE
   ${NILE_DIR}/src/2d/sprite_set.cc
   ${NILE_DIR}/src/2d/sprite.cc
   ${NILE_DIR}/src/core/input_manager.cc
-  ${NILE_DIR}/src/core/logger.cc
   ${NILE_DIR}/src/core/settings.cc
   ${NILE_DIR}/src/core/signal.cc
   ${NILE_DIR}/src/core/camera_system.cc
@@ -116,6 +119,10 @@ set(NILE_SOURCES_CORE
   ${NILE_DIR}/src/editor/editor.cc
   ${NILE_DIR}/src/editor/debug_console.cc
   ${NILE_DIR}/src/editor/info_window.cc
+  ${NILE_DIR}/src/log/log.cc
+  ${NILE_DIR}/src/log/editor_console_logger.cc
+  ${NILE_DIR}/src/log/file_logger.cc
+  ${NILE_DIR}/src/log/stream_logger.cc
   )
 
 set(NILE_SOURCE_EXPERIMENTAL 
