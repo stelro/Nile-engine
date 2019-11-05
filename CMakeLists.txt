@@ -75,7 +75,6 @@ set(NILE_SOURCES_CORE
   ${NILE_DIR}/include/Nile/math/utils.hh
   ${NILE_DIR}/include/Nile/utils/string_utils.hh
   ${NILE_DIR}/include/Nile/editor/editor.hh
-  ${NILE_DIR}/include/Nile/editor/debug_console.hh
   ${NILE_DIR}/include/Nile/editor/info_window.hh
   ${NILE_DIR}/include/Nile/log/editor_console_logger.hh
   ${NILE_DIR}/include/Nile/log/file_logger.hh
@@ -117,7 +116,6 @@ set(NILE_SOURCES_CORE
   ${NILE_DIR}/src/ecs/handle_manager.cc
   ${NILE_DIR}/src/math/utils.cc
   ${NILE_DIR}/src/editor/editor.cc
-  ${NILE_DIR}/src/editor/debug_console.cc
   ${NILE_DIR}/src/editor/info_window.cc
   ${NILE_DIR}/src/log/log.cc
   ${NILE_DIR}/src/log/editor_console_logger.cc
