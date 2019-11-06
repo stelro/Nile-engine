@@ -13,6 +13,8 @@ $Notice: $
 
 namespace nile {
 
+  enum class ProgramMode { DEBUG_MODE, GAME_MODE, EDITOR_MODE };
+
   class Settings {
   private:
     // Screen width and height
@@ -20,16 +22,23 @@ namespace nile {
     u32 m_height;
     u32 m_windowFlags;
     bool m_debugMode;
+    ProgramMode m_programMode;
     // Window title
     std::string m_windowTitle;
 
   public:
     class Builder;
 
-    Settings( u32 width, u32 height, u32 windowFlags,bool m_debugMode,
+    Settings( u32 width, u32 height, u32 windowFlags, bool m_debugMode,
               const std::string &title ) noexcept;
     ~Settings() noexcept;
 
+    // Setters
+    inline void setProgramMode( ProgramMode mode ) noexcept {
+      m_programMode = mode;
+    }
+
+    // Getters
     [[nodiscard]] inline u32 getWidth() const noexcept {
       return m_width;
     }
@@ -49,6 +58,10 @@ namespace nile {
     [[nodiscard]] inline bool getDebugMode() const noexcept {
       return m_debugMode;
     }
+
+    [[nodiscard]] inline ProgramMode getProgramMode() const noexcept {
+      return m_programMode;
+    }
   };
 
   class Settings::Builder {
@@ -57,6 +70,7 @@ namespace nile {
     u32 m_height = 0;
     u32 m_windowFlags = 0x0;
     bool m_debugMode = false;
+    ProgramMode m_programMode = ProgramMode::GAME_MODE;
     std::string m_windowTitle {};
 
   public:
@@ -82,6 +96,11 @@ namespace nile {
 
     Builder &setDebugMode( bool flag ) noexcept {
       this->m_debugMode = flag;
+      return *this;
+    }
+
+    Builder &setProgramMode( ProgramMode mode ) noexcept {
+      this->m_programMode = mode;
       return *this;
     }
 
