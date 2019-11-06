@@ -40,4 +40,17 @@ namespace nile {
     m_systemManager->render( dt );
   }
 
+  usize Coordinator::getEntitiesCount() const noexcept {
+    return m_entityManager->getEntitiesCount();
+  }
+
+  u32 Coordinator::getComponentsCount() const noexcept {
+    return m_componentManager->getComponentCount();
+  }
+
+ u32 Coordinator::getSystemsCount() const noexcept {
+    return m_systemManager->getSystemsCount();
+ }
+
+
 }    // namespace nile

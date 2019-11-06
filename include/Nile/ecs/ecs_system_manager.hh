@@ -104,6 +104,8 @@ namespace nile {
     void update( float dt ) noexcept;
 
     void render( float dt ) noexcept;
+    
+    u32 getSystemsCount() const noexcept;
   };
 
 }    // namespace nile

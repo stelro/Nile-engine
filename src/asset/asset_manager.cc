@@ -53,4 +53,8 @@ namespace nile {
     // TODO(setl): should implement reloadall method
   }
 
+  usize AssetManager::getLoadersCount() const noexcept {
+    return m_loaders.size();
+  }
+
 }    // namespace nile

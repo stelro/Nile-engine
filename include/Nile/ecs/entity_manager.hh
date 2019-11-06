@@ -38,6 +38,8 @@ namespace nile {
 
     // Get the signature ( which components the entity has )
     [[nodiscard]] Signature getSignature( Entity entity ) const noexcept;
+
+    usize getEntitiesCount() const noexcept;
   };
 
 }    // namespace nile

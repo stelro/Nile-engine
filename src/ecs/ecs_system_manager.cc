@@ -57,5 +57,9 @@ namespace nile {
     }
   }
 
+  u32 EcsSystemManager::getSystemsCount() const noexcept {
+    return m_systems.size();
+  }
+
 
 }    // namespace nile

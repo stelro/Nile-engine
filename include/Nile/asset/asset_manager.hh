@@ -39,6 +39,8 @@ namespace nile {
       m_loaders.insert( m_loaders.end(),
                         std::make_pair( &typeid( T ), new U( std::forward<Args>( args )... ) ) );
 
+      log::notice("Loader has registered: %s\n", typeid(T).name() );
+
       return m_loaders.size() > beforeSize;
     }
 
@@ -124,6 +126,8 @@ namespace nile {
     }
 
     void clearLoaders() noexcept;
+
+    usize getLoadersCount() const noexcept ;
   };
 
 }    // namespace nile

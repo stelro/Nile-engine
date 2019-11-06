@@ -84,6 +84,12 @@ namespace nile {
       m_systemManager->setSignature<T>( signature );
     }
 
+    usize getEntitiesCount() const noexcept;
+
+    u32 getComponentsCount() const noexcept;
+
+    u32 getSystemsCount() const noexcept;
+
     // Wrapper method for ecs_system_manager createSystems, this should be called right
     // before update
     void createSystems() noexcept;

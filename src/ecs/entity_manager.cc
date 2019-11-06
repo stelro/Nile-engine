@@ -7,8 +7,8 @@ $Notice: $
 ================================================================================ */
 
 
-#include "Nile/core/assert.hh"
 #include "Nile/ecs/entity_manager.hh"
+#include "Nile/core/assert.hh"
 
 namespace nile {
 
@@ -52,6 +52,10 @@ namespace nile {
   [[nodiscard]] Signature EntityManager::getSignature( Entity entity ) const noexcept {
     ASSERT_M( entity < ecs::MAX_ENTITIES, "Entity out of range!" );
     return m_signatures[ entity ];
+  }
+
+  usize EntityManager::getEntitiesCount() const noexcept {
+    return m_livingEntities;
   }
 
 }    // namespace nile

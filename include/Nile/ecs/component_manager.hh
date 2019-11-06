@@ -95,6 +95,10 @@ namespace nile {
         component->entityDestroyed( entity );
       }
     }
+
+    u32 getComponentCount() const noexcept {
+      return m_ntextComponentType;
+    }
   };
 
 }    // namespace nile
