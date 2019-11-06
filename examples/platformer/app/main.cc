@@ -16,6 +16,7 @@ int main() {
                       .setTitle( "Deathmarch v0.1" )
                       .setDebugMode( true )
                       .setWindowFlags( SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN )
+                      .setProgramMode(nile::ProgramMode::EDITOR_MODE)
                       .build();
 
   nile::X11::Boostrap bootstrap( std::make_shared<nile::Settings>( settings ) );
