@@ -6,7 +6,8 @@
 namespace nile {
 
   void StreamLogger::printToStream( const char *msg, LogType type ) noexcept {
-    printf( "%s", msg );
+    if ( type == ( type & ( LogType::NONE | LogType::ERROR | LogType::PRINT | LogType::FATAL ) ) )
+      printf( "%s", msg );
   }
 
 
