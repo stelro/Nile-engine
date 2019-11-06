@@ -17,11 +17,29 @@ namespace nile::editor {
 
   void ConsoleLog::appendLogToBuffer( const char *fmt, LogType type ) noexcept {
 
+    // This is not the most optimal method, but It's is only used when the user
+    // append a new text to the editor console, and also it's only used by the
+    // editor, os it wont be in the release version.
+    //
+    // Append to every log in the editor console, a frame stamp in the begining
+    // of the world. I mix pure C style here
+    const usize log_frame_size = 20;
+    char log_frame[ log_frame_size ];
+    snprintf( log_frame, log_frame_size, "[%05d]:", ImGui::GetFrameCount() );
+    const usize s1_size = strlen( log_frame );
+    const usize s2_size = strlen( fmt );
+    char *result = ( char * )malloc( strlen( fmt ) + strlen( log_frame ) + 1 );
+    // strcpy( result, log_frame );
+    // strcat( result, fmt );
+    memcpy( result, log_frame, s1_size );
+    memcpy( result + s1_size, fmt, s2_size + 1 );
+
     auto old_size = m_buffer.size();
-    m_buffer.append( fmt );
+    m_buffer.append( result );
     for ( int new_size = m_buffer.size(); old_size < new_size; old_size++ )
       if ( m_buffer[ old_size ] == '\n' )
         m_linesOffset.push_back( old_size + 1 );
+    free( result );
   }
 
 
