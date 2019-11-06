@@ -5,7 +5,8 @@
 
 namespace nile::editor {
 
-  InfoWindow::InfoWindow() noexcept {
+  InfoWindow::InfoWindow( InfoOverlayStruct *ov_struct ) noexcept
+      : m_overlayStruct( ov_struct ) {
     m_labels.reserve( MAX_LABELS_SIZE );
   }
 
@@ -21,19 +22,13 @@ namespace nile::editor {
           ImVec2( ( corner & 1 ) ? 1.0f : 0.0f, ( corner & 2 ) ? 1.0f : 0.0f );
       ImGui::SetNextWindowPos( window_pos, ImGuiCond_Always, window_pos_pivot );
     }
-    ImGui::SetNextWindowBgAlpha( 0.35f );    // Transparent background
-    if ( ImGui::Begin( "Example: Simple overlay", &m_infoWindowIsOpen,
+    ImGui::SetNextWindowBgAlpha( 0.25f );    // Transparent background
+    if ( ImGui::Begin( "Info Overlay", &m_infoWindowIsOpen,
                        ( corner != -1 ? ImGuiWindowFlags_NoMove : 0 ) |
                            ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_AlwaysAutoResize |
-                           ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoFocusOnAppearing |
-                           ImGuiWindowFlags_NoNav ) ) {
-      ImGui::Text( "Simple overlay\n"
-                   "in the corner of the screen.\n"
-                   "(right-click to change position)" );
+                           ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoNav ) ) {
 
-      for ( const auto &i : m_labels ) {
-        ImGui::Text( "%s", i.c_str() );
-      }
+      this->printStruct();
 
       ImGui::Separator();
       if ( ImGui::IsMousePosValid() )
@@ -67,6 +62,24 @@ namespace nile::editor {
     m_labels.emplace_back( VaArgsToString( fmt, args ) );
     m_labelsSize++;
     va_end( args );
+  }
+
+  void InfoWindow::printStruct() const noexcept {
+
+    ImGui::PushStyleColor( ImGuiCol_Text, ImVec4( 0.678f, 0.925f, 0.412f, 1.0f ) );
+    ImGui::Text( "FPS: %.2f ( %.3f ms)\n", ( 1000.f / m_overlayStruct->fps ),
+                 m_overlayStruct->fps );
+    ImGui::Text( "Uptime: %us\n", m_overlayStruct->uptime / 1000);
+    ImGui::Text( "Vertices: %u\n", m_overlayStruct->vertices );
+    ImGui::Text( "Uniform loads: %u\n", m_overlayStruct->uniform_loads );
+    ImGui::Text( "Asset loaders: %u\n", m_overlayStruct->asset_loaders );
+    ImGui::Separator();
+    ImGui::Text( "Entities: %u\n", m_overlayStruct->entities );
+    ImGui::Text( "Components: %u\n", m_overlayStruct->components );
+    ImGui::Text( "Systems: %u\n", m_overlayStruct->ecs_systems );
+    ImGui::Spacing();
+    ImGui::Spacing();
+    ImGui::PopStyleColor();
   }
 
 }    // namespace nile::editor

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Nile/core/types.hh"
+#include "Nile/editor/info_overlay_struct.hh"
 
 #include <string>
 #include <vector>
@@ -18,8 +19,12 @@ namespace nile::editor {
 
     u32 m_labelsSize = 0;
 
+    InfoOverlayStruct *m_overlayStruct;
+
+    void printStruct() const noexcept;
+
   public:
-    InfoWindow() noexcept;
+    InfoWindow( InfoOverlayStruct *ov_struct ) noexcept;
     void render( float dt ) noexcept;
     void update( float dt ) noexcept;
 
@@ -29,6 +34,10 @@ namespace nile::editor {
 
     bool isInfoWindowOpen() const noexcept {
       return m_infoWindowIsOpen;
+    }
+
+    void setOverlayStruct( InfoOverlayStruct *ov_struct ) noexcept {
+      m_overlayStruct = ov_struct;
     }
 
     void addLabel( const char *fmt, ... ) noexcept;
