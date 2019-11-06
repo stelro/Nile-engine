@@ -32,10 +32,6 @@ namespace platformer {
 
   void Platformer::initialize() noexcept {
 
-
-    // Register loaders
-    m_assetManager->registerLoader<Texture2D, TextureLoader>( true );
-
     auto fontShader =
         m_assetManager->createBuilder<ShaderSet>()
             .setVertexPath( FileSystem::getPath( "assets/shaders/font_vertex.glsl" ) )

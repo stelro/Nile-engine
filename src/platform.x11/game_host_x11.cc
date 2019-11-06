@@ -10,8 +10,11 @@ $Notice: $
 #include "Nile/application/game.hh"
 #include "Nile/asset/asset_manager.hh"
 #include "Nile/asset/builder/shaderset_builder.hh"
+#include "Nile/asset/subsystem/texture_loader.hh"
 #include "Nile/core/camera_system.hh"
 #include "Nile/core/input_manager.hh"
+#include "Nile/core/settings.hh"
+#include "Nile/core/timer.hh"
 #include "Nile/ecs/components/camera_component.hh"
 #include "Nile/ecs/components/mesh_component.hh"
 #include "Nile/ecs/components/primitive.hh"
@@ -26,6 +29,7 @@ $Notice: $
 #include "Nile/renderer/render_primitive_system.hh"
 #include "Nile/renderer/rendering_system.hh"
 #include "Nile/renderer/sprite_rendering_system.hh"
+#include "Nile/renderer/texture2d.hh"
 
 #include <GL/glew.h>
 #include <SDL2/SDL.h>
@@ -40,6 +44,14 @@ namespace nile::X11 {
     std::shared_ptr<RenderingSystem> renderingSystem;
     std::shared_ptr<SpriteRenderingSystem> spriteRenderingSystem;
     std::shared_ptr<RenderPrimitiveSystem> renderPrimitiveSystem;
+
+    Timer m_uptime;
+
+    static const u32 NUM_FPS_SAMPLES = 256;
+    f32 m_samples[ NUM_FPS_SAMPLES ];
+    u32 m_currentFrame = 0;
+
+    ProgramMode m_programMode;
 
   public:
     Impl( const std::shared_ptr<Settings> &settings ) noexcept;
@@ -59,15 +71,21 @@ namespace nile::X11 {
   GameHostX11::Impl::Impl( const std::shared_ptr<Settings> &settings ) noexcept
       : settings( settings ) {
 
+    m_uptime.start();
+
     renderer = std::make_shared<OpenGLRenderer>( settings );
     renderer->init();
+
+    m_programMode = settings->getProgramMode();
 
     // Editor stuff
     editor = std::make_unique<Editor>( renderer->getWindow(), renderer->getContext() );
 
-
     inputManager = std::make_shared<InputManager>();
     assetManager = std::make_shared<AssetManager>();
+
+    // Register TextureLoader to the AssetManager
+    assetManager->registerLoader<Texture2D, TextureLoader>( true );
 
     auto spriteShader = assetManager->createBuilder<ShaderSet>()
                             .setVertexPath( "../assets/shaders/sprite_vertex.glsl" )
@@ -148,10 +166,25 @@ namespace nile::X11 {
     ecsCoordinator->createSystems();
     f64 lastStep = SDL_GetTicks();
 
+
     while ( !inputManager->shouldClose() ) {
+
       // TODO(stel): I should fix that ( calculate time between frames )
       f64 currentStep = SDL_GetTicks();
       f64 delta = currentStep - lastStep;    // elapsed time
+      f32 avgFps = 0.0f;
+
+      if ( m_programMode == ProgramMode::EDITOR_MODE ) {
+        m_samples[ m_currentFrame % NUM_FPS_SAMPLES ] = delta;
+
+        for ( u32 i = 0; i < NUM_FPS_SAMPLES; i++ )
+          avgFps += m_samples[ i ];
+
+        if ( m_currentFrame >= NUM_FPS_SAMPLES )
+          m_currentFrame = 0;
+
+        avgFps /= NUM_FPS_SAMPLES;
+      }
 
       inputManager->update( delta );
 
@@ -160,14 +193,37 @@ namespace nile::X11 {
       ecsCoordinator->update( delta );
       ecsCoordinator->render( delta );
 
-      editor->render( delta );
-      editor->update( delta );
+      if ( m_programMode == ProgramMode::EDITOR_MODE ) {
+        editor->render( delta );
+        editor->update( delta );
+      }
+
+      if ( inputManager->isKeyPressed( SDLK_k ) ) {
+        log::console( "pressed\n" );
+      }
 
       game.update( delta );
 
       renderer->endFrame();
 
+      editor->setFps( avgFps );
+      editor->setEntities( ecsCoordinator->getEntitiesCount() );
+      editor->setComponents( ecsCoordinator->getComponentsCount() );
+      editor->setEcsSystems( ecsCoordinator->getSystemsCount() );
+      editor->setUptime( m_uptime.getTicks() );
+      editor->setLoadersCount( assetManager->getLoadersCount() );
+
+      if ( inputManager->isKeyPressed( SDLK_F1 ) ) {
+        if ( m_programMode != ProgramMode::EDITOR_MODE )
+          settings->setProgramMode( ProgramMode::EDITOR_MODE );
+        else
+          settings->setProgramMode( ProgramMode::GAME_MODE );
+      }
+
+      m_programMode = settings->getProgramMode();
+
       lastStep = currentStep;
+      m_currentFrame++;
     }
   }
 
