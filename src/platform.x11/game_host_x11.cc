@@ -81,7 +81,7 @@ namespace nile::X11 {
     // Editor stuff
     editor = std::make_unique<Editor>( renderer->getWindow(), renderer->getContext() );
 
-    inputManager = std::make_shared<InputManager>();
+    inputManager = std::make_shared<InputManager>( settings );
     assetManager = std::make_shared<AssetManager>();
 
     // Register TextureLoader to the AssetManager
@@ -196,29 +196,17 @@ namespace nile::X11 {
       if ( m_programMode == ProgramMode::EDITOR_MODE ) {
         editor->render( delta );
         editor->update( delta );
-      }
-
-      if ( inputManager->isKeyPressed( SDLK_k ) ) {
-        log::console( "pressed\n" );
+        editor->setFps( avgFps );
+        editor->setEntities( ecsCoordinator->getEntitiesCount() );
+        editor->setComponents( ecsCoordinator->getComponentsCount() );
+        editor->setEcsSystems( ecsCoordinator->getSystemsCount() );
+        editor->setUptime( m_uptime.getTicks() );
+        editor->setLoadersCount( assetManager->getLoadersCount() );
       }
 
       game.update( delta );
 
       renderer->endFrame();
-
-      editor->setFps( avgFps );
-      editor->setEntities( ecsCoordinator->getEntitiesCount() );
-      editor->setComponents( ecsCoordinator->getComponentsCount() );
-      editor->setEcsSystems( ecsCoordinator->getSystemsCount() );
-      editor->setUptime( m_uptime.getTicks() );
-      editor->setLoadersCount( assetManager->getLoadersCount() );
-
-      if ( inputManager->isKeyPressed( SDLK_F1 ) ) {
-        if ( m_programMode != ProgramMode::EDITOR_MODE )
-          settings->setProgramMode( ProgramMode::EDITOR_MODE );
-        else
-          settings->setProgramMode( ProgramMode::GAME_MODE );
-      }
 
       m_programMode = settings->getProgramMode();
 
