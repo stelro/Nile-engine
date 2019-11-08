@@ -9,12 +9,16 @@ $Notice: $
 #pragma once
 
 #include "Nile/core/types.hh"
+
 #include <SDL2/SDL.h>
 #include <glm/glm.hpp>
 
+#include <memory>
 #include <unordered_map>
 
 namespace nile {
+
+  class Settings;
 
   class InputManager {
   private:
@@ -35,10 +39,20 @@ namespace nile {
       bool button_x2 = false;
     } m_mouseButtonEvents;
 
+    std::shared_ptr<Settings> m_settings;
+
     std::unordered_map<SDL_Keycode, bool> m_pressedKeys;
+    std::unordered_map<SDL_Keycode, bool> m_previousPressed;
+
+    void pressKey( SDL_Keycode key ) noexcept;
+    void releaseKey( SDL_Keycode key ) noexcept;
+
+    void processInGameEvents() noexcept;
+
+    void changeProgramMode() noexcept;
 
   public:
-    InputManager() noexcept;
+    InputManager( const std::shared_ptr<Settings> &settings ) noexcept;
     ~InputManager() noexcept;
 
     void update( [[maybe_unused]] f32 dt ) noexcept;
@@ -50,13 +64,27 @@ namespace nile {
     inline void terminateEngine() noexcept {
       this->m_shouldClose = true;
     }
+
     // Checks if user has pressed any specifc key
-    [[nodiscard]] bool isKeyPressed( SDL_Keycode key ) const noexcept {
+    [[nodiscard]] bool isKeyHoldDown( SDL_Keycode key ) const noexcept {
       auto it = m_pressedKeys.find( key );
       if ( it != m_pressedKeys.end() ) {
         return it->second;
       }
       return false;
+    }
+
+    [[nodiscard]] bool wasKeyDown( SDL_Keycode key ) const noexcept {
+      auto it = m_previousPressed.find( key );
+      if ( it != m_previousPressed.end() ) {
+        return it->second;
+      }
+      return false;
+    }
+
+    // Checks if user has pressed any specifc key
+    [[nodiscard]] bool isKeyPressed( SDL_Keycode key ) const noexcept {
+      return ( isKeyHoldDown( key ) && !wasKeyDown( key ) );
     }
 
     // Checks if specifc key has released
