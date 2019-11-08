@@ -246,22 +246,22 @@ namespace platformer {
     auto &c_transform = m_ecsCoordinator->getComponent<Transform>( m_cameraEntity );
     auto &c_camera = m_ecsCoordinator->getComponent<CameraComponent>( m_cameraEntity );
 
-    if ( m_inputManager->isKeyPressed( SDLK_w ) ) {
+    if ( m_inputManager->isKeyHoldDown( SDLK_w ) ) {
       // Forward
       c_transform.position += c_camera.cameraFront * velocity;
     }
 
-    if ( m_inputManager->isKeyPressed( SDLK_s ) ) {
+    if ( m_inputManager->isKeyHoldDown( SDLK_s ) ) {
       // Backward
       c_transform.position -= c_camera.cameraFront * velocity;
     }
 
-    if ( m_inputManager->isKeyPressed( SDLK_a ) ) {
+    if ( m_inputManager->isKeyHoldDown( SDLK_a ) ) {
       // Left
       c_transform.position -= c_camera.cameraRight * velocity;
     }
 
-    if ( m_inputManager->isKeyPressed( SDLK_d ) ) {
+    if ( m_inputManager->isKeyHoldDown( SDLK_d ) ) {
       // Right
       c_transform.position += c_camera.cameraRight * velocity;
     }
