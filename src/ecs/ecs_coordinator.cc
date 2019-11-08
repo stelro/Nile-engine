@@ -48,9 +48,9 @@ namespace nile {
     return m_componentManager->getComponentCount();
   }
 
- u32 Coordinator::getSystemsCount() const noexcept {
+  u32 Coordinator::getSystemsCount() const noexcept {
     return m_systemManager->getSystemsCount();
- }
+  }
 
 
 }    // namespace nile
