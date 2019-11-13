@@ -20,3 +20,4 @@ $Notice: $
 #define PROJECT_VERSION_TWEAK @PROJECT_VERSION_TWEAK@
 
 inline const char* logl_root = "${CMAKE_SOURCE_DIR}";
+inline const char* binary_root = "${CMAKE_BINARY_DIR}";
