@@ -54,7 +54,11 @@ namespace nile {
       // so we move the origin of rotation to the center of the quad, so the quad
       // neatly rotates around this origin.
       model = glm::translate( model, transform.scale );
-      model = glm::rotate( model, transform.rotation, glm::vec3( 0.0f, 0.0f, 1.0f ) );
+      model =
+          glm::rotate( model, glm::radians( transform.xRotation ), glm::vec3( 1.0f, 0.0f, 0.0f ) );
+      model =
+          glm::rotate( model, glm::radians( transform.yRotation ), glm::vec3( 0.0f, 1.0f, 0.0f ) );
+      model = glm::rotate( model, glm::radians(transform.zRotation), glm::vec3( 0.0f, 0.0f, 1.0f ) );
       model = glm::translate( model, transform.scale * -0.5f );
 
       model = glm::scale( model, transform.scale );

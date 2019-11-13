@@ -3,6 +3,7 @@
 #include "Nile/ecs/components/renderable.hh"
 #include "Nile/ecs/components/transform.hh"
 #include "Nile/ecs/ecs_coordinator.hh"
+#include "Nile/log/log.hh"
 #include "Nile/renderer/shaderset.hh"
 #include "Nile/renderer/texture2d.hh"
 #include "Nile/utils/vertex.hh"
@@ -35,7 +36,7 @@ namespace nile {
 
       u32 diffuse_nr = 1;
       u32 specular_nr = 1;
-
+      u32 normal_nr = 1;
 
       for ( u32 i = 0; i < mesh.textures.size(); i++ ) {
 
@@ -49,16 +50,25 @@ namespace nile {
           number = std::to_string( diffuse_nr++ );
         else if ( type == TextureType::SPECULAR )
           number = std::to_string( specular_nr++ );
+        else if ( type == TextureType::NORMAL )
+          number = std::to_string( normal_nr++ );
 
-        m_shader->SetFloat( ( "material." + TextureTypeStr( type ) + number ).c_str(), i );
+        m_shader->SetInteger( ( "texture_" + TextureTypeStr( type ) + number ).c_str(), i );
         mesh.textures[ i ]->bind();
       }
+
+      this->m_shader->use();
 
       glm::mat4 model = glm::mat4 {1.0f};
       model = glm::translate( model, transform.position );
       model =
-          glm::rotate( model, glm::radians( transform.rotation ), glm::vec3( 0.0f, 0.0f, 1.0f ) );
-      model = glm::scale(model, transform.scale);
+          glm::rotate( model, glm::radians( transform.xRotation ), glm::vec3( 1.0f, 0.0f, 0.0f ) );
+      model =
+          glm::rotate( model, glm::radians( transform.yRotation ), glm::vec3( 0.0f, 1.0f, 0.0f ) );
+      model =
+          glm::rotate( model, glm::radians( transform.zRotation ), glm::vec3( 0.0f, 0.0f, 1.0f ) );
+
+      model = glm::scale( model, transform.scale );
 
       m_shader->SetMatrix4( "model", model );
       m_shader->SetVector3f( "color", renderable.color );
@@ -68,6 +78,7 @@ namespace nile {
       glBindVertexArray( mesh.vao );
       glDrawElements( GL_TRIANGLES, mesh.indices.size(), GL_UNSIGNED_INT, 0 );
       glBindVertexArray( 0 );
+      glBindTexture( GL_TEXTURE_2D, 0 );
     }
   }
 
@@ -83,9 +94,9 @@ namespace nile {
 
       glBindVertexArray( mesh.vao );
 
-
       // Vertex buffer object
       glBindBuffer( GL_ARRAY_BUFFER, mesh.vbo );
+
       glBufferData( GL_ARRAY_BUFFER, mesh.vertices.size() * sizeof( Vertex ), &mesh.vertices[ 0 ],
                     GL_STATIC_DRAW );
 
@@ -111,6 +122,7 @@ namespace nile {
       // Unbind
       glBindBuffer( GL_ARRAY_BUFFER, 0 );
       glBindVertexArray( 0 );
+      glCheckError();
     }
   }
 
