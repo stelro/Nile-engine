@@ -8,8 +8,6 @@ $Notice: $
 
 #include "Nile/core/input_manager.hh"
 #include "Nile/core/settings.hh"
-#include "imgui/imgui.h"
-#include "imgui/imgui_impl_sdl.h"
 
 namespace nile {
 
@@ -89,6 +87,11 @@ namespace nile {
       else
         m_settings->setProgramMode( ProgramMode::EDITOR_MODE );
     }
+
+    if ( ( m_event.type == SDL_KEYDOWN ) && ( m_event.key.keysym.sym == SDLK_ESCAPE ) ) {
+      m_shouldClose = true;
+    }
+    m_settings->setProgramMode( ProgramMode::EDITOR_MODE );
   }
 
   void InputManager::update( [[maybe_unused]] f32 dt ) noexcept {
@@ -104,15 +107,11 @@ namespace nile {
       }
 
       // Chagne ProgramMode from Editor to Game mode or visa versa
-      // this is used becase we are blocking user input to game mode when 
+      // this is used becase we are blocking user input to game mode when
       // we are in editor mode, or the opposite
       this->changeProgramMode();
 
-      if ( m_settings->getProgramMode() == ProgramMode::EDITOR_MODE ) {
-        ImGui_ImplSDL2_ProcessEvent( &m_event );
-      } else {
-        this->processInGameEvents();
-      }
+      this->processInGameEvents();
 
       SDL_GetMouseState( &m_mousePosition.x, &m_mousePosition.y );
     }
