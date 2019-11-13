@@ -22,15 +22,16 @@ namespace nile {
     u32 m_height;
     u32 m_windowFlags;
     bool m_debugMode;
-    ProgramMode m_programMode;
     // Window title
     std::string m_windowTitle;
+    ProgramMode m_programMode;
+
 
   public:
     class Builder;
 
-    Settings( u32 width, u32 height, u32 windowFlags, bool m_debugMode,
-              const std::string &title ) noexcept;
+    Settings( u32 width, u32 height, u32 windowFlags, bool m_debugMode, const std::string &title,
+              ProgramMode programMode ) noexcept;
     ~Settings() noexcept;
 
     // Setters
@@ -70,7 +71,7 @@ namespace nile {
     u32 m_height = 0;
     u32 m_windowFlags = 0x0;
     bool m_debugMode = false;
-    ProgramMode m_programMode = ProgramMode::GAME_MODE;
+    ProgramMode m_programMode = ProgramMode::EDITOR_MODE;
     std::string m_windowTitle {};
 
   public:
@@ -105,7 +106,8 @@ namespace nile {
     }
 
     Settings build() const noexcept {
-      return Settings( m_width, m_height, m_windowFlags, m_debugMode, m_windowTitle );
+      return Settings( m_width, m_height, m_windowFlags, m_debugMode, m_windowTitle,
+                       m_programMode );
     }
   };
 
