@@ -75,14 +75,12 @@ set(NILE_SOURCES_CORE
   ${NILE_DIR}/include/Nile/ecs/ecs_field_detection.hh
   ${NILE_DIR}/include/Nile/math/utils.hh
   ${NILE_DIR}/include/Nile/utils/string_utils.hh
-  ${NILE_DIR}/include/Nile/editor/editor.hh
-  ${NILE_DIR}/include/Nile/editor/info_window.hh
-  ${NILE_DIR}/include/Nile/editor/info_overlay_struct.hh
-  ${NILE_DIR}/include/Nile/log/editor_console_logger.hh
   ${NILE_DIR}/include/Nile/log/file_logger.hh
   ${NILE_DIR}/include/Nile/log/log_type.hh
   ${NILE_DIR}/include/Nile/log/log.hh
   ${NILE_DIR}/include/Nile/log/stream_logger.hh
+  ${NILE_DIR}/include/Nile/scene/scene_graph.hh
+  ${NILE_DIR}/include/Nile/scene/scene_node.hh
   ${NILE_DIR}/src/2d/2d_camera.cc
   ${NILE_DIR}/src/2d/sprite_renderer.cc
   ${NILE_DIR}/src/2d/sprite_sheet.cc
@@ -118,12 +116,11 @@ set(NILE_SOURCES_CORE
   ${NILE_DIR}/src/ecs/entity_manager.cc
   ${NILE_DIR}/src/ecs/handle_manager.cc
   ${NILE_DIR}/src/math/utils.cc
-  ${NILE_DIR}/src/editor/editor.cc
-  ${NILE_DIR}/src/editor/info_window.cc
   ${NILE_DIR}/src/log/log.cc
-  ${NILE_DIR}/src/log/editor_console_logger.cc
   ${NILE_DIR}/src/log/file_logger.cc
   ${NILE_DIR}/src/log/stream_logger.cc
+  ${NILE_DIR}/src/scene/scene_graph.cc
+  ${NILE_DIR}/src/scene/scene_node.cc
   )
 
 set(NILE_SOURCE_EXPERIMENTAL 
@@ -135,24 +132,7 @@ set(NILE_SOURCE_EXPERIMENTAL
   ${NILE_DIR}/src/experimental/model.cc
   )
 
-set(NILE_IMGUI_SRC 
-  ${NILE_DIR}/lib/imgui/imconfig.h
-  ${NILE_DIR}/lib/imgui/imgui_demo.cpp
-  ${NILE_DIR}/lib/imgui/imgui_draw.cpp
-  ${NILE_DIR}/lib/imgui/imgui_impl_opengl3.h
-  ${NILE_DIR}/lib/imgui/imgui_impl_opengl3.cpp
-  ${NILE_DIR}/lib/imgui/imgui_impl_sdl.h
-  ${NILE_DIR}/lib/imgui/imgui_impl_sdl.cpp
-  ${NILE_DIR}/lib/imgui/imgui_internal.h
-  ${NILE_DIR}/lib/imgui/imgui_widgets.cpp
-  ${NILE_DIR}/lib/imgui/imgui.cpp
-  ${NILE_DIR}/lib/imgui/imgui.h
-  ${NILE_DIR}/lib/imgui/imstb_rectpack.h
-  ${NILE_DIR}/lib/imgui/imstb_textedit.h
-  ${NILE_DIR}/lib/imgui/imstb_truetype.h
-  )
-
-set(SOURCE_FILES ${NILE_SOURCES_CORE} ${NILE_IMGUI_SRC})
+set(SOURCE_FILES ${NILE_SOURCES_CORE} )
 
 add_subdirectory(external/freetype)
 add_subdirectory(external/assimp)
@@ -320,3 +300,5 @@ target_include_directories(nile_static PUBLIC ${ASSIMP_INCLUDE_DIRS})
 target_link_libraries(nile_static PUBLIC ${SDL2_LIBRARY})
 target_link_libraries(nile_static INTERFACE ${GLEW_LIBRARIES} ${OPENGL_LIBRARIES} )
 target_link_libraries(nile_static PUBLIC ${FREETYPE_LIBRARIES} assimp )
+
+file(COPY resources DESTINATION ${CMAKE_BINARY_DIR})

@@ -1,36 +1,6 @@
 [
 {
   "directory": "/home/stel/game/nile/build",
-  "command": "/usr/bin/g++  -DDEBUG=1 -D_DEBUG -I/usr/include/SDL2 -I/home/stel/game/nile/build -I/home/stel/game/nile/./include -I/home/stel/game/nile/./lib -I/home/stel/game/nile/./external/stb -I/usr/include/freetype2 -I/home/stel/game/nile/external/assimp/include -I/home/stel/game/nile/external/assimp/code/../include -I/home/stel/game/nile/build/external/assimp/code/../include    -pedantic -Wclobbered -Wcast-function-type -Wempty-body -Wignored-qualifiers -Wimplicit-fallthrough=3 -Wmissing-field-initializers -Wuninitialized -Wshift-negative-value -Wall -Wnon-virtual-dtor -g -O0 -std=c++17 -o CMakeFiles/nile_static.dir/lib/imgui/imgui.cpp.o -c /home/stel/game/nile/lib/imgui/imgui.cpp",
-  "file": "/home/stel/game/nile/lib/imgui/imgui.cpp"
-},
-{
-  "directory": "/home/stel/game/nile/build",
-  "command": "/usr/bin/g++  -DDEBUG=1 -D_DEBUG -I/usr/include/SDL2 -I/home/stel/game/nile/build -I/home/stel/game/nile/./include -I/home/stel/game/nile/./lib -I/home/stel/game/nile/./external/stb -I/usr/include/freetype2 -I/home/stel/game/nile/external/assimp/include -I/home/stel/game/nile/external/assimp/code/../include -I/home/stel/game/nile/build/external/assimp/code/../include    -pedantic -Wclobbered -Wcast-function-type -Wempty-body -Wignored-qualifiers -Wimplicit-fallthrough=3 -Wmissing-field-initializers -Wuninitialized -Wshift-negative-value -Wall -Wnon-virtual-dtor -g -O0 -std=c++17 -o CMakeFiles/nile_static.dir/lib/imgui/imgui_demo.cpp.o -c /home/stel/game/nile/lib/imgui/imgui_demo.cpp",
-  "file": "/home/stel/game/nile/lib/imgui/imgui_demo.cpp"
-},
-{
-  "directory": "/home/stel/game/nile/build",
-  "command": "/usr/bin/g++  -DDEBUG=1 -D_DEBUG -I/usr/include/SDL2 -I/home/stel/game/nile/build -I/home/stel/game/nile/./include -I/home/stel/game/nile/./lib -I/home/stel/game/nile/./external/stb -I/usr/include/freetype2 -I/home/stel/game/nile/external/assimp/include -I/home/stel/game/nile/external/assimp/code/../include -I/home/stel/game/nile/build/external/assimp/code/../include    -pedantic -Wclobbered -Wcast-function-type -Wempty-body -Wignored-qualifiers -Wimplicit-fallthrough=3 -Wmissing-field-initializers -Wuninitialized -Wshift-negative-value -Wall -Wnon-virtual-dtor -g -O0 -std=c++17 -o CMakeFiles/nile_static.dir/lib/imgui/imgui_draw.cpp.o -c /home/stel/game/nile/lib/imgui/imgui_draw.cpp",
-  "file": "/home/stel/game/nile/lib/imgui/imgui_draw.cpp"
-},
-{
-  "directory": "/home/stel/game/nile/build",
-  "command": "/usr/bin/g++  -DDEBUG=1 -D_DEBUG -I/usr/include/SDL2 -I/home/stel/game/nile/build -I/home/stel/game/nile/./include -I/home/stel/game/nile/./lib -I/home/stel/game/nile/./external/stb -I/usr/include/freetype2 -I/home/stel/game/nile/external/assimp/include -I/home/stel/game/nile/external/assimp/code/../include -I/home/stel/game/nile/build/external/assimp/code/../include    -pedantic -Wclobbered -Wcast-function-type -Wempty-body -Wignored-qualifiers -Wimplicit-fallthrough=3 -Wmissing-field-initializers -Wuninitialized -Wshift-negative-value -Wall -Wnon-virtual-dtor -g -O0 -std=c++17 -o CMakeFiles/nile_static.dir/lib/imgui/imgui_impl_opengl3.cpp.o -c /home/stel/game/nile/lib/imgui/imgui_impl_opengl3.cpp",
-  "file": "/home/stel/game/nile/lib/imgui/imgui_impl_opengl3.cpp"
-},
-{
-  "directory": "/home/stel/game/nile/build",
-  "command": "/usr/bin/g++  -DDEBUG=1 -D_DEBUG -I/usr/include/SDL2 -I/home/stel/game/nile/build -I/home/stel/game/nile/./include -I/home/stel/game/nile/./lib -I/home/stel/game/nile/./external/stb -I/usr/include/freetype2 -I/home/stel/game/nile/external/assimp/include -I/home/stel/game/nile/external/assimp/code/../include -I/home/stel/game/nile/build/external/assimp/code/../include    -pedantic -Wclobbered -Wcast-function-type -Wempty-body -Wignored-qualifiers -Wimplicit-fallthrough=3 -Wmissing-field-initializers -Wuninitialized -Wshift-negative-value -Wall -Wnon-virtual-dtor -g -O0 -std=c++17 -o CMakeFiles/nile_static.dir/lib/imgui/imgui_impl_sdl.cpp.o -c /home/stel/game/nile/lib/imgui/imgui_impl_sdl.cpp",
-  "file": "/home/stel/game/nile/lib/imgui/imgui_impl_sdl.cpp"
-},
-{
-  "directory": "/home/stel/game/nile/build",
-  "command": "/usr/bin/g++  -DDEBUG=1 -D_DEBUG -I/usr/include/SDL2 -I/home/stel/game/nile/build -I/home/stel/game/nile/./include -I/home/stel/game/nile/./lib -I/home/stel/game/nile/./external/stb -I/usr/include/freetype2 -I/home/stel/game/nile/external/assimp/include -I/home/stel/game/nile/external/assimp/code/../include -I/home/stel/game/nile/build/external/assimp/code/../include    -pedantic -Wclobbered -Wcast-function-type -Wempty-body -Wignored-qualifiers -Wimplicit-fallthrough=3 -Wmissing-field-initializers -Wuninitialized -Wshift-negative-value -Wall -Wnon-virtual-dtor -g -O0 -std=c++17 -o CMakeFiles/nile_static.dir/lib/imgui/imgui_widgets.cpp.o -c /home/stel/game/nile/lib/imgui/imgui_widgets.cpp",
-  "file": "/home/stel/game/nile/lib/imgui/imgui_widgets.cpp"
-},
-{
-  "directory": "/home/stel/game/nile/build",
   "command": "/usr/bin/g++  -DDEBUG=1 -D_DEBUG -I/usr/include/SDL2 -I/home/stel/game/nile/build -I/home/stel/game/nile/./include -I/home/stel/game/nile/./lib -I/home/stel/game/nile/./external/stb -I/usr/include/freetype2 -I/home/stel/game/nile/external/assimp/include -I/home/stel/game/nile/external/assimp/code/../include -I/home/stel/game/nile/build/external/assimp/code/../include    -pedantic -Wclobbered -Wcast-function-type -Wempty-body -Wignored-qualifiers -Wimplicit-fallthrough=3 -Wmissing-field-initializers -Wuninitialized -Wshift-negative-value -Wall -Wnon-virtual-dtor -g -O0 -std=c++17 -o CMakeFiles/nile_static.dir/src/2d/2d_camera.cc.o -c /home/stel/game/nile/src/2d/2d_camera.cc",
   "file": "/home/stel/game/nile/src/2d/2d_camera.cc"
 },
@@ -151,21 +121,6 @@
 },
 {
   "directory": "/home/stel/game/nile/build",
-  "command": "/usr/bin/g++  -DDEBUG=1 -D_DEBUG -I/usr/include/SDL2 -I/home/stel/game/nile/build -I/home/stel/game/nile/./include -I/home/stel/game/nile/./lib -I/home/stel/game/nile/./external/stb -I/usr/include/freetype2 -I/home/stel/game/nile/external/assimp/include -I/home/stel/game/nile/external/assimp/code/../include -I/home/stel/game/nile/build/external/assimp/code/../include    -pedantic -Wclobbered -Wcast-function-type -Wempty-body -Wignored-qualifiers -Wimplicit-fallthrough=3 -Wmissing-field-initializers -Wuninitialized -Wshift-negative-value -Wall -Wnon-virtual-dtor -g -O0 -std=c++17 -o CMakeFiles/nile_static.dir/src/editor/editor.cc.o -c /home/stel/game/nile/src/editor/editor.cc",
-  "file": "/home/stel/game/nile/src/editor/editor.cc"
-},
-{
-  "directory": "/home/stel/game/nile/build",
-  "command": "/usr/bin/g++  -DDEBUG=1 -D_DEBUG -I/usr/include/SDL2 -I/home/stel/game/nile/build -I/home/stel/game/nile/./include -I/home/stel/game/nile/./lib -I/home/stel/game/nile/./external/stb -I/usr/include/freetype2 -I/home/stel/game/nile/external/assimp/include -I/home/stel/game/nile/external/assimp/code/../include -I/home/stel/game/nile/build/external/assimp/code/../include    -pedantic -Wclobbered -Wcast-function-type -Wempty-body -Wignored-qualifiers -Wimplicit-fallthrough=3 -Wmissing-field-initializers -Wuninitialized -Wshift-negative-value -Wall -Wnon-virtual-dtor -g -O0 -std=c++17 -o CMakeFiles/nile_static.dir/src/editor/info_window.cc.o -c /home/stel/game/nile/src/editor/info_window.cc",
-  "file": "/home/stel/game/nile/src/editor/info_window.cc"
-},
-{
-  "directory": "/home/stel/game/nile/build",
-  "command": "/usr/bin/g++  -DDEBUG=1 -D_DEBUG -I/usr/include/SDL2 -I/home/stel/game/nile/build -I/home/stel/game/nile/./include -I/home/stel/game/nile/./lib -I/home/stel/game/nile/./external/stb -I/usr/include/freetype2 -I/home/stel/game/nile/external/assimp/include -I/home/stel/game/nile/external/assimp/code/../include -I/home/stel/game/nile/build/external/assimp/code/../include    -pedantic -Wclobbered -Wcast-function-type -Wempty-body -Wignored-qualifiers -Wimplicit-fallthrough=3 -Wmissing-field-initializers -Wuninitialized -Wshift-negative-value -Wall -Wnon-virtual-dtor -g -O0 -std=c++17 -o CMakeFiles/nile_static.dir/src/log/editor_console_logger.cc.o -c /home/stel/game/nile/src/log/editor_console_logger.cc",
-  "file": "/home/stel/game/nile/src/log/editor_console_logger.cc"
-},
-{
-  "directory": "/home/stel/game/nile/build",
   "command": "/usr/bin/g++  -DDEBUG=1 -D_DEBUG -I/usr/include/SDL2 -I/home/stel/game/nile/build -I/home/stel/game/nile/./include -I/home/stel/game/nile/./lib -I/home/stel/game/nile/./external/stb -I/usr/include/freetype2 -I/home/stel/game/nile/external/assimp/include -I/home/stel/game/nile/external/assimp/code/../include -I/home/stel/game/nile/build/external/assimp/code/../include    -pedantic -Wclobbered -Wcast-function-type -Wempty-body -Wignored-qualifiers -Wimplicit-fallthrough=3 -Wmissing-field-initializers -Wuninitialized -Wshift-negative-value -Wall -Wnon-virtual-dtor -g -O0 -std=c++17 -o CMakeFiles/nile_static.dir/src/log/file_logger.cc.o -c /home/stel/game/nile/src/log/file_logger.cc",
   "file": "/home/stel/game/nile/src/log/file_logger.cc"
 },
@@ -233,5 +188,15 @@
   "directory": "/home/stel/game/nile/build",
   "command": "/usr/bin/g++  -DDEBUG=1 -D_DEBUG -I/usr/include/SDL2 -I/home/stel/game/nile/build -I/home/stel/game/nile/./include -I/home/stel/game/nile/./lib -I/home/stel/game/nile/./external/stb -I/usr/include/freetype2 -I/home/stel/game/nile/external/assimp/include -I/home/stel/game/nile/external/assimp/code/../include -I/home/stel/game/nile/build/external/assimp/code/../include    -pedantic -Wclobbered -Wcast-function-type -Wempty-body -Wignored-qualifiers -Wimplicit-fallthrough=3 -Wmissing-field-initializers -Wuninitialized -Wshift-negative-value -Wall -Wnon-virtual-dtor -g -O0 -std=c++17 -o CMakeFiles/nile_static.dir/src/renderer/texture2d.cc.o -c /home/stel/game/nile/src/renderer/texture2d.cc",
   "file": "/home/stel/game/nile/src/renderer/texture2d.cc"
+},
+{
+  "directory": "/home/stel/game/nile/build",
+  "command": "/usr/bin/g++  -DDEBUG=1 -D_DEBUG -I/usr/include/SDL2 -I/home/stel/game/nile/build -I/home/stel/game/nile/./include -I/home/stel/game/nile/./lib -I/home/stel/game/nile/./external/stb -I/usr/include/freetype2 -I/home/stel/game/nile/external/assimp/include -I/home/stel/game/nile/external/assimp/code/../include -I/home/stel/game/nile/build/external/assimp/code/../include    -pedantic -Wclobbered -Wcast-function-type -Wempty-body -Wignored-qualifiers -Wimplicit-fallthrough=3 -Wmissing-field-initializers -Wuninitialized -Wshift-negative-value -Wall -Wnon-virtual-dtor -g -O0 -std=c++17 -o CMakeFiles/nile_static.dir/src/scene/scene_graph.cc.o -c /home/stel/game/nile/src/scene/scene_graph.cc",
+  "file": "/home/stel/game/nile/src/scene/scene_graph.cc"
+},
+{
+  "directory": "/home/stel/game/nile/build",
+  "command": "/usr/bin/g++  -DDEBUG=1 -D_DEBUG -I/usr/include/SDL2 -I/home/stel/game/nile/build -I/home/stel/game/nile/./include -I/home/stel/game/nile/./lib -I/home/stel/game/nile/./external/stb -I/usr/include/freetype2 -I/home/stel/game/nile/external/assimp/include -I/home/stel/game/nile/external/assimp/code/../include -I/home/stel/game/nile/build/external/assimp/code/../include    -pedantic -Wclobbered -Wcast-function-type -Wempty-body -Wignored-qualifiers -Wimplicit-fallthrough=3 -Wmissing-field-initializers -Wuninitialized -Wshift-negative-value -Wall -Wnon-virtual-dtor -g -O0 -std=c++17 -o CMakeFiles/nile_static.dir/src/scene/scene_node.cc.o -c /home/stel/game/nile/src/scene/scene_node.cc",
+  "file": "/home/stel/game/nile/src/scene/scene_node.cc"
 }
 ]
