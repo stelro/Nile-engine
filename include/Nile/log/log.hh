@@ -3,9 +3,11 @@
 #include "Nile/core/signal.hh"
 #include "Nile/log/log_type.hh"
 
+#define glCheckError() log::checkGlErrors( __FILE__, __LINE__ )
+
 namespace nile {
 
-  class log {
+    class log {
   private:
     static std::string addTagToMessage( std::string &&str, LogType type ) noexcept;
 
@@ -30,6 +32,8 @@ namespace nile {
 
     // console will be printed out to editor console only
     static void console( const char *fmt, ... ) noexcept;
+
+    static u32 checkGlErrors( const char *file, i32 line ) noexcept;
   };
 
 }    // namespace nile
