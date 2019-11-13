@@ -12,5 +12,8 @@ namespace nile {
     return getRoot() + '/' + path;
   }
 
+  std::string FileSystem::getBuildDir() noexcept {
+    return ( binary_root != nullptr ) ? binary_root : " ";
+  }
 
 }    // namespace nile
