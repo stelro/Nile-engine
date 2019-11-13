@@ -1,0 +1,42 @@
+# Blender MTL File: 'None'
+# Material Count: 3
+
+newmtl Material.001
+Ns 1.108032
+Ka 1.000000 1.000000 1.000000
+Kd 0.800000 0.800000 0.800000
+Ks 0.500000 0.500000 0.500000
+Ke 0.0 0.0 0.0
+Ni 1.450000
+d 1.000000
+illum 2
+map_Bump StoneFloor_Normal.jpg
+map_Kd StoneFloor_Diffuse.jpg
+map_Ks StoneFloor_Specular.jpg
+
+newmtl StoneFloorDetails
+Ns 19.972314
+Ka 0.815789 0.815789 0.815789
+Kd 0.800000 0.800000 0.800000
+Ks 0.394737 0.394737 0.394737
+Ke 0.0 0.0 0.0
+Ni 1.450000
+d 0.442982
+illum 6
+map_Bump StoneFloorDetails_Normal.jpg
+map_Kd StoneFloorDetails_Diffuse.jpg
+map_Ks StoneFloorDetails_Specular.jpg
+map_d StoneFloorDetails_Diffuse.jpg
+
+newmtl StoneFloorGrass
+Ns 179.999996
+Ka 1.000000 1.000000 1.000000
+Kd 0.800000 0.800000 0.800000
+Ks 2.000000 2.000000 2.000000
+Ke 0.0 0.0 0.0
+Ni 1.450000
+d 1.000000
+illum 3
+map_Bump -bm 0.140017 StoneFloorGrass_Normal.jpg
+map_Kd StoneFloorGrass_Diffuse.tga.png
+map_d StoneFloorGrass_Diffuse.tga.png
