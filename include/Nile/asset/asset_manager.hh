@@ -39,8 +39,6 @@ namespace nile {
       m_loaders.insert( m_loaders.end(),
                         std::make_pair( &typeid( T ), new U( std::forward<Args>( args )... ) ) );
 
-      log::notice("Loader has registered: %s\n", typeid(T).name() );
-
       return m_loaders.size() > beforeSize;
     }
 
@@ -52,7 +50,7 @@ namespace nile {
     T *loadAsset( const std::string &assetName, const std::string &assetPath ) noexcept {
 
       auto asset = m_assetContainer->getAsset( assetName );
-        
+
       if ( !asset ) {
         auto it = m_loaders.find( &typeid( T ) );
         if ( it != m_loaders.end() ) {
@@ -63,7 +61,7 @@ namespace nile {
           ASSERT_M( false, "Could not find loader" );
         }
       }
-      
+
       return static_cast<T *>( asset );
     }
 
@@ -89,7 +87,7 @@ namespace nile {
         return static_cast<T *>( asset );
       }
 
-      log::error("Could not find asset: %s\n", assetName.c_str());
+      log::error( "Could not find asset: %s\n", assetName.c_str() );
 
       return nullptr;
     }
@@ -127,7 +125,7 @@ namespace nile {
 
     void clearLoaders() noexcept;
 
-    usize getLoadersCount() const noexcept ;
+    usize getLoadersCount() const noexcept;
   };
 
 }    // namespace nile
