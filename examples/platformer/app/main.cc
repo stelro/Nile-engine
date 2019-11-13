@@ -13,7 +13,7 @@ int main() {
   auto settings = nile::Settings::Builder {}
                       .setWidth( 1920 )
                       .setHeight( 920 )
-                      .setTitle( "Deathmarch v0.1" )
+                      .setTitle( "Nile Engine | Debugging " )
                       .setDebugMode( true )
                       .setWindowFlags( SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN )
                       .setProgramMode(nile::ProgramMode::EDITOR_MODE)
