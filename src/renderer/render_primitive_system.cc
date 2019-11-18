@@ -45,8 +45,7 @@ namespace nile {
       model =
           glm::rotate( model, glm::radians( transform.zRotation ), glm::vec3( 0.0f, 0.0f, 1.0f ) );
 
- 
- 
+
       this->m_primShader->SetMatrix4( "model", model );
       this->m_primShader->SetVector3f( "primitive_color", renderable.color );
 
