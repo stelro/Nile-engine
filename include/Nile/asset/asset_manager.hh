@@ -14,6 +14,7 @@ $Notice: $
 #include "Nile/core/assert.hh"
 #include "Nile/log/log.hh"
 
+#include <optional>
 #include <unordered_map>
 
 namespace nile {
@@ -57,7 +58,7 @@ namespace nile {
           asset = it->second->loadAsset( assetName, assetPath );
           m_assetContainer->addAsset( assetName, asset );
         } else {
-          // Loader doesn't found
+          // Loader doesn't exist
           ASSERT_M( false, "Could not find loader" );
         }
       }
@@ -66,8 +67,9 @@ namespace nile {
     }
 
     // Stores asset to the AssetContainer, which is created outside of assetManager
-    // class, usufally with some specific Builder, which was Created by the manager class
-    // this method is usefull for e.g ShaderSets which need more than 1 file to be created
+    // class, usually with some specific Builder, which was Created by the manager class
+    // this method is useful for e.g ShaderSets which need more than 1 file to be
+    // created, or 3D models which contains more than one meshes and
     // thous cannot be created directly by the AssetManager's loadAsset method
     template <typename T>
     void storeAsset( const std::string &assetName, Asset *asset ) noexcept {
@@ -79,7 +81,7 @@ namespace nile {
 
 
     // get asset by assetName if exist, otherwise error will be logged to the
-    // console, and nullptr will returnid
+    // console, and nullptr will returned
     template <typename T>
     T *getAsset( const std::string &assetName ) const noexcept {
 
@@ -109,7 +111,7 @@ namespace nile {
     // Clear all the assets from the container
     void clearAll() noexcept;
 
-    // Reload all the assets ( this involes many opertations to file/stream)
+    // Reload all the assets ( this involves many operations to file/stream)
     void reloadAll() noexcept;
 
     void reload( const std::string &assetName ) noexcept;
