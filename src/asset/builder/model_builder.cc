@@ -1,31 +1,35 @@
 #include "Nile/asset/builder/model_builder.hh"
 #include "Nile/core/assert.hh"
+#include "Nile/debug/benchmark_timer.hh"
+#include "Nile/log/log.hh"
 
 
 namespace nile::AssetBuilder {
 
   static TextureType assimpTypeToTextureType( aiTextureType type ) noexcept {
-    switch ( type ) {
-      case aiTextureType_DIFFUSE:
-        return TextureType::DIFFUSE;
-      case aiTextureType_SPECULAR:
-        return TextureType::SPECULAR;
-      case aiTextureType_AMBIENT:
-        return TextureType::AMBIENT;
-      case aiTextureType_HEIGHT:
-        return TextureType::NORMAL;
-      case aiTextureType_EMISSIVE:
-        return TextureType::EMISSIVE;
-    }
+    if ( type == aiTextureType_DIFFUSE )
+      return TextureType::DIFFUSE;
+    else if ( type == aiTextureType_SPECULAR )
+      return TextureType::SPECULAR;
+    else if ( type == aiTextureType_AMBIENT )
+      return TextureType::AMBIENT;
+    else if ( type == aiTextureType_HEIGHT )
+      return TextureType::NORMAL;
+    else if ( type == aiTextureType_EMISSIVE )
+      return TextureType::EMISSIVE;
+    else
+      return TextureType::NONE;
   }
 
   Builder<Model>::Builder( const std::shared_ptr<nile::AssetManager> &assetManager ) noexcept
       : m_assetManager( assetManager ) {}
 
   void Builder<Model>::loadModel() noexcept {
-    Assimp::Importer import; 
+
+    // @bottleneck: this method take so long to load models
+    Assimp::Importer import;
     const aiScene *scene = import.ReadFile(
-        m_path, aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_FindInvalidData |
+        m_path, aiProcess_Triangulate | aiProcess_FindInvalidData | aiProcess_FlipUVs |
                     aiProcess_FindDegenerates | aiProcess_JoinIdenticalVertices |
                     aiProcess_OptimizeGraph | aiProcess_OptimizeMeshes );
 
@@ -39,6 +43,7 @@ namespace nile::AssetBuilder {
   }
 
   void Builder<Model>::processNode( aiNode *node, const aiScene *scene ) noexcept {
+
 
     for ( u32 i = 0; i < node->mNumMeshes; i++ ) {
       aiMesh *mesh = scene->mMeshes[ node->mMeshes[ i ] ];
@@ -55,8 +60,6 @@ namespace nile::AssetBuilder {
     std::vector<Vertex> vertices;
     std::vector<u32> indices;
     std::vector<Texture2D *> textures;
-
-    log::print( "%s\n", mesh->mName.C_Str() );
 
     for ( u32 i = 0; i < mesh->mNumVertices; i++ ) {
       Vertex vertex;
@@ -124,7 +127,6 @@ namespace nile::AssetBuilder {
       material->GetTexture( type, i, &str );
       std::string filename = m_directoryName + '/' + str.C_Str();
       auto texture = m_assetManager->loadAsset<Texture2D>( str.C_Str(), filename );
-      log::print( "texture name: %s\n", str.C_Str() );
       texture->setTexturetype( assimpTypeToTextureType( type ) );
       textures.push_back( texture );
     }
