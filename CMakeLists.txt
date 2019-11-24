@@ -44,6 +44,7 @@ set(NILE_SOURCES_CORE
   ${NILE_DIR}/include/Nile/renderer/render_primitive_system.hh
   ${NILE_DIR}/include/Nile/renderer/model.hh
   ${NILE_DIR}/include/Nile/renderer/mesh.hh
+  ${NILE_DIR}/include/Nile/renderer/opengl_framebuffer.hh
   ${NILE_DIR}/include/Nile/utils/vertex.hh
   ${NILE_DIR}/include/Nile/application/game.hh
   ${NILE_DIR}/include/Nile/platform/game_host.hh
@@ -81,6 +82,7 @@ set(NILE_SOURCES_CORE
   ${NILE_DIR}/include/Nile/log/stream_logger.hh
   ${NILE_DIR}/include/Nile/scene/scene_graph.hh
   ${NILE_DIR}/include/Nile/scene/scene_node.hh
+  ${NILE_DIR}/include/Nile/debug/benchmark_timer.hh
   ${NILE_DIR}/src/2d/2d_camera.cc
   ${NILE_DIR}/src/2d/sprite_renderer.cc
   ${NILE_DIR}/src/2d/sprite_sheet.cc
@@ -100,6 +102,7 @@ set(NILE_SOURCES_CORE
   ${NILE_DIR}/src/renderer/rendering_system.cc
   ${NILE_DIR}/src/renderer/sprite_rendering_system.cc
   ${NILE_DIR}/src/renderer/render_primitive_system.cc
+  ${NILE_DIR}/src/renderer/opengl_framebuffer.cc
   ${NILE_DIR}/src/application/game.cc
   ${NILE_DIR}/src/platform.x11/bootstrap.cc
   ${NILE_DIR}/src/platform.x11/game_host_x11.cc
