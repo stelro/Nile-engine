@@ -7,6 +7,7 @@ $Notice: $
 ================================================================================ */
 
 #include "Nile/asset/builder/shaderset_builder.hh"
+#include "Nile/core/assert.hh"
 #include "Nile/log/log.hh"
 
 #include <GL/glew.h>
@@ -55,11 +56,13 @@ namespace nile::AssetBuilder {
     std::ifstream vertexShaderFile( vshaderFile.data() );
     if ( !vertexShaderFile.is_open() ) {
       log::error( "Failed to open { %s } file for vertex shader", vshaderFile.data() );
+      ASSERT(false);
     }
 
     std::ifstream fragmentShaderFile( fshaderFile.data() );
     if ( !fragmentShaderFile.is_open() ) {
       log::error( "Failed to open { %s } file for fragment shader", fshaderFile.data() );
+      ASSERT(false);
     }
 
     std::stringstream vShaderStream, fShaderStream;
@@ -80,6 +83,7 @@ namespace nile::AssetBuilder {
       std::ifstream geometryShaderFile( gshaderFile.data() );
       if ( !geometryShaderFile.is_open() ) {
         log::error( "Failed to open { %s } file for geometry shader", gshaderFile.data() );
+        ASSERT(false);
       }
 
       std::stringstream gShaderStream;
