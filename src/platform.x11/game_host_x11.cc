@@ -51,6 +51,8 @@ namespace nile::X11 {
     std::shared_ptr<SpriteRenderingSystem> spriteRenderingSystem;
     std::shared_ptr<RenderPrimitiveSystem> renderPrimitiveSystem;
 
+    std::shared_ptr<ShaderSet> m_fbScreenShader;
+
     Timer m_uptime;
 
     ProgramMode m_programMode;
@@ -134,15 +136,15 @@ namespace nile::X11 {
 
     assetManager->storeAsset<ShaderSet>( "model_shader", modelShader );
 
-    auto fb_screen_shader =
+
+    // main window framebuffer shader
+    m_fbScreenShader = assetManager->storeAsset<ShaderSet>(
+        "fb_screen_shader",
         assetManager->createBuilder<ShaderSet>()
             .setVertexPath( FileSystem::getBuildDir() + "/resources/shaders/screen_fb_vertex.glsl" )
             .setFragmentPath( FileSystem::getBuildDir() +
                               "/resources/shaders/screen_fb_fragment.glsl" )
-            .build();
-
-
-    assetManager->storeAsset<ShaderSet>( "fb_screen_shader", fb_screen_shader );
+            .build() );
 
 
     this->registerEcs();
@@ -218,8 +220,6 @@ namespace nile::X11 {
     ecsCoordinator->createSystems();
     f64 lastStep = SDL_GetTicks();
 
-    auto screen_shader = assetManager->getAsset<ShaderSet>( "fb_screen_shader" );
-
     // draw wireframe
     // glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
 
@@ -238,7 +238,6 @@ namespace nile::X11 {
       glClearColor( 0.1f, 0.1f, 0.1f, 1.0f );
       glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 
-
       ecsCoordinator->update( delta );
       ecsCoordinator->render( delta );
 
@@ -249,7 +248,7 @@ namespace nile::X11 {
       glClearColor( 1.0f, 1.0f, 1.0f, 1.0f );
       glClear( GL_COLOR_BUFFER_BIT );
 
-      screen_shader->use();
+      m_fbScreenShader->use();
       m_framebuffer->submitFrame();
       renderer->endFrame();
 
