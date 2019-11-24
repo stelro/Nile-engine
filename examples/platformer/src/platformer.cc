@@ -25,7 +25,6 @@ namespace platformer {
       , m_assetManager( gameHost->getAssetManager() )
       , m_ecsCoordinator( gameHost->getEcsCoordinator() ) {
 
-
     m_lastX = m_settings->getWidth() / 2.0f;
     m_lastY = m_settings->getHeight() / 2.0f;
   }
@@ -53,9 +52,6 @@ namespace platformer {
     m_fontRenderer = std::make_unique<FontRenderer>(
         fontShader, m_settings, FileSystem::getPath( "assets/fonts/arial.ttf" ), 22 );
 
-    m_spriteRenderer = std::make_unique<SpriteRenderer>( spriteShader );
-
-
     m_cameraEntity = m_ecsCoordinator->createEntity();
     Transform camera_transform;
     camera_transform.position = glm::vec3( -12.0f, 20.0f, 70.0f );
@@ -64,7 +60,7 @@ namespace platformer {
     CameraComponent cameraComponent( 0.1f, 200.0f, 45.0f, ProjectionType::PERSPECTIVE );
     m_ecsCoordinator->addComponent<CameraComponent>( m_cameraEntity, cameraComponent );
 
-    //    this->drawStoneTiles();
+    this->drawStoneTiles();
     this->drawTextureFloor();
     this->drawNanoModel();
     this->drawContainers();
@@ -154,7 +150,6 @@ namespace platformer {
     }
   }
 
-
   void Platformer::processMouseEvents( f32 dt ) noexcept {
 
     auto &c_camera = m_ecsCoordinator->getComponent<CameraComponent>( m_cameraEntity );
@@ -206,26 +201,26 @@ namespace platformer {
 
   void Platformer::drawStoneTiles() noexcept {
 
-    m_assetManager->storeAsset<Model>(
+    auto model = m_assetManager->storeAsset<Model>(
         "stonetile_model",
         m_assetManager->createBuilder<Model>( m_assetManager )
             .setModelPath( FileSystem::getPath( "assets/models/stonetile/stonetile.obj" ) )
             .build() );
 
-    auto stonetile_mesh = m_assetManager->getAsset<Model>( "stonetile_model" )->meshes;
+    auto stonetile_mesh = model->meshes;
 
     const f32 model_offset = 10.0f;
 
     for ( u32 row = 0; row < 4; row++ ) {
       for ( u32 col = 0; col < 4; col++ ) {
 
-        u32 k = static_cast<f32>( row * model_offset );
-        u32 m = static_cast<f32>( col * model_offset );
+        u32 k = static_cast<f32>( row * model_offset + 20 );
+        u32 m = static_cast<f32>( col * model_offset + 60 );
 
         for ( const auto &i : stonetile_mesh ) {
           auto entity = m_ecsCoordinator->createEntity();
           Transform transform;
-          transform.position = glm::vec3( k, 0.0f, m );
+          transform.position = glm::vec3( k, 1.0f, m );
           transform.scale = glm::vec3( 3.0f );
 
           MeshComponent mesh;
@@ -265,13 +260,13 @@ namespace platformer {
 
   void Platformer::drawContainers() noexcept {
 
-    m_assetManager->storeAsset<Model>(
+    auto model = m_assetManager->storeAsset<Model>(
         "container_model",
         m_assetManager->createBuilder<Model>( m_assetManager )
             .setModelPath( FileSystem::getPath( "assets/models/container/container.obj" ) )
             .build() );
 
-    auto model_mesh = m_assetManager->getAsset<Model>( "container_model" )->meshes;
+    auto model_mesh = model->meshes;
 
     for ( i32 j = 0; j < 4; j++ ) {
 
@@ -305,7 +300,6 @@ namespace platformer {
     auto grass_texture = m_assetManager->loadAsset<Texture2D>(
         "grass", FileSystem::getPath( "assets/textures/grass.png" ) );
 
-
     const i32 offset_x = 60;
     const i32 offset_z = 20;
 
@@ -336,7 +330,6 @@ namespace platformer {
         "window", FileSystem::getPath( "assets/textures/window.png" ) );
 
     auto camera_transform = m_ecsCoordinator->getComponent<Transform>( m_cameraEntity );
-
 
     const i32 offset_x = 20;
     const i32 offset_z = 10;
@@ -373,20 +366,19 @@ namespace platformer {
 
     BenchmarkTimer timer( "drawNanoModel()" );
 
-    m_assetManager->storeAsset<Model>(
+    auto model = m_assetManager->storeAsset<Model>(
         "nanosuit",
         m_assetManager->createBuilder<Model>( m_assetManager )
             .setModelPath( FileSystem::getPath( "assets/models/nanosuit/nanosuit.obj" ) )
             .build() );
 
-    auto model_mesh = m_assetManager->getAsset<Model>( "nanosuit" )->meshes;
-
+    auto model_mesh = model->meshes;
 
     for ( const auto &i : model_mesh ) {
 
       auto entity = m_ecsCoordinator->createEntity();
       Transform transform;
-      transform.position = glm::vec3(  14.0f + 32, 0.0f,  14.0f + 62 );
+      transform.position = glm::vec3( 14.0f + 32, 0.0f, 14.0f + 62 );
       transform.scale = glm::vec3( 1.0f );
 
       MeshComponent mesh;
