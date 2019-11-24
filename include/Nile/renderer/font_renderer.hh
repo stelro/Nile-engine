@@ -37,7 +37,7 @@ namespace nile {
 
   class FontRenderer {
   private:
-    ShaderSet *m_shader;
+    std::shared_ptr<ShaderSet> m_shader;
     FT_Library m_fontLib;
     FT_Face m_fontFace;
 
@@ -51,8 +51,9 @@ namespace nile {
     void init() noexcept;
 
   public:
-    FontRenderer( ShaderSet *shader, const std::shared_ptr<Settings> &settings,
-                  const std::string &fontName, u32 fontSize ) noexcept;
+    FontRenderer( const std::shared_ptr<ShaderSet> &shader,
+                  const std::shared_ptr<Settings> &settings, const std::string &fontName,
+                  u32 fontSize ) noexcept;
     ~FontRenderer() noexcept;
 
     void renderText( const std::string &text, f32 x, f32 y, f32 scale,

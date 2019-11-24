@@ -59,7 +59,7 @@ namespace nile::AssetBuilder {
 
     std::vector<Vertex> vertices;
     std::vector<u32> indices;
-    std::vector<Texture2D *> textures;
+    std::vector<std::shared_ptr<Texture2D>> textures;
 
     for ( u32 i = 0; i < mesh->mNumVertices; i++ ) {
       Vertex vertex;
@@ -96,32 +96,34 @@ namespace nile::AssetBuilder {
       aiMaterial *material = scene->mMaterials[ mesh->mMaterialIndex ];
 
       // diffuse maps
-      std::vector<Texture2D *> diffuseMaps =
+      std::vector<std::shared_ptr<Texture2D>> diffuseMaps =
           loadMaterialTextures( material, aiTextureType_DIFFUSE );
 
       textures.insert( textures.end(), diffuseMaps.begin(), diffuseMaps.end() );
 
       // specular maps
-      std::vector<Texture2D *> specularMaps =
+      std::vector<std::shared_ptr<Texture2D>> specularMaps =
           loadMaterialTextures( material, aiTextureType_SPECULAR );
       textures.insert( textures.end(), specularMaps.begin(), specularMaps.end() );
 
       // normal maps
-      std::vector<Texture2D *> normalMaps = loadMaterialTextures( material, aiTextureType_HEIGHT );
+      std::vector<std::shared_ptr<Texture2D>> normalMaps =
+          loadMaterialTextures( material, aiTextureType_HEIGHT );
       textures.insert( textures.end(), normalMaps.begin(), normalMaps.end() );
 
       // ambient maps
-      std::vector<Texture2D *> heightMaps = loadMaterialTextures( material, aiTextureType_AMBIENT );
+      std::vector<std::shared_ptr<Texture2D>> heightMaps =
+          loadMaterialTextures( material, aiTextureType_AMBIENT );
       textures.insert( textures.end(), normalMaps.begin(), normalMaps.end() );
     }
 
     return Mesh( vertices, indices, textures );
   }
 
-  std::vector<Texture2D *> Builder<Model>::loadMaterialTextures( aiMaterial *material,
-                                                                 aiTextureType type ) noexcept {
+  std::vector<std::shared_ptr<Texture2D>>
+  Builder<Model>::loadMaterialTextures( aiMaterial *material, aiTextureType type ) noexcept {
 
-    std::vector<Texture2D *> textures;
+    std::vector<std::shared_ptr<Texture2D>> textures;
     for ( u32 i = 0; i < material->GetTextureCount( type ); i++ ) {
       aiString str;
       material->GetTexture( type, i, &str );
@@ -139,11 +141,10 @@ namespace nile::AssetBuilder {
     return *this;
   }
 
-  [[nodiscard]] Model *Builder<Model>::build() noexcept {
+  [[nodiscard]] std::shared_ptr<Model> Builder<Model>::build() noexcept {
     ASSERT_M( !m_path.empty(), "Model path is empty!" );
     this->loadModel();
-    Model *model = new Model( m_meshes );
-    return model;
+    return std::make_shared<Model>( m_meshes );
   }
 
 }    // namespace nile::AssetBuilder

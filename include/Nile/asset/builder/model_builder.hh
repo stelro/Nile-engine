@@ -1,11 +1,11 @@
 #pragma once
 
+#include "Nile/asset/asset_manager.hh"
 #include "Nile/asset/builder/asset_builder.hh"
 #include "Nile/core/types.hh"
 #include "Nile/renderer/mesh.hh"
 #include "Nile/renderer/model.hh"
 #include "Nile/renderer/texture2d.hh"
-#include "Nile/asset/asset_manager.hh"
 
 #include "assimp/Importer.hpp"
 #include "assimp/postprocess.h"
@@ -32,8 +32,8 @@ namespace nile::AssetBuilder {
     void processNode( aiNode *node, const aiScene *scene ) noexcept;
     Mesh processMesh( aiMesh *mesh, const aiScene *scene ) noexcept;
 
-    std::vector<Texture2D*> loadMaterialTextures( aiMaterial *material,
-                                                 aiTextureType type ) noexcept;
+    std::vector<std::shared_ptr<Texture2D>> loadMaterialTextures( aiMaterial *material,
+                                                   aiTextureType type ) noexcept;
 
   public:
     Builder( const std::shared_ptr<nile::AssetManager> &assetManager ) noexcept;
@@ -44,7 +44,7 @@ namespace nile::AssetBuilder {
 
     Builder &setModelPath( std::string_view path ) noexcept;
 
-    [[nodiscard]] Model *build() noexcept;
+    [[nodiscard]] std::shared_ptr<Model> build() noexcept;
   };
 
 }    // namespace nile::AssetBuilder

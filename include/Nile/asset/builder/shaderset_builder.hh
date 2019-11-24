@@ -8,24 +8,16 @@ $Notice: $
 
 #pragma once
 
-#include "Nile/core/types.hh"
 #include "Nile/asset/builder/asset_builder.hh"
+#include "Nile/core/types.hh"
 #include "Nile/renderer/shaderset.hh"
 
 #include <string_view>
+#include <memory>
 
 namespace nile::AssetBuilder {
 
-  enum class ShaderType
-  {
-    VERTEX,
-    FRAGMENT,
-    GEOMETRY,
-    TESSALATION,
-    COMPUTE,
-    PROGRAM,
-    NONE
-  };
+  enum class ShaderType { VERTEX, FRAGMENT, GEOMETRY, TESSALATION, COMPUTE, PROGRAM, NONE };
 
   template <>
   class Builder<ShaderSet> final {
@@ -52,7 +44,7 @@ namespace nile::AssetBuilder {
     Builder &setFragmentPath( const std::string &value ) noexcept;
     Builder &setGeometryPath( const std::string &value ) noexcept;
 
-    [[nodiscard]] ShaderSet *build() noexcept;
+    [[nodiscard]] std::shared_ptr<ShaderSet> build() noexcept;
   };
 
 }    // namespace nile::AssetBuilder

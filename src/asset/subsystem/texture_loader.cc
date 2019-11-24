@@ -21,19 +21,17 @@ namespace nile {
   TextureLoader::TextureLoader( bool alpha ) noexcept
       : m_alpha( alpha ) {}
 
-  Asset *TextureLoader::loadAsset( const std::string &assetName,
-                                   const std::string &filePath ) noexcept {
+  std::shared_ptr<Asset> TextureLoader::loadAsset( const std::string &assetName,
+                                                   const std::string &filePath ) noexcept {
 
-    Texture2D *texture = new Texture2D();
+    auto texture = std::make_shared<Texture2D>();
 
     if ( m_alpha ) {
       texture->setInternalFormat( GL_RGBA );
       texture->setImageFormat( GL_RGBA );
     }
 
-
     // Load image
-    // TODO(stel):
     int width, height, nrChannels;
     unsigned char *image = nullptr;
     image = stbi_load( filePath.data(), &width, &height, &nrChannels, STBI_rgb_alpha );

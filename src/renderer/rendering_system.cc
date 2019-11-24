@@ -15,7 +15,7 @@
 namespace nile {
 
   RenderingSystem::RenderingSystem( const std::shared_ptr<Coordinator> &coordinator,
-                                    ShaderSet *shader ) noexcept
+                                    const std::shared_ptr<ShaderSet> &shader ) noexcept
       : m_ecsCoordinator( coordinator )
       , m_shader( shader ) {}
 
@@ -119,7 +119,7 @@ namespace nile {
       glVertexAttribPointer( 1, 3, GL_FLOAT, GL_FALSE, sizeof( Vertex ),
                              ( void * )offsetof( Vertex, normal ) );
 
-      // Uv coordinates
+      // UV coordinates
       glEnableVertexAttribArray( 2 );
       glVertexAttribPointer( 2, 2, GL_FLOAT, GL_FALSE, sizeof( Vertex ),
                              ( void * )offsetof( Vertex, uv ) );

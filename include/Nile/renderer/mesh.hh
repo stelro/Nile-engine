@@ -3,6 +3,7 @@
 #include "Nile/core/types.hh"
 #include "Nile/utils/vertex.hh"
 
+#include <memory>
 #include <vector>
 
 namespace nile {
@@ -12,7 +13,7 @@ namespace nile {
   struct Mesh {
 
     Mesh( std::vector<Vertex> t_vertices, std::vector<u32> t_indices,
-          std::vector<Texture2D *> t_textures ) noexcept
+          std::vector<std::shared_ptr<Texture2D>> t_textures ) noexcept
         : verticies( std::move( t_vertices ) )
         , indices( std::move( t_indices ) )
         , textures( std::move( t_textures ) ) {}
@@ -23,6 +24,6 @@ namespace nile {
 
     std::vector<Vertex> verticies;
     std::vector<u32> indices;
-    std::vector<Texture2D *> textures;
+    std::vector<std::shared_ptr<Texture2D>> textures;
   };
 }    // namespace nile

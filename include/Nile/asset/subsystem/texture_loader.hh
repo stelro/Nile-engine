@@ -18,7 +18,7 @@ namespace nile {
 
   public:
     TextureLoader( bool alpha = true ) noexcept;
-    Asset *loadAsset( const std::string &assetName, const std::string &filePath ) noexcept override;
+    std::shared_ptr<Asset> loadAsset( const std::string &assetName, const std::string &filePath ) noexcept override;
 
     void unloadAsset( Asset *asset ) noexcept override;
   };

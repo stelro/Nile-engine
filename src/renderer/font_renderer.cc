@@ -7,8 +7,8 @@ $Notice: $
 ================================================================================ */
 
 #include "Nile/renderer/font_renderer.hh"
-#include "Nile/log/log.hh"
 #include "Nile/core/settings.hh"
+#include "Nile/log/log.hh"
 #include "Nile/renderer/shaderset.hh"
 
 #include <GL/glew.h>
@@ -16,7 +16,7 @@ $Notice: $
 
 namespace nile {
 
-  FontRenderer::FontRenderer( ShaderSet* shader,
+  FontRenderer::FontRenderer( const std::shared_ptr<ShaderSet> &shader,
                               const std::shared_ptr<Settings> &settings,
                               const std::string &fontName, u32 fontSize ) noexcept
       : m_shader( shader )

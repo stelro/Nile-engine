@@ -33,12 +33,12 @@ namespace nile::AssetBuilder {
     return *this;
   }
 
-  [[nodiscard]] ShaderSet *Builder<ShaderSet>::build() noexcept {
+  [[nodiscard]] std::shared_ptr<ShaderSet> Builder<ShaderSet>::build() noexcept {
 
-    ShaderSet *shader =
-        new ShaderSet( loadShaderFromFile( m_vertexPath, m_fragmentPath, m_geometryPath ) );
 
-    return shader;
+    return std::make_shared<ShaderSet>(
+        loadShaderFromFile( m_vertexPath, m_fragmentPath, m_geometryPath ) );
+
   }
 
   u32 Builder<ShaderSet>::loadShaderFromFile( std::string_view vshaderFile,
@@ -56,13 +56,13 @@ namespace nile::AssetBuilder {
     std::ifstream vertexShaderFile( vshaderFile.data() );
     if ( !vertexShaderFile.is_open() ) {
       log::error( "Failed to open { %s } file for vertex shader", vshaderFile.data() );
-      ASSERT(false);
+      ASSERT( false );
     }
 
     std::ifstream fragmentShaderFile( fshaderFile.data() );
     if ( !fragmentShaderFile.is_open() ) {
       log::error( "Failed to open { %s } file for fragment shader", fshaderFile.data() );
-      ASSERT(false);
+      ASSERT( false );
     }
 
     std::stringstream vShaderStream, fShaderStream;
@@ -83,7 +83,7 @@ namespace nile::AssetBuilder {
       std::ifstream geometryShaderFile( gshaderFile.data() );
       if ( !geometryShaderFile.is_open() ) {
         log::error( "Failed to open { %s } file for geometry shader", gshaderFile.data() );
-        ASSERT(false);
+        ASSERT( false );
       }
 
       std::stringstream gShaderStream;

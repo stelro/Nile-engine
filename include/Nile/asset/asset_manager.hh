@@ -48,7 +48,8 @@ namespace nile {
     // then load and save the asset to the AssetContainer.
     // If loader of type U<T> doesn't exist, then assert will arise
     template <typename T>
-    T *loadAsset( const std::string &assetName, const std::string &assetPath ) noexcept {
+    std::shared_ptr<T> loadAsset( const std::string &assetName,
+                                  const std::string &assetPath ) noexcept {
 
       auto asset = m_assetContainer->getAsset( assetName );
 
@@ -63,7 +64,7 @@ namespace nile {
         }
       }
 
-      return static_cast<T *>( asset );
+      return std::static_pointer_cast<T>( asset );
     }
 
     // Stores asset to the AssetContainer, which is created outside of assetManager
@@ -72,21 +73,23 @@ namespace nile {
     // created, or 3D models which contains more than one meshes and
     // thous cannot be created directly by the AssetManager's loadAsset method
     template <typename T>
-    void storeAsset( const std::string &assetName, Asset *asset ) noexcept {
+    std::shared_ptr<T> storeAsset( const std::string &assetName,
+                                   const std::shared_ptr<Asset> &asset ) noexcept {
       if ( !m_assetContainer->isAssetExist( assetName ) ) {
         m_assetContainer->addAsset( assetName, asset );
       }
-      return;
+
+      return this->getAsset<T>( assetName );
     }
 
 
     // get asset by assetName if exist, otherwise error will be logged to the
     // console, and nullptr will returned
     template <typename T>
-    T *getAsset( const std::string &assetName ) const noexcept {
+    std::shared_ptr<T> getAsset( const std::string &assetName ) const noexcept {
 
       if ( auto asset = m_assetContainer->getAsset( assetName ) ) {
-        return static_cast<T *>( asset );
+        return std::static_pointer_cast<T>( asset );
       }
 
       log::error( "Could not find asset: %s\n", assetName.c_str() );

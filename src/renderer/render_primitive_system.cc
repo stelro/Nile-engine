@@ -11,7 +11,7 @@
 namespace nile {
 
   RenderPrimitiveSystem::RenderPrimitiveSystem( const std::shared_ptr<Coordinator> &coordinator,
-                                                ShaderSet *shader ) noexcept
+                                                const std::shared_ptr<ShaderSet> &shader ) noexcept
       : m_ecsCoordinator( coordinator )
       , m_primShader( shader ) {}
 

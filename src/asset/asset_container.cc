@@ -8,6 +8,7 @@ $Notice: $
 
 #include "Nile/asset/asset_container.hh"
 #include "Nile/asset/asset.hh"
+#include "Nile/log/log.hh"
 
 namespace nile {
 
@@ -15,17 +16,21 @@ namespace nile {
     this->clearAll();
   }
 
-  bool AssetContainer::addAsset( const std::string &assetName, Asset *asset ) noexcept {
+  bool AssetContainer::addAsset( const std::string &assetName,
+                                 const std::shared_ptr<Asset> &asset ) noexcept {
     auto inserted = m_assets.insert( std::make_pair( assetName, asset ) );
     return std::get<bool>( inserted );
   }
 
-  Asset *AssetContainer::getAsset( const std::string &assetName ) const noexcept {
+  std::shared_ptr<Asset> AssetContainer::getAsset( const std::string &assetName ) const noexcept {
+
     auto it = m_assets.find( assetName );
+
     if ( it != m_assets.end() ) {
-      // Increment the reference by one of the asset
-      it->second->m_reference->inc();
-      return it->second;
+      if ( auto spt = it->second.lock() )
+        return spt;
+      else
+        log::error( "%s asset has expired\n" );
     }
 
     // Asset doesn't exist in the container
@@ -35,8 +40,7 @@ namespace nile {
   void AssetContainer::unloadAsset( const std::string &assetName ) noexcept {
     auto it = m_assets.find( assetName );
     if ( it != m_assets.end() ) {
-      it->second->m_reference->dec();
-      if ( it->second->getRefCount() <= 0 )
+      if ( !it->second.expired() )
         this->removeAsset( assetName );
     }
   }
@@ -44,8 +48,8 @@ namespace nile {
   void AssetContainer::removeAsset( const std::string &assetName ) noexcept {
     auto it = m_assets.find( assetName );
     if ( it != m_assets.end() ) {
-      delete it->second;
-      it->second = nullptr;
+      // @keep a eye on this
+      it->second.reset();
       m_assets.erase( it );
     }
   }
@@ -68,8 +72,7 @@ namespace nile {
 
   void AssetContainer::clearAll() noexcept {
     for ( auto &iter : m_assets ) {
-      delete iter.second;
-      iter.second = nullptr;
+      iter.second.reset();
     }
 
     m_assets.clear();

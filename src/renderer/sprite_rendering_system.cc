@@ -21,7 +21,7 @@ $Notice: $
 namespace nile {
 
   SpriteRenderingSystem::SpriteRenderingSystem( const std::shared_ptr<Coordinator> &coordinator,
-                                                ShaderSet *shader ) noexcept
+                                              const std::shared_ptr<ShaderSet> &shader ) noexcept
       : m_ecsCoordinator( coordinator )
       , m_spriteShader( shader ) {}
 
