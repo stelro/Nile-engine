@@ -17,8 +17,8 @@ namespace nile {
       , m_height( 0 )
       , m_internalFormat( GL_RGB )
       , m_imageFormat( GL_RGB )
-      , m_wrapS( GL_REPEAT )
-      , m_wrapT( GL_REPEAT )
+      , m_wrapS( GL_CLAMP_TO_EDGE )
+      , m_wrapT( GL_CLAMP_TO_EDGE )
       , m_filterMin( GL_LINEAR )
       , m_filterMax( GL_LINEAR ) {
     glGenTextures( 1, &this->m_id );
