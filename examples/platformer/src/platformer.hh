@@ -41,10 +41,12 @@ namespace platformer {
 
     nile::Entity m_cameraEntity;
 
-    void initializeEcs() noexcept;
-    void createAxisLines() noexcept;
-    void test3d() noexcept;
-    void testModel() noexcept;
+    void drawStoneTiles() noexcept;
+    void drawNanoModel() noexcept;
+    void drawTextureFloor() noexcept;
+    void drawContainers() noexcept;
+    void drawGrass() noexcept;
+    void drawWindows() noexcept;
 
     void processKeyboardEvents(f32 dt) noexcept;
     void processMouseEvents(f32 dt) noexcept;
