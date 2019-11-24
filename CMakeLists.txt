@@ -20,11 +20,11 @@ source_group(asset            REGULAR_EXPRESSION "(include/Nile|src)/asset/*")
 
 set(NILE_SOURCES_CORE
   ${NILE_DIR}/include/Nile/2d/2d_camera.hh
-  ${NILE_DIR}/include/Nile/2d/sprite_renderer.hh
-  ${NILE_DIR}/include/Nile/2d/sprite_sheet.hh
-  ${NILE_DIR}/include/Nile/2d/spritesheet_context.hh
-  ${NILE_DIR}/include/Nile/2d/sprite_set.hh
-  ${NILE_DIR}/include/Nile/2d/sprite.hh
+  #${NILE_DIR}/include/Nile/2d/sprite_renderer.hh
+  # ${NILE_DIR}/include/Nile/2d/sprite_sheet.hh
+  #${NILE_DIR}/include/Nile/2d/spritesheet_context.hh
+  # ${NILE_DIR}/include/Nile/2d/sprite_set.hh
+  #${NILE_DIR}/include/Nile/2d/sprite.hh
   ${NILE_DIR}/include/Nile/core/input_manager.hh
   ${NILE_DIR}/include/Nile/core/helper.hh
   ${NILE_DIR}/include/Nile/core/settings.hh
@@ -84,11 +84,11 @@ set(NILE_SOURCES_CORE
   ${NILE_DIR}/include/Nile/scene/scene_node.hh
   ${NILE_DIR}/include/Nile/debug/benchmark_timer.hh
   ${NILE_DIR}/src/2d/2d_camera.cc
-  ${NILE_DIR}/src/2d/sprite_renderer.cc
-  ${NILE_DIR}/src/2d/sprite_sheet.cc
-  ${NILE_DIR}/src/2d/spritesheet_context.cc
-  ${NILE_DIR}/src/2d/sprite_set.cc
-  ${NILE_DIR}/src/2d/sprite.cc
+  #${NILE_DIR}/src/2d/sprite_renderer.cc
+  #${NILE_DIR}/src/2d/sprite_sheet.cc
+  #${NILE_DIR}/src/2d/spritesheet_context.cc
+  #${NILE_DIR}/src/2d/sprite_set.cc
+  #${NILE_DIR}/src/2d/sprite.cc
   ${NILE_DIR}/src/core/input_manager.cc
   ${NILE_DIR}/src/core/settings.cc
   ${NILE_DIR}/src/core/signal.cc

@@ -14,7 +14,7 @@ $Notice: $
 
 namespace nile {
 
-  SpriteRenderer::SpriteRenderer( ShaderSet *shader ) noexcept
+  SpriteRenderer::SpriteRenderer( const std::shared_ptr<ShaderSet> &shader ) noexcept
       : m_shader( shader ) {
     this->initRenderData();
   }
@@ -23,7 +23,7 @@ namespace nile {
     glDeleteVertexArrays( 1, &this->m_quadVAO );
   }
 
-  void SpriteRenderer::draw( Texture2D *texture, glm::vec2 position, glm::vec2 size, f32 rotate,
+  void SpriteRenderer::draw( const std::shared_ptr<Texture2D>& texture, glm::vec2 position, glm::vec2 size, f32 rotate,
                              glm::vec3 color ) noexcept {
 
     this->m_shader->use();
