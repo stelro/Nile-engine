@@ -27,6 +27,8 @@ namespace nile {
 
   void RenderingSystem::render( float dt ) noexcept {
 
+    glEnable( GL_CULL_FACE );
+
     for ( const auto &entity : m_entities ) {
 
 
@@ -80,9 +82,12 @@ namespace nile {
       glBindVertexArray( 0 );
       glBindTexture( GL_TEXTURE_2D, 0 );
     }
+
+    glDisable( GL_CULL_FACE );
   }
 
   void RenderingSystem::initRenderData() noexcept {
+
 
     for ( const auto &entity : m_entities ) {
 
