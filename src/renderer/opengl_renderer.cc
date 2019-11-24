@@ -12,7 +12,6 @@ $Notice: $
 #include "Nile/core/assert.hh"
 #include "Nile/core/settings.hh"
 #include "Nile/log/log.hh"
-
 #include <GL/glew.h>
 #include <glm/gtc/matrix_transform.hpp>
 #include <vector>
@@ -45,7 +44,7 @@ namespace nile {
       // If window creation doesn't fails, then create opengl context
 
       // Those attributes should be placed here, in order the renderdoc debuger can work
-      SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, SDL_GL_CONTEXT_DEBUG_FLAG);
+      SDL_GL_SetAttribute( SDL_GL_CONTEXT_FLAGS, SDL_GL_CONTEXT_DEBUG_FLAG );
       SDL_GL_SetAttribute( SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE );
       SDL_GL_SetAttribute( SDL_GL_CONTEXT_MAJOR_VERSION, 3 );
       SDL_GL_SetAttribute( SDL_GL_CONTEXT_MINOR_VERSION, 3 );
@@ -67,10 +66,12 @@ namespace nile {
 
     glViewport( 0, 0, m_settings->getWidth(), m_settings->getHeight() );
 
-    //    glEnable( GL_CULL_FACE );
     glEnable( GL_DEPTH_TEST );
-    //    glEnable( GL_BLEND );
+    glEnable( GL_STENCIL_TEST );
+    glEnable( GL_BLEND );
+    glDepthFunc( GL_LESS );
     glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
+
     m_isRunning = true;
   }
 
@@ -87,13 +88,11 @@ namespace nile {
 
   void OpenGLRenderer::submitFrame() noexcept {
     if ( m_settings->getDebugMode() ) {
-      // glClearColor( 0.2f, 0.3f, 0.3f, 1.0f );
-      // TODO(stel): fix this
-      glClearColor( 0.086f, 0.188f, 0.235f, 1.0f );
+      glClearColor( 0.1f, 0.1f, 0.1f, 1.0f );
     } else {
-      glClearColor( 0.086f, 0.188f, 0.235f, 1.0f );
+      glClearColor( 0.1f, 0.1f, 0.1f, 1.0f );
     }
-    glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+    glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT );
   }
 
   void OpenGLRenderer::endFrame() noexcept {

@@ -12,9 +12,11 @@ $Notice: $
 #include "Nile/asset/builder/shaderset_builder.hh"
 #include "Nile/asset/subsystem/texture_loader.hh"
 #include "Nile/core/camera_system.hh"
+#include "Nile/core/file_system.hh"
 #include "Nile/core/input_manager.hh"
 #include "Nile/core/settings.hh"
 #include "Nile/core/timer.hh"
+#include "Nile/debug/benchmark_timer.hh"
 #include "Nile/ecs/components/camera_component.hh"
 #include "Nile/ecs/components/mesh_component.hh"
 #include "Nile/ecs/components/primitive.hh"
@@ -22,9 +24,10 @@ $Notice: $
 #include "Nile/ecs/components/sprite.hh"
 #include "Nile/ecs/components/transform.hh"
 #include "Nile/ecs/ecs_coordinator.hh"
-#include "Nile/editor/editor.hh"
 #include "Nile/log/log.hh"
+#include "Nile/log/stream_logger.hh"
 #include "Nile/renderer/base_renderer.hh"
+#include "Nile/renderer/opengl_framebuffer.hh"
 #include "Nile/renderer/opengl_renderer.hh"
 #include "Nile/renderer/render_primitive_system.hh"
 #include "Nile/renderer/rendering_system.hh"
@@ -37,19 +40,18 @@ $Notice: $
 
 namespace nile::X11 {
 
-  using namespace editor;
-
   class GameHostX11::Impl {
   private:
+    // Just to keep things orginized
+    void registerEcs() noexcept;
+
+    std::unique_ptr<OpenglFramebuffer> m_framebuffer;
+
     std::shared_ptr<RenderingSystem> renderingSystem;
     std::shared_ptr<SpriteRenderingSystem> spriteRenderingSystem;
     std::shared_ptr<RenderPrimitiveSystem> renderPrimitiveSystem;
 
     Timer m_uptime;
-
-    static const u32 NUM_FPS_SAMPLES = 256;
-    f32 m_samples[ NUM_FPS_SAMPLES ];
-    u32 m_currentFrame = 0;
 
     ProgramMode m_programMode;
 
@@ -64,25 +66,48 @@ namespace nile::X11 {
     std::shared_ptr<InputManager> inputManager;
     std::shared_ptr<AssetManager> assetManager;
     std::shared_ptr<Coordinator> ecsCoordinator;
-
-    std::unique_ptr<Editor> editor;
   };
 
   GameHostX11::Impl::Impl( const std::shared_ptr<Settings> &settings ) noexcept
       : settings( settings ) {
 
+    // @IMPORTANT FIX(stel): correct the orrder of creation and initialization
+    // of systems and subsystems ESPECIALLY RENDERING SYSTEM
+
     m_uptime.start();
+
+    // Connect log output to std stream logger ( console / terminal )
+    log::on_message.connect(
+        []( const char *msg, LogType type ) { StreamLogger::printToStream( msg, type ); } );
+
+    inputManager = std::make_shared<InputManager>( settings );
+    ( inputManager ) ? log::notice( "InputManager have been created!\n" )
+                     : log::fatal( "Engine has failed to create InputManager!\n" );
 
     renderer = std::make_shared<OpenGLRenderer>( settings );
     renderer->init();
 
-    m_programMode = settings->getProgramMode();
+    ( renderer ) ? log::notice( "OpenGL Renderer have been created and initialized!\n" )
+                 : log::fatal( "Engine has failed to create OpenGL Renderer!\n" );
 
-    // Editor stuff
-    editor = std::make_unique<Editor>( renderer->getWindow(), renderer->getContext() );
+    m_framebuffer = std::make_unique<OpenglFramebuffer>( settings );
+    m_framebuffer->prepareQuad();
+    ( m_framebuffer ) ? log::print( "\tOpenGL Frambuffer have been created and initialized!\n" )
+                      : log::fatal( "Engine has failed to create OpenGL Framebuffer!\n" );
 
-    inputManager = std::make_shared<InputManager>( settings );
+
     assetManager = std::make_shared<AssetManager>();
+    ( assetManager ) ? log::notice( "AssetManager have been created!\n" )
+                     : log::fatal( "Engine has failed to create AssetManager!\n" );
+
+    // Create and initialize Entity Component System coordinator
+    ecsCoordinator = std::make_shared<Coordinator>();
+    ecsCoordinator->init();
+    ( ecsCoordinator ) ? log::notice( "ECS Coordinator have been created!\n" )
+                       : log::fatal( "Engine has failed to create ECS Coordinator!\n" );
+
+
+    m_programMode = settings->getProgramMode();
 
     // Register TextureLoader to the AssetManager
     assetManager->registerLoader<Texture2D, TextureLoader>( true );
@@ -109,9 +134,22 @@ namespace nile::X11 {
 
     assetManager->storeAsset<ShaderSet>( "model_shader", modelShader );
 
+    auto fb_screen_shader =
+        assetManager->createBuilder<ShaderSet>()
+            .setVertexPath( FileSystem::getBuildDir() + "/resources/shaders/screen_fb_vertex.glsl" )
+            .setFragmentPath( FileSystem::getBuildDir() +
+                              "/resources/shaders/screen_fb_fragment.glsl" )
+            .build();
 
-    ecsCoordinator = std::make_shared<Coordinator>();
-    ecsCoordinator->init();
+
+    assetManager->storeAsset<ShaderSet>( "fb_screen_shader", fb_screen_shader );
+
+
+    this->registerEcs();
+  }
+
+  void GameHostX11::Impl::registerEcs() noexcept {
+
 
     // some default components to begin with
     // Register components to the entity-component-system
@@ -122,6 +160,17 @@ namespace nile::X11 {
     ecsCoordinator->registerComponent<Primitive>();
     ecsCoordinator->registerComponent<MeshComponent>();
 
+    // Output some logs to know which components has been registered by the engine
+    log::notice( "Registered ECS components by the engine: \n"
+                 "\t Transform\n"
+                 "\t Renderable\n"
+                 "\t SpriteComponent\n"
+                 "\t CameraComponent\n"
+                 "\t Primitive\n"
+                 "\t MeshComponent\n" );
+
+    renderingSystem = ecsCoordinator->registerSystem<RenderingSystem>(
+        ecsCoordinator, assetManager->getAsset<ShaderSet>( "model_shader" ) );
 
     spriteRenderingSystem = ecsCoordinator->registerSystem<SpriteRenderingSystem>(
         ecsCoordinator, assetManager->getAsset<ShaderSet>( "sprite_shader" ) );
@@ -129,10 +178,13 @@ namespace nile::X11 {
     renderPrimitiveSystem = ecsCoordinator->registerSystem<RenderPrimitiveSystem>(
         ecsCoordinator, assetManager->getAsset<ShaderSet>( "line_shader" ) );
 
-    renderingSystem = ecsCoordinator->registerSystem<RenderingSystem>(
-        ecsCoordinator, assetManager->getAsset<ShaderSet>( "model_shader" ) );
-
     auto cameraSystem = ecsCoordinator->registerSystem<CameraSystem>( ecsCoordinator, settings );
+
+    log::notice( "Registered ECS systems by the engine: \n"
+                 "\t SpriteRenderingSystem\n"
+                 "\t RenderPrimitiveSystem\n"
+                 "\t RenderingSystem\n"
+                 "\t CameraSystem\n" );
 
     Signature signature;
     signature.set( ecsCoordinator->getComponentType<Transform>() );
@@ -166,52 +218,44 @@ namespace nile::X11 {
     ecsCoordinator->createSystems();
     f64 lastStep = SDL_GetTicks();
 
+    auto screen_shader = assetManager->getAsset<ShaderSet>( "fb_screen_shader" );
+
+    // draw wireframe
+    // glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
 
     while ( !inputManager->shouldClose() ) {
 
-      // TODO(stel): I should fix that ( calculate time between frames )
       f64 currentStep = SDL_GetTicks();
       f64 delta = currentStep - lastStep;    // elapsed time
-      f32 avgFps = 0.0f;
-
-      if ( m_programMode == ProgramMode::EDITOR_MODE ) {
-        m_samples[ m_currentFrame % NUM_FPS_SAMPLES ] = delta;
-
-        for ( u32 i = 0; i < NUM_FPS_SAMPLES; i++ )
-          avgFps += m_samples[ i ];
-
-        if ( m_currentFrame >= NUM_FPS_SAMPLES )
-          m_currentFrame = 0;
-
-        avgFps /= NUM_FPS_SAMPLES;
-      }
 
       inputManager->update( delta );
 
+      // @fix(stel) : move all of these framebuffer related stuff
+      // to the framebuffer class
       renderer->submitFrame();
+      m_framebuffer->bind();
+      glEnable( GL_DEPTH_TEST );
+      glClearColor( 0.1f, 0.1f, 0.1f, 1.0f );
+      glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+
 
       ecsCoordinator->update( delta );
       ecsCoordinator->render( delta );
 
-      if ( m_programMode == ProgramMode::EDITOR_MODE ) {
-        editor->render( delta );
-        editor->update( delta );
-        editor->setFps( avgFps );
-        editor->setEntities( ecsCoordinator->getEntitiesCount() );
-        editor->setComponents( ecsCoordinator->getComponentsCount() );
-        editor->setEcsSystems( ecsCoordinator->getSystemsCount() );
-        editor->setUptime( m_uptime.getTicks() );
-        editor->setLoadersCount( assetManager->getLoadersCount() );
-      }
-
       game.update( delta );
 
+      m_framebuffer->unbind();
+      glDisable( GL_DEPTH_TEST );
+      glClearColor( 1.0f, 1.0f, 1.0f, 1.0f );
+      glClear( GL_COLOR_BUFFER_BIT );
+
+      screen_shader->use();
+      m_framebuffer->submitFrame();
       renderer->endFrame();
 
       m_programMode = settings->getProgramMode();
 
       lastStep = currentStep;
-      m_currentFrame++;
     }
   }
 
