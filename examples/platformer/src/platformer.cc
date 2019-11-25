@@ -39,6 +39,7 @@ namespace platformer {
             .build();
 
     auto spriteShader = m_assetManager->getAsset<ShaderSet>( "sprite_shader" );
+
     m_assetManager->storeAsset<ShaderSet>( "font_shader", fontShader );
 
     auto modelShader =
@@ -60,10 +61,10 @@ namespace platformer {
     CameraComponent cameraComponent( 0.1f, 200.0f, 45.0f, ProjectionType::PERSPECTIVE );
     m_ecsCoordinator->addComponent<CameraComponent>( m_cameraEntity, cameraComponent );
 
-    this->drawStoneTiles();
     this->drawTextureFloor();
-    this->drawNanoModel();
+    this->drawStoneTiles();
     this->drawContainers();
+    this->drawNanoModel();
     this->drawGrass();
     this->drawWindows();
   }
@@ -304,11 +305,11 @@ namespace platformer {
     const i32 offset_z = 20;
 
     std::vector<glm::vec3> vegetation;
-    vegetation.push_back( glm::vec3( -1.5f + offset_x, 0.0f, -2.48f + offset_z ) );
-    vegetation.push_back( glm::vec3( 5.5f + offset_x, 0.0f, 0.51f + offset_z ) );
-    vegetation.push_back( glm::vec3( 0.0f + offset_x, 0.0f, 4.7f + offset_z ) );
-    vegetation.push_back( glm::vec3( -6.3f + offset_x, 0.0f, -8.3f + offset_z ) );
-    vegetation.push_back( glm::vec3( 12.5f + offset_x, 0.0f, -0.6f + offset_z ) );
+    vegetation.emplace_back( -1.5f + offset_x, 0.0f, -2.48f + offset_z );
+    vegetation.emplace_back( 5.5f + offset_x, 0.0f, 0.51f + offset_z );
+    vegetation.emplace_back( 0.0f + offset_x, 0.0f, 4.7f + offset_z );
+    vegetation.emplace_back( -6.3f + offset_x, 0.0f, -8.3f + offset_z );
+    vegetation.emplace_back( 12.5f + offset_x, 0.0f, -0.6f + offset_z );
 
     for ( const auto &i : vegetation ) {
       auto entity = m_ecsCoordinator->createEntity();
@@ -335,11 +336,11 @@ namespace platformer {
     const i32 offset_z = 10;
 
     std::vector<glm::vec3> windows;
-    windows.push_back( glm::vec3( -1.5f + offset_x, 0.0f, -1.48f + offset_z ) );
-    windows.push_back( glm::vec3( 2.5f + offset_x, 0.0f, 2.51f + offset_z ) );
-    windows.push_back( glm::vec3( 0.0f + offset_x, 0.0f, 4.7f + offset_z ) );
-    windows.push_back( glm::vec3( -6.3f + offset_x, 0.0f, -12.3f + offset_z ) );
-    windows.push_back( glm::vec3( 7.5f + offset_x, 0.0f, -0.6f + offset_z ) );
+    windows.emplace_back( -1.5f + offset_x, 0.0f, -1.48f + offset_z );
+    windows.emplace_back( 2.5f + offset_x, 0.0f, 2.51f + offset_z );
+    windows.emplace_back( 0.0f + offset_x, 0.0f, 4.7f + offset_z );
+    windows.emplace_back( -6.3f + offset_x, 0.0f, -12.3f + offset_z );
+    windows.emplace_back( 7.5f + offset_x, 0.0f, -0.6f + offset_z );
 
     std::map<f32, glm::vec3> sorted;
 
@@ -378,7 +379,8 @@ namespace platformer {
 
       auto entity = m_ecsCoordinator->createEntity();
       Transform transform;
-      transform.position = glm::vec3( 14.0f + 32, 0.0f, 14.0f + 62 );
+      transform.position = glm::vec3( 6.0f, 0.0f, 22.0f );
+      transform.yRotation = -45.0f;
       transform.scale = glm::vec3( 1.0f );
 
       MeshComponent mesh;
@@ -388,6 +390,8 @@ namespace platformer {
 
       Renderable renderable;
       renderable.color = glm::vec3( 1.0f, 1.0f, 1.0f );
+      renderable.blend = false;
+
       m_ecsCoordinator->addComponent<Transform>( entity, transform );
       m_ecsCoordinator->addComponent<Renderable>( entity, renderable );
       m_ecsCoordinator->addComponent<MeshComponent>( entity, mesh );
