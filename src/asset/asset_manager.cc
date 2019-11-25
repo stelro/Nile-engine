@@ -46,11 +46,17 @@ namespace nile {
   void AssetManager::reloadAll() noexcept {
     // Empty function block
     // TODO(setl): should implement reloadall method
+    
+  
+
   }
 
   void AssetManager::reload( const std::string &assetName ) noexcept {
     // Empty function block
     // TODO(setl): should implement reloadall method
+    
+
+    
   }
 
   usize AssetManager::getLoadersCount() const noexcept {

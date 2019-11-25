@@ -19,6 +19,7 @@ namespace nile {
         : color( c ) {}
 
     glm::vec3 color {};
+    bool blend = true;
   };
 
 }    // namespace nile
