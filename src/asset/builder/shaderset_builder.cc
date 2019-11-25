@@ -35,10 +35,8 @@ namespace nile::AssetBuilder {
 
   [[nodiscard]] std::shared_ptr<ShaderSet> Builder<ShaderSet>::build() noexcept {
 
-
     return std::make_shared<ShaderSet>(
         loadShaderFromFile( m_vertexPath, m_fragmentPath, m_geometryPath ) );
-
   }
 
   u32 Builder<ShaderSet>::loadShaderFromFile( std::string_view vshaderFile,
