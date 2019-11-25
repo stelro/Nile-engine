@@ -31,10 +31,14 @@ namespace nile {
 
     for ( const auto &entity : m_entities ) {
 
-
       auto &mesh = m_ecsCoordinator->getComponent<MeshComponent>( entity );
       auto &transform = m_ecsCoordinator->getComponent<Transform>( entity );
       auto &renderable = m_ecsCoordinator->getComponent<Renderable>( entity );
+
+      if ( renderable.blend )
+        glEnable( GL_BLEND );
+      else
+        glDisable( GL_BLEND );
 
       u32 diffuse_nr = 1;
       u32 specular_nr = 1;
@@ -81,6 +85,11 @@ namespace nile {
       glDrawElements( GL_TRIANGLES, mesh.indices.size(), GL_UNSIGNED_INT, 0 );
       glBindVertexArray( 0 );
       glBindTexture( GL_TEXTURE_2D, 0 );
+
+      if ( renderable.blend )
+        glDisable( GL_BLEND );
+      else
+        glEnable( GL_BLEND );
     }
 
     glDisable( GL_CULL_FACE );
