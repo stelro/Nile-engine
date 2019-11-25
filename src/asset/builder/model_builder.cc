@@ -29,8 +29,7 @@ namespace nile::AssetBuilder {
     // @bottleneck: this method take so long to load models
     Assimp::Importer import;
     const aiScene *scene = import.ReadFile(
-        m_path, aiProcess_Triangulate | aiProcess_FindInvalidData | aiProcess_FlipUVs |
-                    aiProcess_FindDegenerates | aiProcess_JoinIdenticalVertices |
+        m_path, aiProcess_Triangulate | aiProcess_FindInvalidData |                     aiProcess_FindDegenerates | aiProcess_JoinIdenticalVertices |
                     aiProcess_OptimizeGraph | aiProcess_OptimizeMeshes );
 
     if ( !scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode ) {
@@ -61,15 +60,16 @@ namespace nile::AssetBuilder {
     std::vector<u32> indices;
     std::vector<std::shared_ptr<Texture2D>> textures;
 
+
     for ( u32 i = 0; i < mesh->mNumVertices; i++ ) {
       Vertex vertex;
 
-      // Retrive positions
+      // Retrieve positions
       vertex.position.x = mesh->mVertices[ i ].x;
       vertex.position.y = mesh->mVertices[ i ].y;
       vertex.position.z = mesh->mVertices[ i ].z;
 
-      // Retrive Normals
+      // Retrieve Normals
       vertex.normal.x = mesh->mNormals[ i ].x;
       vertex.normal.y = mesh->mNormals[ i ].y;
       vertex.normal.z = mesh->mNormals[ i ].z;

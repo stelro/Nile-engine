@@ -17,6 +17,27 @@
 
 namespace nile::AssetBuilder {
 
+  enum class PostProcessFlags {
+    // Calculates tanget and bitangets for the imported meshes
+    calcTangetSpace = aiProcess_CalcTangentSpace,
+    // identifies and joins identical vertex data 
+    joinIdenicalVertices = aiProcess_JoinIdenticalVertices,
+    // coverts all the imported data to a left-handed coordinate-space
+    makeLeftHanded = aiProcess_MakeLeftHanded,
+    // triangulates all faces of the mesh
+    triangulate = aiProcess_Triangulate,
+    // Removes some parts of the data structure ( animations, materials, 
+    // light sources, cameras, textures, vertex compoentnt)
+    removeComponent = aiProcess_RemoveComponent,
+    // Generate normals for all the faces of all meshes
+    genNormals = aiProcess_GenNormals,
+    // Generate smooth normals
+    genSmootNormals = aiProcess_GenSmoothNormals,
+    // split large meshes into smaller sub-meshes
+    spilLargeMeshes = aiProcess_SplitLargeMeshes,
+    
+  };
+
   class AssetManager;
 
   template <>
@@ -33,7 +54,7 @@ namespace nile::AssetBuilder {
     Mesh processMesh( aiMesh *mesh, const aiScene *scene ) noexcept;
 
     std::vector<std::shared_ptr<Texture2D>> loadMaterialTextures( aiMaterial *material,
-                                                   aiTextureType type ) noexcept;
+                                                                  aiTextureType type ) noexcept;
 
   public:
     Builder( const std::shared_ptr<nile::AssetManager> &assetManager ) noexcept;
