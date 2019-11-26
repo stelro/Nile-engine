@@ -46,7 +46,17 @@ namespace nile {
   }
 
   void Texture2D::bind() const noexcept {
-    glBindTexture(GL_TEXTURE_2D, this->m_id);
+    glBindTexture( GL_TEXTURE_2D, this->m_id );
   }
+
+  void Texture2D::unbind() const noexcept {
+    glBindTexture( GL_TEXTURE_2D, 0 );
+  }
+
+  void Texture2D::setParameter(TextureTargetParams target, TextureParams param) noexcept {
+    this->bind();
+    glTexParameteri(GL_TEXTURE_2D, GlTargetParmas[static_cast<GLenum>(target)], GlParams[static_cast<u32>(param)]);
+  }
+
 
 }    // namespace nile

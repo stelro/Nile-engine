@@ -10,6 +10,7 @@ $Notice: $
 
 #include "Nile/asset/asset.hh"
 #include "Nile/core/types.hh"
+#include <GL/glew.h>
 
 namespace nile {
 
@@ -25,6 +26,44 @@ namespace nile {
     TRANSPARENT,
     NONE
   };
+
+  enum class TextureTargetParams : u16 {
+    TEXTURE_MIN_FILTER = 0,
+    TEXTURE_MAG_FILTER,
+    TEXTURE_WRAP_S,
+    TEXTURE_WRAP_T,
+  };
+
+  enum class TextureParams : u32 {
+    NEAREST = 0,
+    LINEAR,
+    NEAREST_MIPMAP_NEAREST,
+    LINEAR_MIPMAP_NEAREST,
+    NEAREST_MIPMAP_LINEAR,
+    LINEAR_MIPMAP_LINEAR,
+    REPEAT,
+    MIRRORED,
+    CLAMP_TO_EDGE,
+    CLAMP_TO_BORDER,
+  };
+
+  const constexpr GLenum GlTargetParmas[ 4 ] = {
+      GL_TEXTURE_MIN_FILTER,
+      GL_TEXTURE_MAG_FILTER,
+      GL_TEXTURE_WRAP_S,
+      GL_TEXTURE_WRAP_T,
+  };
+
+  const constexpr GLint GlParams[ 10 ] = {GL_NEAREST,
+                                          GL_LINEAR,
+                                          GL_NEAREST_MIPMAP_NEAREST,
+                                          GL_LINEAR_MIPMAP_NEAREST,
+                                          GL_NEAREST_MIPMAP_LINEAR,
+                                          GL_LINEAR_MIPMAP_LINEAR,
+                                          GL_REPEAT,
+                                          GL_MIRRORED_REPEAT,
+                                          GL_CLAMP_TO_EDGE,
+                                          GL_CLAMP_TO_BORDER};
 
   inline std::string TextureTypeStr( TextureType type ) {
     switch ( type ) {
@@ -74,6 +113,9 @@ namespace nile {
     // Binds the texture as the current active GL_TEXTURE_2D texture object
     void bind() const noexcept;
 
+    // Unbind the texture
+    void unbind() const noexcept;
+
     // Getters
     [[nodiscard]] inline u32 getID() const noexcept {
       return m_id;
@@ -103,6 +145,9 @@ namespace nile {
     void setTexturetype( TextureType type ) noexcept {
       m_textureType = type;
     }
+
+    void setParameter(TextureTargetParams target, TextureParams param) noexcept;
+
   };
 
 }    // namespace nile
