@@ -129,6 +129,10 @@ namespace nile::AssetBuilder {
       material->GetTexture( type, i, &str );
       std::string filename = m_directoryName + '/' + str.C_Str();
       auto texture = m_assetManager->loadAsset<Texture2D>( str.C_Str(), filename );
+      // Set texture parameters
+      texture->setParameter(TextureTargetParams::TEXTURE_WRAP_S, TextureParams::REPEAT);
+      texture->setParameter(TextureTargetParams::TEXTURE_WRAP_T, TextureParams::REPEAT);
+
       texture->setTexturetype( assimpTypeToTextureType( type ) );
       textures.push_back( texture );
     }

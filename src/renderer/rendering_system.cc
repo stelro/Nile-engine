@@ -101,7 +101,7 @@ namespace nile {
     for ( const auto &entity : m_entities ) {
 
       auto &mesh = m_ecsCoordinator->getComponent<MeshComponent>( entity );
-
+      
       glGenVertexArrays( 1, &mesh.vao );
       glGenBuffers( 1, &mesh.ebo );
       glGenBuffers( 1, &mesh.vbo );

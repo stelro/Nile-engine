@@ -12,6 +12,7 @@
 #include <Nile/ecs/components/transform.hh>
 #include <Nile/math/utils.hh>
 #include <Nile/renderer/model.hh>
+#include <Nile/renderer/texture2d.hh>
 
 namespace platformer {
 
@@ -300,6 +301,9 @@ namespace platformer {
 
     auto grass_texture = m_assetManager->loadAsset<Texture2D>(
         "grass", FileSystem::getPath( "assets/textures/grass.png" ) );
+    
+    grass_texture->setParameter(nile::TextureTargetParams::TEXTURE_WRAP_S, nile::TextureParams::CLAMP_TO_EDGE);
+    grass_texture->setParameter(nile::TextureTargetParams::TEXTURE_WRAP_T, nile::TextureParams::CLAMP_TO_EDGE);
 
     const i32 offset_x = 60;
     const i32 offset_z = 20;
