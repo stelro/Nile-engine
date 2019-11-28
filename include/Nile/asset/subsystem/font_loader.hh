@@ -6,13 +6,17 @@ $Creator: Rostislav Orestis Stelmach
 $Notice: $
 ================================================================================ */
 
-#pragma once 
+#pragma once
 
 #include "Nile/asset/subsystem/asset_loader.hh"
+#include "Nile/renderer/font.hh"
 
 namespace nile {
 
-  class FontLoader : public AssetLoader {
+  template <>
+  class AssetLoader<Font> final {
+  public:
+    std::shared_ptr<Font> operator()(const std::string& fileName, const std::string& filePath) noexcept;
   };
 
-}
+}    // namespace nile

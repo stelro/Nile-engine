@@ -9,20 +9,18 @@ $Notice: $
 #pragma once
 
 #include "Nile/asset/subsystem/asset_loader.hh"
+#include "Nile/renderer/texture2d.hh"
 
 namespace nile {
 
-  class TextureLoader : public AssetLoader {
- private:
-    bool m_alpha;
+  template <>
+  class AssetLoader<Texture2D> final {
+    public:
 
-  public:
-    TextureLoader( bool alpha = true ) noexcept;
-    std::shared_ptr<Asset> loadAsset( const std::string &assetName,
-                                      const std::string &filePath ) noexcept override;
-
-    void unloadAsset( Asset *asset ) noexcept override;
+    std::shared_ptr<Texture2D> operator()( const std::string &fileName,
+                                           const std::string &filePath ) noexcept;
   };
+
 
 }    // namespace nile
 

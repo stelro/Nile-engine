@@ -17,15 +17,13 @@ $Notice: $
 
 namespace nile {
 
-  TextureLoader::TextureLoader( bool alpha ) noexcept
-      : m_alpha( alpha ) {}
-
-  std::shared_ptr<Asset> TextureLoader::loadAsset( const std::string &assetName,
+  std::shared_ptr<Texture2D> AssetLoader<Texture2D>::operator() ( const std::string &assetName,
                                                    const std::string &filePath ) noexcept {
 
     auto texture = std::make_shared<Texture2D>();
+    const auto alpha = true;
 
-    if ( m_alpha ) {
+    if ( alpha ) {
       texture->setInternalFormat( GL_RGBA );
       texture->setImageFormat( GL_RGBA );
     }
@@ -53,7 +51,6 @@ namespace nile {
     return texture;
   }
 
-  void TextureLoader::unloadAsset( Asset *asset ) noexcept {}
 
 
 }    // namespace nile
