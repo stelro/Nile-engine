@@ -1,9 +1,10 @@
 /* ================================================================================
 $File: asset_manager.hh
 $Date: $
-$Revision: $
+$Revision: 28 Nov 2019
 $Creator: Rostislav Orestis Stelmach
-$Notice: $
+$Notice: Replace AssetLoaders classes registration within a map container
+         with a assetLoader classes specialization functor
 ================================================================================ */
 
 #pragma once
@@ -11,8 +12,11 @@ $Notice: $
 #include "Nile/asset/asset_container.hh"
 #include "Nile/asset/builder/asset_builder.hh"
 #include "Nile/asset/subsystem/asset_loader.hh"
+#include "Nile/asset/subsystem/font_loader.hh"
+#include "Nile/asset/subsystem/texture_loader.hh"
 #include "Nile/core/assert.hh"
 #include "Nile/log/log.hh"
+#include "Nile/renderer/texture2d.hh"
 
 #include <optional>
 #include <unordered_map>
@@ -23,45 +27,25 @@ namespace nile {
 
   class AssetManager final {
   private:
-    std::unordered_map<const std::type_info *, AssetLoader *> m_loaders;
     AssetContainer *m_assetContainer;
 
   public:
     AssetManager() noexcept;
     ~AssetManager() noexcept;
 
-    // T is the type of asset, U is the type of the loader
-    // Args ( optional ) is arguments passed to newly created Loader
-    template <typename T, typename U, typename... Args>
-    bool registerLoader( Args &&... args ) noexcept {
-
-      auto beforeSize = m_loaders.size();
-
-      m_loaders.insert( m_loaders.end(),
-                        std::make_pair( &typeid( T ), new U( std::forward<Args>( args )... ) ) );
-
-      return m_loaders.size() > beforeSize;
-    }
-
-    // Load and return Asset of type T
-    // if Asset T doesn't exist in the assetContainer, and loader of type U<T> exist
-    // then load and save the asset to the AssetContainer.
-    // If loader of type U<T> doesn't exist, then assert will arise
     template <typename T>
-    std::shared_ptr<T> loadAsset( const std::string &assetName,
-                                  const std::string &assetPath ) noexcept {
+    [[nodiscard]] std::shared_ptr<T> loadAsset( const std::string &assetName,
+                                                const std::string &assetPath ) noexcept {
 
       auto asset = m_assetContainer->getAsset( assetName );
 
       if ( !asset ) {
-        auto it = m_loaders.find( &typeid( T ) );
-        if ( it != m_loaders.end() ) {
-          asset = it->second->loadAsset( assetName, assetPath );
-          m_assetContainer->addAsset( assetName, asset );
-        } else {
-          // Loader doesn't exist
-          ASSERT_M( false, "Could not find loader" );
-        }
+        // We don't need any special check here to see if loader exist,
+        // since the error we got is compile time error due the templates
+        // and that's what we want
+        AssetLoader<T> loader;
+        asset = loader( assetName, assetPath );
+        m_assetContainer->addAsset( assetName, asset );
       }
 
       return std::static_pointer_cast<T>( asset );
@@ -113,24 +97,6 @@ namespace nile {
 
     // Clear all the assets from the container
     void clearAll() noexcept;
-
-    // Reload all the assets ( this involves many operations to file/stream)
-    void reloadAll() noexcept;
-
-    void reload( const std::string &assetName ) noexcept;
-
-    template <typename T>
-    void removeLoader() noexcept {
-      auto it = m_loaders.find( &typeid( T ) );
-      if ( it != m_loaders.end() ) {
-        delete it->second;
-        m_loaders.erase( it );
-      }
-    }
-
-    void clearLoaders() noexcept;
-
-    usize getLoadersCount() const noexcept;
   };
 
 }    // namespace nile
