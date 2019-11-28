@@ -20,11 +20,6 @@ source_group(asset            REGULAR_EXPRESSION "(include/Nile|src)/asset/*")
 
 set(NILE_SOURCES_CORE
   ${NILE_DIR}/include/Nile/2d/2d_camera.hh
-  #${NILE_DIR}/include/Nile/2d/sprite_renderer.hh
-  # ${NILE_DIR}/include/Nile/2d/sprite_sheet.hh
-  #${NILE_DIR}/include/Nile/2d/spritesheet_context.hh
-  # ${NILE_DIR}/include/Nile/2d/sprite_set.hh
-  #${NILE_DIR}/include/Nile/2d/sprite.hh
   ${NILE_DIR}/include/Nile/core/input_manager.hh
   ${NILE_DIR}/include/Nile/core/helper.hh
   ${NILE_DIR}/include/Nile/core/settings.hh
@@ -36,16 +31,18 @@ set(NILE_SOURCES_CORE
   ${NILE_DIR}/include/Nile/core/file_system.hh
   ${NILE_DIR}/include/Nile/core/timer.hh
   ${NILE_DIR}/include/Nile/renderer/base_renderer.hh
-  ${NILE_DIR}/include/Nile/renderer/font_renderer.hh
   ${NILE_DIR}/include/Nile/renderer/opengl_renderer.hh
   ${NILE_DIR}/include/Nile/renderer/texture2d.hh
   ${NILE_DIR}/include/Nile/renderer/rendering_system.hh
   ${NILE_DIR}/include/Nile/renderer/sprite_rendering_system.hh
+  ${NILE_DIR}/include/Nile/renderer/font_rendering_system.hh
   ${NILE_DIR}/include/Nile/renderer/render_primitive_system.hh
   ${NILE_DIR}/include/Nile/renderer/model.hh
   ${NILE_DIR}/include/Nile/renderer/mesh.hh
   ${NILE_DIR}/include/Nile/renderer/opengl_framebuffer.hh
   ${NILE_DIR}/include/Nile/utils/vertex.hh
+  ${NILE_DIR}/include/Nile/utils/font_character.hh
+  ${NILE_DIR}/include/Nile/utils/string_utils.hh
   ${NILE_DIR}/include/Nile/application/game.hh
   ${NILE_DIR}/include/Nile/platform/game_host.hh
   ${NILE_DIR}/include/Nile/platform/x11/bootstrap.hh
@@ -58,6 +55,7 @@ set(NILE_SOURCES_CORE
   ${NILE_DIR}/include/Nile/asset/builder/model_builder.hh
   ${NILE_DIR}/include/Nile/asset/subsystem/asset_loader.hh
   ${NILE_DIR}/include/Nile/asset/subsystem/texture_loader.hh
+  ${NILE_DIR}/include/Nile/asset/subsystem/font_loader.hh
   ${NILE_DIR}/include/Nile/renderer/shaderset.hh
   ${NILE_DIR}/include/Nile/ecs/components/renderable.hh
   ${NILE_DIR}/include/Nile/ecs/components/transform.hh
@@ -75,7 +73,6 @@ set(NILE_SOURCES_CORE
   ${NILE_DIR}/include/Nile/ecs/handle_manager.hh
   ${NILE_DIR}/include/Nile/ecs/ecs_field_detection.hh
   ${NILE_DIR}/include/Nile/math/utils.hh
-  ${NILE_DIR}/include/Nile/utils/string_utils.hh
   ${NILE_DIR}/include/Nile/log/file_logger.hh
   ${NILE_DIR}/include/Nile/log/log_type.hh
   ${NILE_DIR}/include/Nile/log/log.hh
@@ -84,11 +81,6 @@ set(NILE_SOURCES_CORE
   ${NILE_DIR}/include/Nile/scene/scene_node.hh
   ${NILE_DIR}/include/Nile/debug/benchmark_timer.hh
   ${NILE_DIR}/src/2d/2d_camera.cc
-  #${NILE_DIR}/src/2d/sprite_renderer.cc
-  #${NILE_DIR}/src/2d/sprite_sheet.cc
-  #${NILE_DIR}/src/2d/spritesheet_context.cc
-  #${NILE_DIR}/src/2d/sprite_set.cc
-  #${NILE_DIR}/src/2d/sprite.cc
   ${NILE_DIR}/src/core/input_manager.cc
   ${NILE_DIR}/src/core/settings.cc
   ${NILE_DIR}/src/core/signal.cc
@@ -96,11 +88,11 @@ set(NILE_SOURCES_CORE
   ${NILE_DIR}/src/core/file_system.cc
   ${NILE_DIR}/src/core/timer.cc
   ${NILE_DIR}/src/renderer/base_renderer.cc
-  ${NILE_DIR}/src/renderer/font_renderer.cc
   ${NILE_DIR}/src/renderer/opengl_renderer.cc
   ${NILE_DIR}/src/renderer/texture2d.cc
   ${NILE_DIR}/src/renderer/rendering_system.cc
   ${NILE_DIR}/src/renderer/sprite_rendering_system.cc
+  ${NILE_DIR}/src/renderer/font_rendering_system.cc
   ${NILE_DIR}/src/renderer/render_primitive_system.cc
   ${NILE_DIR}/src/renderer/opengl_framebuffer.cc
   ${NILE_DIR}/src/application/game.cc
@@ -110,6 +102,7 @@ set(NILE_SOURCES_CORE
   ${NILE_DIR}/src/asset/builder/model_builder.cc
   ${NILE_DIR}/src/asset/subsystem/asset_loader.cc
   ${NILE_DIR}/src/asset/subsystem/texture_loader.cc
+  ${NILE_DIR}/src/asset/subsystem/font_loader.cc
   ${NILE_DIR}/src/asset/asset_container.cc
   ${NILE_DIR}/src/asset/asset_manager.cc
   ${NILE_DIR}/src/renderer/shaderset.cc
@@ -264,7 +257,7 @@ target_compile_options(nile_static PRIVATE
   # Clang and GCC
   $<$<OR:$<CXX_COMPILER_ID:Clang>,$<CXX_COMPILER_ID:GNU>,$<STREQUAL:${CMAKE_GENERATOR},Xcode>>:
     -Wall
-    #    -Werror
+    -Werror
     -Wnon-virtual-dtor
     $<$<CONFIG:DEBUG>:-g;-O0>
     $<$<CONFIG:RELEASE>:-O3>
