@@ -11,9 +11,12 @@
 namespace nile {
 
   struct Font : public Asset {
+    // Handle to the face object
     FT_Face fontFace;
+    // Handle to the library
+    FT_Library fontLibrary;
+    // Font name
     std::string fontName;
-    u32 fontSize;
   };
 
 }    // namespace nile
