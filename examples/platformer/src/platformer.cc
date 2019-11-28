@@ -5,12 +5,14 @@
 #include <Nile/core/file_system.hh>
 #include <Nile/debug/benchmark_timer.hh>
 #include <Nile/ecs/components/camera_component.hh>
+#include <Nile/ecs/components/font_component.hh>
 #include <Nile/ecs/components/mesh_component.hh>
 #include <Nile/ecs/components/primitive.hh>
 #include <Nile/ecs/components/renderable.hh>
 #include <Nile/ecs/components/sprite.hh>
 #include <Nile/ecs/components/transform.hh>
 #include <Nile/math/utils.hh>
+#include <Nile/renderer/font.hh>
 #include <Nile/renderer/model.hh>
 #include <Nile/renderer/texture2d.hh>
 
@@ -33,15 +35,8 @@ namespace platformer {
 
   void Platformer::initialize() noexcept {
 
-    auto fontShader =
-        m_assetManager->createBuilder<ShaderSet>()
-            .setVertexPath( FileSystem::getPath( "assets/shaders/font_vertex.glsl" ) )
-            .setFragmentPath( FileSystem::getPath( "assets/shaders/font_fragment.glsl" ) )
-            .build();
-
     auto spriteShader = m_assetManager->getAsset<ShaderSet>( "sprite_shader" );
 
-    m_assetManager->storeAsset<ShaderSet>( "font_shader", fontShader );
 
     auto modelShader =
         m_assetManager->createBuilder<ShaderSet>()
@@ -50,9 +45,6 @@ namespace platformer {
             .build();
 
     m_assetManager->storeAsset<ShaderSet>( "model_shader", modelShader );
-
-    m_fontRenderer = std::make_unique<FontRenderer>(
-        fontShader, m_settings, FileSystem::getPath( "assets/fonts/arial.ttf" ), 22 );
 
     m_cameraEntity = m_ecsCoordinator->createEntity();
     Transform camera_transform;
@@ -68,13 +60,10 @@ namespace platformer {
     this->drawNanoModel();
     this->drawGrass();
     this->drawWindows();
+    this->drawFont();
   }
 
-  void Platformer::draw( f32 deltaTime ) noexcept {
-
-    m_fontRenderer->renderText( "this is working text", 5.0f, 5.0f, 1.0f,
-                                glm::vec3( 0.0f, 0.902, 0.463 ) );
-  }
+  void Platformer::draw( f32 deltaTime ) noexcept {}
 
 
   void Platformer::update( f32 deltaTime ) noexcept {
@@ -301,9 +290,12 @@ namespace platformer {
 
     auto grass_texture = m_assetManager->loadAsset<Texture2D>(
         "grass", FileSystem::getPath( "assets/textures/grass.png" ) );
-    
-    grass_texture->setParameter(nile::TextureTargetParams::TEXTURE_WRAP_S, nile::TextureParams::CLAMP_TO_EDGE);
-    grass_texture->setParameter(nile::TextureTargetParams::TEXTURE_WRAP_T, nile::TextureParams::CLAMP_TO_EDGE);
+
+
+    grass_texture->setParameter( nile::TextureTargetParams::TEXTURE_WRAP_S,
+                                 nile::TextureParams::CLAMP_TO_EDGE );
+    grass_texture->setParameter( nile::TextureTargetParams::TEXTURE_WRAP_T,
+                                 nile::TextureParams::CLAMP_TO_EDGE );
 
     const i32 offset_x = 60;
     const i32 offset_z = 20;
@@ -400,6 +392,32 @@ namespace platformer {
       m_ecsCoordinator->addComponent<Renderable>( entity, renderable );
       m_ecsCoordinator->addComponent<MeshComponent>( entity, mesh );
     }
+  }
+
+  void Platformer::drawFont() noexcept {
+
+    BenchmarkTimer timer( "drawFont()" );
+
+    auto sfmono_font = m_assetManager->loadAsset<Font>(
+        "sfmono_font", FileSystem::getPath( "assets/fonts/LiberationMono-Regular.ttf" ) );
+
+    auto entity = m_ecsCoordinator->createEntity();
+
+    FontComponent font;
+    font.font = sfmono_font;
+    font.text = "This is testing font";
+
+    Renderable renderable;
+    renderable.color = glm::vec3( 0.9f, 0.2f, 0.2f );
+
+    Transform transform;
+    transform.position = glm::vec3( 22.0f, 0.0f, 0.0f );
+    transform.scale = glm::vec3( 1.0f );
+
+
+    m_ecsCoordinator->addComponent<Transform>( entity, transform );
+    m_ecsCoordinator->addComponent<Renderable>( entity, renderable );
+    m_ecsCoordinator->addComponent<FontComponent>( entity, font );
   }
 
 }    // namespace platformer

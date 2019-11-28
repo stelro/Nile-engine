@@ -6,8 +6,6 @@
 #include <Nile/core/settings.hh>
 #include <Nile/ecs/ecs_coordinator.hh>
 #include <Nile/platform/game_host.hh>
-#include <Nile/renderer/font_renderer.hh>
-
 
 #include <GL/glew.h>
 #include <glm/gtc/matrix_transform.hpp>
@@ -27,9 +25,6 @@ namespace platformer {
     std::shared_ptr<nile::AssetManager> m_assetManager;
     std::shared_ptr<nile::Coordinator> m_ecsCoordinator;
 
-    std::shared_ptr<nile::FontRenderer> m_fontRenderer;
-
-
     nile::Entity m_cameraEntity;
 
     void drawStoneTiles() noexcept;
@@ -38,6 +33,7 @@ namespace platformer {
     void drawContainers() noexcept;
     void drawGrass() noexcept;
     void drawWindows() noexcept;
+    void drawFont() noexcept;
 
     void processKeyboardEvents( f32 dt ) noexcept;
     void processMouseEvents( f32 dt ) noexcept;
