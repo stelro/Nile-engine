@@ -18,6 +18,7 @@ $Notice: $
 #include "Nile/core/timer.hh"
 #include "Nile/debug/benchmark_timer.hh"
 #include "Nile/ecs/components/camera_component.hh"
+#include "Nile/ecs/components/font_component.hh"
 #include "Nile/ecs/components/mesh_component.hh"
 #include "Nile/ecs/components/primitive.hh"
 #include "Nile/ecs/components/renderable.hh"
@@ -27,6 +28,7 @@ $Notice: $
 #include "Nile/log/log.hh"
 #include "Nile/log/stream_logger.hh"
 #include "Nile/renderer/base_renderer.hh"
+#include "Nile/renderer/font_rendering_system.hh"
 #include "Nile/renderer/opengl_framebuffer.hh"
 #include "Nile/renderer/opengl_renderer.hh"
 #include "Nile/renderer/render_primitive_system.hh"
@@ -50,6 +52,8 @@ namespace nile::X11 {
     std::shared_ptr<RenderingSystem> renderingSystem;
     std::shared_ptr<SpriteRenderingSystem> spriteRenderingSystem;
     std::shared_ptr<RenderPrimitiveSystem> renderPrimitiveSystem;
+    std::shared_ptr<FontRenderingSystem> fontRenderingSystem;
+
 
     std::shared_ptr<ShaderSet> m_fbScreenShader;
 
@@ -111,15 +115,19 @@ namespace nile::X11 {
 
     m_programMode = settings->getProgramMode();
 
-    // Register TextureLoader to the AssetManager
-    assetManager->registerLoader<Texture2D, TextureLoader>( true );
-
     auto spriteShader = assetManager->createBuilder<ShaderSet>()
                             .setVertexPath( "../assets/shaders/sprite_vertex.glsl" )
                             .setFragmentPath( "../assets/shaders/sprite_fragment.glsl" )
                             .build();
 
     assetManager->storeAsset<ShaderSet>( "sprite_shader", spriteShader );
+
+    auto fontShader = assetManager->createBuilder<ShaderSet>()
+                          .setVertexPath( "../assets/shaders/font_vertex.glsl" )
+                          .setFragmentPath( "../assets/shaders/font_fragment.glsl" )
+                          .build();
+
+    assetManager->storeAsset<ShaderSet>( "font_shader", fontShader );
 
     auto lineShader = assetManager->createBuilder<ShaderSet>()
                           .setVertexPath( "../assets/shaders/line_vertex.glsl" )
@@ -161,6 +169,7 @@ namespace nile::X11 {
     ecsCoordinator->registerComponent<CameraComponent>();
     ecsCoordinator->registerComponent<Primitive>();
     ecsCoordinator->registerComponent<MeshComponent>();
+    ecsCoordinator->registerComponent<FontComponent>();
 
     // Output some logs to know which components has been registered by the engine
     log::notice( "Registered ECS components by the engine: \n"
@@ -169,7 +178,8 @@ namespace nile::X11 {
                  "\t SpriteComponent\n"
                  "\t CameraComponent\n"
                  "\t Primitive\n"
-                 "\t MeshComponent\n" );
+                 "\t MeshComponent\n"
+                 "\t FontComponent\n" );
 
     renderingSystem = ecsCoordinator->registerSystem<RenderingSystem>(
         ecsCoordinator, assetManager->getAsset<ShaderSet>( "model_shader" ) );
@@ -179,6 +189,9 @@ namespace nile::X11 {
 
     renderPrimitiveSystem = ecsCoordinator->registerSystem<RenderPrimitiveSystem>(
         ecsCoordinator, assetManager->getAsset<ShaderSet>( "line_shader" ) );
+
+    fontRenderingSystem = ecsCoordinator->registerSystem<FontRenderingSystem>(
+        ecsCoordinator, settings, assetManager->getAsset<ShaderSet>( "font_shader" ) );
 
     auto cameraSystem = ecsCoordinator->registerSystem<CameraSystem>( ecsCoordinator, settings );
 
@@ -210,6 +223,12 @@ namespace nile::X11 {
     renderingSignature.set( ecsCoordinator->getComponentType<Renderable>() );
     renderingSignature.set( ecsCoordinator->getComponentType<MeshComponent>() );
     ecsCoordinator->setSystemSignature<RenderingSystem>( renderingSignature );
+
+    Signature fontSignature;
+    fontSignature.set( ecsCoordinator->getComponentType<Transform>() );
+    fontSignature.set( ecsCoordinator->getComponentType<Renderable>() );
+    fontSignature.set( ecsCoordinator->getComponentType<FontComponent>() );
+    ecsCoordinator->setSystemSignature<FontRenderingSystem>( fontSignature );
   }
 
   GameHostX11::Impl::~Impl() noexcept {}
