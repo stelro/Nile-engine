@@ -14,6 +14,10 @@ add_executable(${PRODUCT_NAME}
  app/main.cc
  src/platformer.hh
  src/platformer.cc
+ src/screen_text.cc
+ src/screen_text.hh
+ src/text_buffer.cc
+ src/text_buffer.hh
  # src/npc/main_character.cc
   )
 
