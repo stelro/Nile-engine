@@ -37,8 +37,6 @@ namespace nile::experimental {
     std::vector<Vertex> vertices;
     std::vector<u32> indices;
     std::vector<Texture> textures;
-    
-    log::print("%s\n", mesh->mName.C_Str());
 
     for ( u32 i = 0; i < mesh->mNumVertices; i++ ) {
       Vertex vertex;
@@ -109,8 +107,6 @@ namespace nile::experimental {
       Texture texture;
       std::string filename = directory + '/' + str.C_Str();
       texture.id = m_assetManager->loadAsset<Texture2D>( str.C_Str(), filename )->getID();
-      log::print("texture name: %s\n", str.C_Str());
-      log::print("texture type: %s\n", typeName.c_str());
       texture.type = typeName;
       textures.push_back( texture );
     }
