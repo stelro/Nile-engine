@@ -1,6 +1,5 @@
 /* ================================================================================
-$File: sprite_rendering_system.cc
-$Date: 09 Oct 2019 $
+$File: sprite_rendering_system.cc $Date: 09 Oct 2019 $
 $Revision: $
 $Creator: Rostislav Orestis Stelmach
 $Notice: $
@@ -42,7 +41,6 @@ namespace nile {
       auto &renderable = m_ecsCoordinator->getComponent<Renderable>( entity );
       auto &sprite = m_ecsCoordinator->getComponent<SpriteComponent>( entity );
 
-
       this->m_spriteShader->use();
 
       glm::mat4 model = glm::mat4( 1.0f );
@@ -69,7 +67,7 @@ namespace nile {
       model = glm::scale( model, glm::vec3( transform.scale.x, transform.scale.y, 1.0f ) );
 
       this->m_spriteShader->SetMatrix4( "model", model );
-      this->m_spriteShader->SetVector3f( "spriteColor", renderable.color );
+      this->m_spriteShader->SetVector3f( "objectColor", renderable.color );
 
       glActiveTexture( GL_TEXTURE0 );
       sprite.texture->bind();
@@ -82,19 +80,36 @@ namespace nile {
 
   void SpriteRenderingSystem::initRenderData() noexcept {
     u32 vbo;
-    f32 vertices[] = {0.0f, 1.0f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
-
-                      0.0f, 1.0f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f, 1.0f, 0.0f};
+    f32 vertices[] = {0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f,
+                      1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f,
+                      0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f,
+                      1.0f, 0.0f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f};
 
     glGenVertexArrays( 1, &this->m_quadVAO );
     glGenBuffers( 1, &vbo );
+    // pos
+    // normal
+    // texture
 
     glBindBuffer( GL_ARRAY_BUFFER, vbo );
     glBufferData( GL_ARRAY_BUFFER, sizeof( vertices ), vertices, GL_STATIC_DRAW );
 
     glBindVertexArray( this->m_quadVAO );
+
+    // Position
     glEnableVertexAttribArray( 0 );
-    glVertexAttribPointer( 0, 4, GL_FLOAT, GL_FALSE, 4 * sizeof( f32 ), ( void * )0 );
+    glVertexAttribPointer( 0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof( f32 ), ( void * )0 );
+
+    // Normal
+    glEnableVertexAttribArray( 1 );
+    glVertexAttribPointer( 1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof( f32 ),
+                           ( void * )( 3 * sizeof( f32 ) ) );
+
+    // UV
+    glEnableVertexAttribArray( 2 );
+    glVertexAttribPointer( 2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof( f32 ),
+                           ( void * )( 6 * sizeof( f32 ) ) );
+
     glBindBuffer( GL_ARRAY_BUFFER, 0 );
     glBindVertexArray( 0 );
   }
