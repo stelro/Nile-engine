@@ -35,6 +35,11 @@ namespace nile {
       auto &transform = m_ecsCoordinator->getComponent<Transform>( entity );
       auto &renderable = m_ecsCoordinator->getComponent<Renderable>( entity );
 
+      // Allow user to set user-defined shaders
+      // if the shaderset is set in the renderable component, then use it
+      // otherwise use the default one provided by the rendering system
+      auto shader = ( renderable.shaderSet ) ? renderable.shaderSet : m_shader;
+
       if ( renderable.blend )
         glEnable( GL_BLEND );
       else
@@ -59,11 +64,11 @@ namespace nile {
         else if ( type == TextureType::NORMAL )
           number = std::to_string( normal_nr++ );
 
-        m_shader->SetInteger( ( "texture_" + TextureTypeStr( type ) + number ).c_str(), i );
+        shader->SetInteger( ( "material." + TextureTypeStr( type ) + number ).c_str(), i );
         mesh.textures[ i ]->bind();
       }
 
-      this->m_shader->use();
+      shader->use();
 
       glm::mat4 model = glm::mat4 {1.0f};
       model = glm::translate( model, transform.position );
@@ -76,8 +81,8 @@ namespace nile {
 
       model = glm::scale( model, transform.scale );
 
-      m_shader->SetMatrix4( "model", model );
-      m_shader->SetVector3f( "color", renderable.color );
+      shader->SetMatrix4( "model", model );
+      shader->SetVector3f( "objectColor", renderable.color );
 
       glActiveTexture( GL_TEXTURE0 );
 
@@ -101,7 +106,7 @@ namespace nile {
     for ( const auto &entity : m_entities ) {
 
       auto &mesh = m_ecsCoordinator->getComponent<MeshComponent>( entity );
-      
+
       glGenVertexArrays( 1, &mesh.vao );
       glGenBuffers( 1, &mesh.ebo );
       glGenBuffers( 1, &mesh.vbo );

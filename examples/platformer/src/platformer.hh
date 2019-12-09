@@ -1,5 +1,7 @@
 #pragma once
 
+#include "text_buffer.hh"
+
 #include <Nile/application/game.hh>
 #include <Nile/asset/asset_manager.hh>
 #include <Nile/core/input_manager.hh>
@@ -25,7 +27,12 @@ namespace platformer {
     std::shared_ptr<nile::AssetManager> m_assetManager;
     std::shared_ptr<nile::Coordinator> m_ecsCoordinator;
 
+    std::unique_ptr<TextBuffer> m_textBuffer;
+
     nile::Entity m_cameraEntity;
+    nile::Entity m_lampEntity;
+
+    nile::Entity m_testEntity;
 
     void drawStoneTiles() noexcept;
     void drawNanoModel() noexcept;
@@ -34,6 +41,7 @@ namespace platformer {
     void drawGrass() noexcept;
     void drawWindows() noexcept;
     void drawFont() noexcept;
+    void drawLigths() noexcept;
 
     void processKeyboardEvents( f32 dt ) noexcept;
     void processMouseEvents( f32 dt ) noexcept;
@@ -44,6 +52,9 @@ namespace platformer {
     f32 m_lastY;
     bool m_firstMouse = true;
     glm::ivec2 m_mouse_pos;
+
+    glm::vec3 lightColor {1.0f, 1.0f, 1.0f};
+    glm::vec3 lightPos {42.0f, 16.0f, 22.0f};
 
   public:
     Platformer( const std::shared_ptr<nile::GameHost> &gameHost ) noexcept;
