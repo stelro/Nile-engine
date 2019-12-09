@@ -36,3 +36,4 @@ notes.txt
 # Build directory
 build/
 tags
+.clangd
