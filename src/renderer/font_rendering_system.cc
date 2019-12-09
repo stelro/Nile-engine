@@ -97,14 +97,21 @@ namespace nile {
 
     for ( const auto &entity : m_entities ) {
 
-      auto font = m_ecsCoordinator->getComponent<FontComponent>( entity );
+
+      auto &font = m_ecsCoordinator->getComponent<FontComponent>( entity );
       auto renderable = m_ecsCoordinator->getComponent<Renderable>( entity );
       auto transform = m_ecsCoordinator->getComponent<Transform>( entity );
+
+      log::print("%s\n", font.text.c_str());
 
       m_fontShader->use();
       m_fontShader->SetVector3f( "textColor", renderable.color );
       glActiveTexture( GL_TEXTURE0 );
       glBindVertexArray( font.vao );
+
+      // Reset font width / height
+      font.width = 0;
+      font.height = 0;
 
       // Iterate through all characters
       std::string::const_iterator c;
@@ -132,6 +139,9 @@ namespace nile {
         glBufferSubData( GL_ARRAY_BUFFER, 0, sizeof( vertices ), vertices );
         glBindBuffer( GL_ARRAY_BUFFER, 0 );
         glDrawArrays( GL_TRIANGLES, 0, 6 );
+
+        font.width += ( ch.advance >> 6 );
+        font.width += ch.size.y;
 
         transform.position.x += ( ch.advance >> 6 ) * transform.scale.x;
       }
