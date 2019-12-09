@@ -28,9 +28,10 @@ namespace nile::AssetBuilder {
 
     // @bottleneck: this method take so long to load models
     Assimp::Importer import;
-    const aiScene *scene = import.ReadFile(
-        m_path, aiProcess_Triangulate | aiProcess_FindInvalidData |                     aiProcess_FindDegenerates | aiProcess_JoinIdenticalVertices |
-                    aiProcess_OptimizeGraph | aiProcess_OptimizeMeshes );
+    const aiScene *scene =
+        import.ReadFile( m_path, aiProcess_Triangulate | aiProcess_FindInvalidData |
+                                     aiProcess_FindDegenerates | aiProcess_JoinIdenticalVertices |
+                                     aiProcess_OptimizeGraph | aiProcess_OptimizeMeshes );
 
     if ( !scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode ) {
       log::error( "Assimp: %s\n", import.GetErrorString() );
@@ -114,7 +115,7 @@ namespace nile::AssetBuilder {
       // ambient maps
       std::vector<std::shared_ptr<Texture2D>> heightMaps =
           loadMaterialTextures( material, aiTextureType_AMBIENT );
-      textures.insert( textures.end(), normalMaps.begin(), normalMaps.end() );
+      textures.insert( textures.end(), heightMaps.begin(), heightMaps.end() );
     }
 
     return Mesh( vertices, indices, textures );
@@ -130,8 +131,8 @@ namespace nile::AssetBuilder {
       std::string filename = m_directoryName + '/' + str.C_Str();
       auto texture = m_assetManager->loadAsset<Texture2D>( str.C_Str(), filename );
       // Set texture parameters
-      texture->setParameter(TextureTargetParams::TEXTURE_WRAP_S, TextureParams::REPEAT);
-      texture->setParameter(TextureTargetParams::TEXTURE_WRAP_T, TextureParams::REPEAT);
+      texture->setParameter( TextureTargetParams::TEXTURE_WRAP_S, TextureParams::REPEAT );
+      texture->setParameter( TextureTargetParams::TEXTURE_WRAP_T, TextureParams::REPEAT );
 
       texture->setTexturetype( assimpTypeToTextureType( type ) );
       textures.push_back( texture );
