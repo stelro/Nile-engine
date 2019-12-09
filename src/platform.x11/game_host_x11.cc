@@ -185,7 +185,7 @@ namespace nile::X11 {
         ecsCoordinator, assetManager->getAsset<ShaderSet>( "model_shader" ) );
 
     spriteRenderingSystem = ecsCoordinator->registerSystem<SpriteRenderingSystem>(
-        ecsCoordinator, assetManager->getAsset<ShaderSet>( "sprite_shader" ) );
+        ecsCoordinator, assetManager->getAsset<ShaderSet>( "model_shader" ) );
 
     renderPrimitiveSystem = ecsCoordinator->registerSystem<RenderPrimitiveSystem>(
         ecsCoordinator, assetManager->getAsset<ShaderSet>( "line_shader" ) );
