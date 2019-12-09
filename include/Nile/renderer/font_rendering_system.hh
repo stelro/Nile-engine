@@ -24,7 +24,6 @@ namespace nile {
     std::shared_ptr<Settings> m_settings;
     std::shared_ptr<ShaderSet> m_fontShader;
 
-
   public:
     FontRenderingSystem( const std::shared_ptr<Coordinator> &coordinator,
                          const std::shared_ptr<Settings> &settings,

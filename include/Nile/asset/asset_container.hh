@@ -17,7 +17,7 @@ namespace nile {
 
   class Asset;
 
-  class AssetContainer final {
+   class AssetContainer final {
   private:
     std::unordered_map<std::string, std::weak_ptr<Asset>> m_assets;
 

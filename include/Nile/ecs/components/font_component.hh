@@ -4,8 +4,8 @@
 #include "Nile/utils/font_character.hh"
 
 #include <map>
-#include <string>
 #include <memory>
+#include <string>
 
 namespace nile {
 
@@ -15,9 +15,11 @@ namespace nile {
     std::shared_ptr<Font> font;
     std::map<char, FontCharacter> characters;
     std::string text;
-    u32 fontSize = 18;
+    u32 fontSize {18};
     u32 vao;
     u32 vbo;
+    u32 width {1};
+    u32 height {1};
   };
 
 }    // namespace nile

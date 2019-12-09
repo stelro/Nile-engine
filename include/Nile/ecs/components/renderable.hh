@@ -8,9 +8,13 @@ $Notice: $
 
 #pragma once
 
+#include <memory>
+
 #include <glm/glm.hpp>
 
 namespace nile {
+
+  class ShaderSet;
 
   struct Renderable {
     Renderable() = default;
@@ -18,7 +22,8 @@ namespace nile {
     Renderable( const glm::vec3 &c )
         : color( c ) {}
 
-    glm::vec3 color {};
+    std::shared_ptr<ShaderSet> shaderSet = nullptr;
+    glm::vec3 color {1.0f, 1.0f, 1.0f};
     bool blend = true;
   };
 
