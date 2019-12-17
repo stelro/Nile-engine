@@ -9,6 +9,7 @@
 #include <Nile/ecs/components/font_component.hh>
 #include <Nile/ecs/components/mesh_component.hh>
 #include <Nile/ecs/components/primitive.hh>
+#include <Nile/ecs/components/relationship.hh>
 #include <Nile/ecs/components/renderable.hh>
 #include <Nile/ecs/components/sprite.hh>
 #include <Nile/ecs/components/transform.hh>
@@ -67,18 +68,18 @@ namespace platformer {
     m_textBuffer = std::make_unique<TextBuffer>( m_settings, m_ecsCoordinator, m_assetManager );
 
     this->drawTextureFloor();
-    this->drawStoneTiles();
-    this->drawContainers();
+    // this->drawStoneTiles();
+    // this->drawContainers();
     this->drawNanoModel();
-    this->drawGrass();
-    this->drawWindows();
+    // this->drawGrass();
+    // this->drawWindows();
     //    this->drawFont();
     this->drawLigths();
 
-    m_textBuffer->append( "this is text 1", glm::vec2( 40, 20 ) );
-    m_textBuffer->append( "this is text 2", glm::vec2( 40, 60 ) );
-    m_textBuffer->append( "this is text 3", glm::vec2( 40, 100 ) );
-    m_textBuffer->append( "this is text 4", glm::vec2( 80, 100 ) );
+    // m_textBuffer->append( "this is text 1", glm::vec2( 40, 20 ) );
+    // m_textBuffer->append( "this is text 2", glm::vec2( 40, 60 ) );
+    // m_textBuffer->append( "this is text 3", glm::vec2( 40, 100 ) );
+    // m_textBuffer->append( "this is text 4", glm::vec2( 80, 100 ) );
   }
 
   void Platformer::draw( f32 deltaTime ) noexcept {}
@@ -118,8 +119,8 @@ namespace platformer {
     modelShader->SetMatrix4( "projection", projection );
     modelShader->SetVector3f( "lightColor", lightColor );
     modelShader->SetVector3f( "light.position", lightPos );
-    modelShader->SetVector3f( "light.ambient", 0.2f, 0.2f, 0.2f );
-    modelShader->SetVector3f( "light.diffuse", 0.7f, 0.7f, 0.7f );
+    modelShader->SetVector3f( "light.ambient", 0.4f, 0.4f, 0.4f );
+    modelShader->SetVector3f( "light.diffuse", 1.0f, 1.0f, 1.0f );
     modelShader->SetVector3f( "light.specular", 1.0f, 1.0f, 1.0f );
     modelShader->SetVector3f( "viewPos", c_transform.position );
 
@@ -134,12 +135,6 @@ namespace platformer {
     //
     // m_screenText->print( buffer, TextPosition::LEFT_UP );
 
-    if ( m_inputManager->isKeyPressed( SDLK_f ) ) {
-      m_ecsCoordinator->destroyEntity( m_testEntity );
-    }
-    if ( m_inputManager->isKeyPressed( SDLK_g ) ) {
-      drawGrass();
-    }
   }
 
 
@@ -413,9 +408,16 @@ namespace platformer {
 
     auto model_mesh = model->meshes;
 
+    m_nanoModelEntity = m_ecsCoordinator->createEntity();
+    m_ecsCoordinator->addComponent<Relationship>( m_nanoModelEntity, Relationship() );
+
     for ( const auto &i : model_mesh ) {
 
       auto entity = m_ecsCoordinator->createEntity();
+
+      m_ecsCoordinator->addComponent<Relationship>( entity, Relationship() );
+      m_ecsCoordinator->attachTo( m_nanoModelEntity, entity );
+
       Transform transform;
       transform.position = glm::vec3( 6.0f, 0.0f, 22.0f );
       transform.yRotation = -45.0f;
@@ -429,6 +431,7 @@ namespace platformer {
       Renderable renderable;
       renderable.color = glm::vec3( 1.0f, 1.0f, 1.0f );
       renderable.blend = false;
+
 
       m_ecsCoordinator->addComponent<Transform>( entity, transform );
       m_ecsCoordinator->addComponent<Renderable>( entity, renderable );
@@ -496,4 +499,5 @@ namespace platformer {
       m_ecsCoordinator->addComponent<MeshComponent>( m_lampEntity, mesh );
     }
   }
+
 }    // namespace platformer

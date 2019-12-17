@@ -43,9 +43,7 @@ namespace platformer {
     m_ecsCoordinator->addComponent<FontComponent>( m_entity, font );
   }
 
-  ScreenText::~ScreenText() noexcept {
-    m_ecsCoordinator->destroyEntity( m_entity );
-  }
+  ScreenText::~ScreenText() noexcept {}
 
   void ScreenText::print( const std::string &text, const glm::vec2 &position,
                           const glm::vec3 col ) noexcept {
@@ -60,6 +58,7 @@ namespace platformer {
 
 
   }    // namespace platformer
+
 
   glm::vec2 textPosition( TextPosition textPos ) noexcept {
     // const auto top_offset = 42.f;

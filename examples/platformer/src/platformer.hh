@@ -31,6 +31,7 @@ namespace platformer {
 
     nile::Entity m_cameraEntity;
     nile::Entity m_lampEntity;
+    nile::Entity m_nanoModelEntity;
 
     nile::Entity m_testEntity;
 
@@ -43,6 +44,8 @@ namespace platformer {
     void drawFont() noexcept;
     void drawLigths() noexcept;
 
+    void testRelationship() noexcept;
+
     void processKeyboardEvents( f32 dt ) noexcept;
     void processMouseEvents( f32 dt ) noexcept;
     void processMouseScroll( f32 dt ) noexcept;
@@ -54,7 +57,7 @@ namespace platformer {
     glm::ivec2 m_mouse_pos;
 
     glm::vec3 lightColor {1.0f, 1.0f, 1.0f};
-    glm::vec3 lightPos {42.0f, 16.0f, 22.0f};
+    glm::vec3 lightPos {22.0f, 16.0f, 22.0f};
 
   public:
     Platformer( const std::shared_ptr<nile::GameHost> &gameHost ) noexcept;
