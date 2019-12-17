@@ -102,8 +102,6 @@ namespace nile {
       auto renderable = m_ecsCoordinator->getComponent<Renderable>( entity );
       auto transform = m_ecsCoordinator->getComponent<Transform>( entity );
 
-      log::print("%s\n", font.text.c_str());
-
       m_fontShader->use();
       m_fontShader->SetVector3f( "textColor", renderable.color );
       glActiveTexture( GL_TEXTURE0 );
