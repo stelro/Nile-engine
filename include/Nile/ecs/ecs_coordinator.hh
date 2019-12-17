@@ -74,6 +74,17 @@ namespace nile {
       return m_componentManager->getComponentType<T>();
     }
 
+    // Relationship of entities
+    bool attachTo( Entity parent, Entity child ) noexcept;
+
+    void detach(Entity entity) noexcept;
+
+    Entity getNext(Entity entity) noexcept;
+
+    Entity getParent(Entity entity) noexcept;
+
+    Entity getFirst(Entity entity) noexcept;
+
     template <typename T, typename... Args>
     std::shared_ptr<T> registerSystem( Args &&... args ) noexcept {
       return m_systemManager->registerSystem<T>( std::forward<Args>( args )... );
@@ -98,5 +109,6 @@ namespace nile {
 
     void render( float dt ) noexcept;
   };
+
 
 }    // namespace nile
