@@ -24,6 +24,7 @@ $Notice: $
 #include "Nile/ecs/components/renderable.hh"
 #include "Nile/ecs/components/sprite.hh"
 #include "Nile/ecs/components/transform.hh"
+#include "Nile/ecs/components/relationship.hh"
 #include "Nile/ecs/ecs_coordinator.hh"
 #include "Nile/log/log.hh"
 #include "Nile/log/stream_logger.hh"
@@ -170,6 +171,7 @@ namespace nile::X11 {
     ecsCoordinator->registerComponent<Primitive>();
     ecsCoordinator->registerComponent<MeshComponent>();
     ecsCoordinator->registerComponent<FontComponent>();
+    ecsCoordinator->registerComponent<Relationship>();
 
     // Output some logs to know which components has been registered by the engine
     log::notice( "Registered ECS components by the engine: \n"
@@ -179,7 +181,9 @@ namespace nile::X11 {
                  "\t CameraComponent\n"
                  "\t Primitive\n"
                  "\t MeshComponent\n"
-                 "\t FontComponent\n" );
+                 "\t FontComponent\n" 
+                 "\t Relationship\n"
+                 );
 
     renderingSystem = ecsCoordinator->registerSystem<RenderingSystem>(
         ecsCoordinator, assetManager->getAsset<ShaderSet>( "model_shader" ) );
