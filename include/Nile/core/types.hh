@@ -32,9 +32,11 @@ namespace nile {
   using Entity = std::uint32_t;
   using ComponentType = std::uint8_t;
 
+
   namespace ecs {
     constexpr Entity MAX_ENTITIES = 32768;
-    constexpr ComponentType MAX_COMPONENTS = 32;
+    constexpr ComponentType MAX_COMPONENTS = 64;
+    constexpr Entity null = 0;
   }    // namespace ecs
 
   using Signature = std::bitset<ecs::MAX_COMPONENTS>;
