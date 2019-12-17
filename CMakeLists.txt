@@ -63,6 +63,7 @@ set(NILE_SOURCES_CORE
   ${NILE_DIR}/include/Nile/ecs/components/camera_component.hh
   ${NILE_DIR}/include/Nile/ecs/components/primitive.hh
   ${NILE_DIR}/include/Nile/ecs/components/mesh_component.hh
+  ${NILE_DIR}/include/Nile/ecs/components/relationship.hh
   ${NILE_DIR}/include/Nile/ecs/component_manager.hh
   ${NILE_DIR}/include/Nile/ecs/component_storage.hh
   ${NILE_DIR}/include/Nile/ecs/ecs_coordinator.hh
@@ -298,3 +299,4 @@ target_link_libraries(nile_static INTERFACE ${GLEW_LIBRARIES} ${OPENGL_LIBRARIES
 target_link_libraries(nile_static PUBLIC ${FREETYPE_LIBRARIES} assimp )
 
 file(COPY resources DESTINATION ${CMAKE_BINARY_DIR})
+
