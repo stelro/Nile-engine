@@ -13,7 +13,8 @@ $Notice: $
 namespace nile {
 
   EntityManager::EntityManager() noexcept {
-    for ( Entity entity = 0; entity < ecs::MAX_ENTITIES; ++entity ) {
+    // We reverse entity with ID 0 to represent a null entity
+    for ( Entity entity = 1; entity < ecs::MAX_ENTITIES; ++entity ) {
       m_availableEntities.push( entity );
     }
   }
@@ -54,8 +55,16 @@ namespace nile {
     return m_signatures[ entity ];
   }
 
+  bool EntityManager::hasComponent( Entity entity, ComponentType component ) const noexcept {
+
+    Signature signature;
+    signature.set( component );
+
+    return ( ( this->getSignature( entity ) & signature ) == signature );
+  }
+
   usize EntityManager::getEntitiesCount() const noexcept {
-    return m_livingEntities;
+    return m_livingEntities - 1;
   }
 
 }    // namespace nile

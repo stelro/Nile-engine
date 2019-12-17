@@ -23,21 +23,23 @@ namespace nile {
     // Array of signatures where the index corresponds to the entity ID
     std::array<Signature, ecs::MAX_ENTITIES> m_signatures;
 
-    // Totla living entities - used to keep limits on how many exist
-    usize m_livingEntities = 0;
+    // Total living entities - used to keep limits on how many exist
+    // We start form 1, because entity with ID 0 is reserved for null entity
+    usize m_livingEntities = 1;
 
   public:
     EntityManager() noexcept;
 
     [[nodiscard]] Entity createEntity() noexcept;
 
-    void freeEntity(Entity entity) noexcept;
+    void freeEntity( Entity entity ) noexcept;
 
     // Keep track of which components an entity has
     void setSignature( Entity entity, Signature signature ) noexcept;
 
-    // Get the signature ( which components the entity has )
     [[nodiscard]] Signature getSignature( Entity entity ) const noexcept;
+
+    bool hasComponent(Entity entity,ComponentType component) const noexcept;
 
     usize getEntitiesCount() const noexcept;
   };
