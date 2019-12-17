@@ -11,14 +11,14 @@ set(CMAKE_CXX_STANDARD_REQUIRED on)
 set(CMAKE_CXX_EXTENSIONS off)
 set(CMAKE_CONFIGURATION_TYPES Debug Release)
 
-source_group(2d                 REGULAR_EXPRESSION test/2d/*)
-source_group(core               REGULAR_EXPRESSION test/core/*)
-source_group(game               REGULAR_EXPRESSION test/game/*)
-source_group(renderer           REGULAR_EXPRESSION test/renderer/*)
-source_group(resource           REGULAR_EXPRESSION test/resoure/*)
+source_group(ecs                 REGULAR_EXPRESSION test/ecs/*)
+
 
 add_executable(NileTest
   ${NILE_TEST_DIR}/main.cc
+  ${NILE_TEST_DIR}/ecs/entity_manager.test.cc
+  ${NILE_TEST_DIR}/ecs/entity.test.cc
+  ${NILE_TEST_DIR}/ecs/relationship.test.cc
   )
   
 target_include_directories(NileTest PRIVATE
@@ -36,6 +36,8 @@ target_compile_definitions(NileTest PRIVATE
     NOMINMAX
   >
 )
+
+set(CMAKE_EXPORT_COMPILE_COMMANDS 1)
 
 target_compile_options(NileTest PRIVATE
   # Clang
@@ -66,3 +68,11 @@ target_compile_options(NileTest PRIVATE
     $<$<CONFIG:RELEASE>:/O2;/Ob2;/MT>
   >
 )
+
+if (NOT NILE_BUILD_TARGET_ALL) 
+  add_subdirectory(${NILE_DIR} ${CMAKE_CURRENT_BINARY_DIR}/nile_build)
+endif()
+
+target_link_libraries(NileTest nile_static )
+
+
