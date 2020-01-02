@@ -11,14 +11,15 @@ $Notice: $
 #include "Nile/renderer/texture2d.hh"
 
 #define STB_IMAGE_IMPLEMENTATION
-#include "stb_image.h" 
+#include "stb_image.h"
 #include <GL/glew.h>
 
 
 namespace nile {
 
-  std::shared_ptr<Texture2D> AssetLoader<Texture2D>::operator() ( const std::string &assetName,
-                                                   const std::string &filePath ) noexcept {
+  std::shared_ptr<Texture2D>
+  AssetLoader<Texture2D>::operator()( const std::string &assetName,
+                                      const std::string &filePath ) noexcept {
 
     auto texture = std::make_shared<Texture2D>();
     const auto alpha = true;
@@ -50,7 +51,5 @@ namespace nile {
 
     return texture;
   }
-
-
 
 }    // namespace nile

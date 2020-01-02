@@ -24,6 +24,7 @@ namespace nile {
     glGenTextures( 1, &this->m_id );
   }
 
+
   void Texture2D::generate( u32 width, u32 height, unsigned char *data ) noexcept {
 
     this->m_width = width;
@@ -53,9 +54,10 @@ namespace nile {
     glBindTexture( GL_TEXTURE_2D, 0 );
   }
 
-  void Texture2D::setParameter(TextureTargetParams target, TextureParams param) noexcept {
+  void Texture2D::setParameter( TextureTargetParams target, TextureParams param ) noexcept {
     this->bind();
-    glTexParameteri(GL_TEXTURE_2D, GlTargetParmas[static_cast<GLenum>(target)], GlParams[static_cast<u32>(param)]);
+    glTexParameteri( GL_TEXTURE_2D, GlTargetParmas[ static_cast<GLenum>( target ) ],
+                     GlParams[ static_cast<u32>( param ) ] );
   }
 
 

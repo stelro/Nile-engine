@@ -12,7 +12,7 @@ $Notice: $
 namespace nile {
 
   std::shared_ptr<Font> AssetLoader<Font>::operator()( const std::string &fileName,
-                                                       const std::string &filePath ) noexcept {
+                                       const std::string &filePath ) noexcept {
 
     auto font = std::make_shared<Font>();
 
@@ -32,8 +32,9 @@ namespace nile {
       log::error( "Tried to load font %s\n%s\n", filePath.c_str(),
                   "It appears that the specific font format is unsupported" );
     else if ( error )
-      log::error( "Tried to load font %s\n%s\n", filePath.c_str(),
-                  "The specific font could not be opened or read, seems that it is broken or not found" );
+      log::error(
+          "Tried to load font %s\n%s\n", filePath.c_str(),
+          "The specific font could not be opened or read, seems that it is broken or not found" );
 
     return font;
   }

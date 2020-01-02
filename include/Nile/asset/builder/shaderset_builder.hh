@@ -12,8 +12,8 @@ $Notice: $
 #include "Nile/core/types.hh"
 #include "Nile/renderer/shaderset.hh"
 
-#include <string_view>
 #include <memory>
+#include <string_view>
 
 namespace nile::AssetBuilder {
 

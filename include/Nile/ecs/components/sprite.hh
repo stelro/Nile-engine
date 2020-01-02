@@ -9,7 +9,7 @@ namespace nile {
   struct SpriteComponent {
     SpriteComponent()
         : texture( nullptr ) {}
-    SpriteComponent( const std::shared_ptr<Texture2D> &tex )
+    SpriteComponent( std::shared_ptr<Texture2D> &tex )
         : texture( tex ) {}
     std::shared_ptr<Texture2D> texture;
   };

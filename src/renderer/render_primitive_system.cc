@@ -75,6 +75,4 @@ namespace nile {
       glBindVertexArray( 0 );
     }
   }
-
-
 }    // namespace nile

@@ -11,12 +11,15 @@ $Notice: $
 #include "Nile/asset/subsystem/asset_loader.hh"
 #include "Nile/renderer/font.hh"
 
+#include <memory>
+
 namespace nile {
 
   template <>
   class AssetLoader<Font> final {
   public:
-    std::shared_ptr<Font> operator()(const std::string& fileName, const std::string& filePath) noexcept;
+    std::shared_ptr<Font> operator()( const std::string &fileName,
+                                      const std::string &filePath ) noexcept;
   };
 
 }    // namespace nile
