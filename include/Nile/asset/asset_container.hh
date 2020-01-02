@@ -17,16 +17,29 @@ namespace nile {
 
   class Asset;
 
-   class AssetContainer final {
+  class AssetContainer final {
   private:
-    std::unordered_map<std::string, std::weak_ptr<Asset>> m_assets;
+    std::unordered_map<std::string, std::shared_ptr<Asset>> m_assets;
 
   public:
+    using assets_iter = std::unordered_map<std::string, std::shared_ptr<Asset>>::iterator;
+    using const_assets_iter =
+        std::unordered_map<std::string, std::shared_ptr<Asset>>::const_iterator;
+
     AssetContainer() = default;
 
     ~AssetContainer() noexcept;
 
-    bool addAsset( const std::string &assetName, const std::shared_ptr<Asset> &asset ) noexcept;
+    // make assetcontainer iteratable
+    assets_iter begin() noexcept;
+    const const_assets_iter begin() const noexcept;
+    const const_assets_iter cbegin() const noexcept;
+
+    assets_iter end() noexcept;
+    const const_assets_iter end() const noexcept;
+    const const_assets_iter cend() const noexcept;
+
+    bool addAsset( const std::string &assetName, const std::shared_ptr<Asset> &assset ) noexcept;
 
     std::shared_ptr<Asset> getAsset( const std::string &assetName ) const noexcept;
 

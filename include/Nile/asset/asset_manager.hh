@@ -47,7 +47,6 @@ namespace nile {
         asset = loader( assetName, assetPath );
         m_assetContainer->addAsset( assetName, asset );
       }
-
       return std::static_pointer_cast<T>( asset );
     }
 
@@ -61,11 +60,12 @@ namespace nile {
                                    const std::shared_ptr<Asset> &asset ) noexcept {
       if ( !m_assetContainer->isAssetExist( assetName ) ) {
         m_assetContainer->addAsset( assetName, asset );
+      } else {
+        log::print("already exist\n");
       }
-
+      
       return this->getAsset<T>( assetName );
     }
-
 
     // get asset by assetName if exist, otherwise error will be logged to the
     // console, and nullptr will returned
@@ -97,6 +97,16 @@ namespace nile {
 
     // Clear all the assets from the container
     void clearAll() noexcept;
+
+    // abstraction of AssetContainer
+    AssetContainer::assets_iter begin() noexcept;
+    const AssetContainer::const_assets_iter begin() const noexcept;
+    const AssetContainer::const_assets_iter cbegin() const noexcept;
+
+    AssetContainer::assets_iter end() noexcept;
+    const AssetContainer::const_assets_iter end() const noexcept;
+    const AssetContainer::const_assets_iter cend() const noexcept;
+
   };
 
 }    // namespace nile

@@ -35,4 +35,29 @@ namespace nile {
   void AssetManager::clearAll() noexcept {
     m_assetContainer->clearAll();
   }
+
+  AssetContainer::assets_iter AssetManager::begin() noexcept {
+    return m_assetContainer->begin();
+  }
+
+  const AssetContainer::const_assets_iter AssetManager::begin() const noexcept {
+    return m_assetContainer->begin();
+  }
+
+  const AssetContainer::const_assets_iter AssetManager::cbegin() const noexcept {
+    return m_assetContainer->cbegin();
+  }
+
+  AssetContainer::assets_iter AssetManager::end() noexcept {
+    return m_assetContainer->end();
+  }
+
+  const AssetContainer::const_assets_iter AssetManager::end() const noexcept {
+    return m_assetContainer->end();
+  }
+
+  const AssetContainer::const_assets_iter AssetManager::cend() const noexcept {
+    return m_assetContainer->cend();
+  }
+
 }    // namespace nile

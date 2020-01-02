@@ -27,10 +27,7 @@ namespace nile {
     auto it = m_assets.find( assetName );
 
     if ( it != m_assets.end() ) {
-      if ( auto spt = it->second.lock() )
-        return spt;
-      else
-        log::error( "%s asset has expired\n" );
+      return it->second;
     }
 
     // Asset doesn't exist in the container
@@ -40,8 +37,9 @@ namespace nile {
   void AssetContainer::unloadAsset( const std::string &assetName ) noexcept {
     auto it = m_assets.find( assetName );
     if ( it != m_assets.end() ) {
-      if ( !it->second.expired() )
-        this->removeAsset( assetName );
+      this->removeAsset( assetName );
+    } else {
+      log::error( "%s asset not found to unload it!\n", assetName.c_str() );
     }
   }
 
@@ -50,6 +48,7 @@ namespace nile {
     if ( it != m_assets.end() ) {
       // @keep a eye on this
       it->second.reset();
+      it->second = nullptr;
       m_assets.erase( it );
     }
   }
@@ -78,4 +77,42 @@ namespace nile {
     m_assets.clear();
   }
 
+  AssetContainer::assets_iter AssetContainer::begin() noexcept {
+    return m_assets.begin();
+  }
+
+  const AssetContainer::const_assets_iter AssetContainer::begin() const noexcept {
+    return m_assets.begin();
+  }
+
+  const AssetContainer::const_assets_iter AssetContainer::cbegin() const noexcept {
+    return m_assets.cbegin();
+  }
+
+  AssetContainer::assets_iter AssetContainer::end() noexcept {
+    return m_assets.end();
+  }
+
+  const AssetContainer::const_assets_iter AssetContainer::end() const noexcept {
+    return m_assets.end();
+  }
+
+  const AssetContainer::const_assets_iter AssetContainer::cend() const noexcept {
+    return m_assets.cend();
+  }
+
+  // void AssetContainer::replace( const std::string &name, Asset *asset ) noexcept {
+  //
+  //   auto it = m_assets.find( name );
+  //   if ( it != m_assets.end() ) {
+  //     // @keep a eye on this
+  //     auto tmp = it->second;
+  //     it->second = asset;
+  //
+  //     delete tmp;
+  //   } else {
+  //     log::print( "%s NOT FOUND!!!\n", name.c_str() );
+  //   }
+  // }
+  //
 }    // namespace nile
