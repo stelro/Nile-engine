@@ -8,10 +8,12 @@ $Notice: $
 
 #include "Nile/asset/builder/shaderset_builder.hh"
 #include "Nile/core/assert.hh"
+#include "Nile/core/file_system.hh"
 #include "Nile/log/log.hh"
 
 #include <GL/glew.h>
 
+#include <filesystem>
 #include <fstream>
 #include <iostream>
 #include <sstream>
@@ -35,13 +37,50 @@ namespace nile::AssetBuilder {
 
   [[nodiscard]] std::shared_ptr<ShaderSet> Builder<ShaderSet>::build() noexcept {
 
-    return std::make_shared<ShaderSet>(
-        loadShaderFromFile( m_vertexPath, m_fragmentPath, m_geometryPath ) );
+    auto shaderset = std::make_shared<ShaderSet>(
+        loadShaderFromFile( m_vertexPath, m_fragmentPath, m_geometryPath ), m_vertexPath,
+        m_fragmentPath, m_geometryPath );
+
+#if defined( TOOLS_ENABLED )
+
+    // @optimization: maybe we could do this better?
+
+    namespace fs = std::filesystem;
+
+    FileSize file_size_struct;
+    TimeStamp time_stamp_struct;
+
+    fs::path frag_path = m_fragmentPath;
+    fs::path vertex_path = m_vertexPath;
+    fs::path geom_path = m_geometryPath;
+
+    if ( fs::exists( frag_path ) ) {
+      file_size_struct.fragment = fs::file_size( frag_path );
+      time_stamp_struct.fragment = fs::last_write_time( frag_path );
+    }
+
+    if ( fs::exists( vertex_path ) ) {
+      file_size_struct.vertex = fs::file_size( vertex_path );
+      time_stamp_struct.vertex = fs::last_write_time( vertex_path );
+    }
+
+    if ( fs::exists( geom_path ) ) {
+      file_size_struct.geometry = fs::file_size( geom_path );
+      time_stamp_struct.geometry = fs::last_write_time( geom_path );
+    }
+
+    shaderset->setTimeStamp( time_stamp_struct );
+    shaderset->setFileSize( file_size_struct );
+
+#endif
+
+    return shaderset;
   }
 
   u32 Builder<ShaderSet>::loadShaderFromFile( std::string_view vshaderFile,
                                               std::string_view fshaderFile,
                                               std::string_view gshaderFile ) noexcept {
+
 
     u32 program_id = 0;
 

@@ -21,11 +21,12 @@ $Notice: $
 #include "Nile/ecs/components/font_component.hh"
 #include "Nile/ecs/components/mesh_component.hh"
 #include "Nile/ecs/components/primitive.hh"
+#include "Nile/ecs/components/relationship.hh"
 #include "Nile/ecs/components/renderable.hh"
 #include "Nile/ecs/components/sprite.hh"
 #include "Nile/ecs/components/transform.hh"
-#include "Nile/ecs/components/relationship.hh"
 #include "Nile/ecs/ecs_coordinator.hh"
+#include "Nile/experimental/asset/asset_manager_helper.hh"
 #include "Nile/log/log.hh"
 #include "Nile/log/stream_logger.hh"
 #include "Nile/renderer/base_renderer.hh"
@@ -40,6 +41,7 @@ $Notice: $
 #include <GL/glew.h>
 #include <SDL2/SDL.h>
 
+#include <thread>
 
 namespace nile::X11 {
 
@@ -55,6 +57,7 @@ namespace nile::X11 {
     std::shared_ptr<RenderPrimitiveSystem> renderPrimitiveSystem;
     std::shared_ptr<FontRenderingSystem> fontRenderingSystem;
 
+    std::shared_ptr<AssetManagerHelper> m_assetManagerHelper;
 
     std::shared_ptr<ShaderSet> m_fbScreenShader;
 
@@ -113,7 +116,7 @@ namespace nile::X11 {
     ( ecsCoordinator ) ? log::notice( "ECS Coordinator have been created!\n" )
                        : log::fatal( "Engine has failed to create ECS Coordinator!\n" );
 
-
+    m_assetManagerHelper = std::make_shared<AssetManagerHelper>( assetManager );
     m_programMode = settings->getProgramMode();
 
     auto spriteShader = assetManager->createBuilder<ShaderSet>()
@@ -138,8 +141,8 @@ namespace nile::X11 {
     assetManager->storeAsset<ShaderSet>( "line_shader", lineShader );
 
     auto modelShader = assetManager->createBuilder<ShaderSet>()
-                           .setVertexPath( "../assets/shaders/model_vertex.glsl" )
-                           .setFragmentPath( "../assets/shaders/model_fragment.glsl" )
+                           .setVertexPath( "../assets/shaders/model.vert.glsl" )
+                           .setFragmentPath( "../assets/shaders/model.frag.glsl" )
                            .build();
 
 
@@ -148,12 +151,12 @@ namespace nile::X11 {
 
     // main window framebuffer shader
     m_fbScreenShader = assetManager->storeAsset<ShaderSet>(
-        "fb_screen_shader",
-        assetManager->createBuilder<ShaderSet>()
-            .setVertexPath( FileSystem::getBuildDir() + "/resources/shaders/screen_fb_vertex.glsl" )
-            .setFragmentPath( FileSystem::getBuildDir() +
-                              "/resources/shaders/screen_fb_fragment.glsl" )
-            .build() );
+        "fb_screen_shader", assetManager->createBuilder<ShaderSet>()
+                                .setVertexPath( FileSystem::getBinaryDir() +
+                                                "/resources/shaders/screen_fb_vertex.glsl" )
+                                .setFragmentPath( FileSystem::getBinaryDir() +
+                                                  "/resources/shaders/screen_fb_fragment.glsl" )
+                                .build() );
 
 
     this->registerEcs();
@@ -181,9 +184,8 @@ namespace nile::X11 {
                  "\t CameraComponent\n"
                  "\t Primitive\n"
                  "\t MeshComponent\n"
-                 "\t FontComponent\n" 
-                 "\t Relationship\n"
-                 );
+                 "\t FontComponent\n"
+                 "\t Relationship\n" );
 
     renderingSystem = ecsCoordinator->registerSystem<RenderingSystem>(
         ecsCoordinator, assetManager->getAsset<ShaderSet>( "model_shader" ) );
@@ -243,10 +245,18 @@ namespace nile::X11 {
     ecsCoordinator->createSystems();
     f64 lastStep = SDL_GetTicks();
 
+    std::thread t1( [=]() { m_assetManagerHelper->reloadShaders(); } );
+    t1.detach();
+
+
     // draw wireframe
     // glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
 
+    // u32 frame = 0;
+
     while ( !inputManager->shouldClose() ) {
+
+      //  log::print("[%d]\n", frame++);
 
       f64 currentStep = SDL_GetTicks();
       f64 delta = currentStep - lastStep;    // elapsed time
