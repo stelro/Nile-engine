@@ -4,15 +4,15 @@
 
 namespace nile {
 
-  std::string FileSystem::getRoot() noexcept {
+  std::string FileSystem::getSourceDir() noexcept {
     return ( logl_root != nullptr ) ? logl_root : " ";
   }
 
   std::string FileSystem::getPath( const std::string &path ) noexcept {
-    return getRoot() + '/' + path;
+    return getSourceDir() + '/' + path;
   }
 
-  std::string FileSystem::getBuildDir() noexcept {
+  std::string FileSystem::getBinaryDir() noexcept {
     return ( binary_root != nullptr ) ? binary_root : " ";
   }
 
