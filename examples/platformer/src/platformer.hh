@@ -8,6 +8,7 @@
 #include <Nile/core/settings.hh>
 #include <Nile/ecs/ecs_coordinator.hh>
 #include <Nile/platform/game_host.hh>
+#include <Nile/experimental/asset/asset_manager_helper.hh>
 
 #include <GL/glew.h>
 #include <glm/gtc/matrix_transform.hpp>
@@ -26,6 +27,7 @@ namespace platformer {
     std::shared_ptr<nile::Settings> m_settings;
     std::shared_ptr<nile::AssetManager> m_assetManager;
     std::shared_ptr<nile::Coordinator> m_ecsCoordinator;
+///    std::shared_ptr<nile::AssetManagerHelper> m_assetManagerHelper;
 
     std::unique_ptr<TextBuffer> m_textBuffer;
 
@@ -44,8 +46,6 @@ namespace platformer {
     void drawFont() noexcept;
     void drawLigths() noexcept;
 
-    void testRelationship() noexcept;
-
     void processKeyboardEvents( f32 dt ) noexcept;
     void processMouseEvents( f32 dt ) noexcept;
     void processMouseScroll( f32 dt ) noexcept;
@@ -57,7 +57,7 @@ namespace platformer {
     glm::ivec2 m_mouse_pos;
 
     glm::vec3 lightColor {1.0f, 1.0f, 1.0f};
-    glm::vec3 lightPos {22.0f, 16.0f, 22.0f};
+    glm::vec3 lightPos {12.0f, 16.0f, 2.0f};
 
   public:
     Platformer( const std::shared_ptr<nile::GameHost> &gameHost ) noexcept;
