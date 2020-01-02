@@ -13,7 +13,6 @@ set(CMAKE_CONFIGURATION_TYPES Debug Release)
 
 source_group(ecs                 REGULAR_EXPRESSION test/ecs/*)
 
-
 add_executable(NileTest
   ${NILE_TEST_DIR}/main.cc
   ${NILE_TEST_DIR}/ecs/entity_manager.test.cc
@@ -38,6 +37,7 @@ target_compile_definitions(NileTest PRIVATE
 )
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS 1)
+
 
 target_compile_options(NileTest PRIVATE
   # Clang

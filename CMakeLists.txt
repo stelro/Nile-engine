@@ -121,15 +121,13 @@ set(NILE_SOURCES_CORE
   )
 
 set(NILE_SOURCE_EXPERIMENTAL 
-  ${NILE_DIR}/include/Nile/experimental/texture.hh
-  ${NILE_DIR}/include/Nile/experimental/vertex.hh
-  ${NILE_DIR}/include/Nile/experimental/mesh.hh
-  ${NILE_DIR}/include/Nile/experimental/model.hh
-  ${NILE_DIR}/src/experimental/mesh.cc
-  ${NILE_DIR}/src/experimental/model.cc
+  ${NILE_DIR}/include/Nile/experimental/asset/asset_manager_helper.hh
+  ${NILE_DIR}/src/experimental/asset/asset_manager_helper.cc
   )
 
-set(SOURCE_FILES ${NILE_SOURCES_CORE} )
+set(SOURCE_FILES ${NILE_SOURCES_CORE} ${NILE_SOURCE_EXPERIMENTAL})
+
+
 
 add_subdirectory(external/freetype)
 add_subdirectory(external/assimp)
@@ -283,6 +281,7 @@ target_compile_options(nile_static PRIVATE
   >
 )
 
+add_compile_definitions(TOOLS_ENABLED)
 
 if(NILE_TARGET_PLATFORM MATCHES "Linux")
   target_link_libraries(nile_static INTERFACE
