@@ -81,6 +81,9 @@ set(NILE_SOURCES_CORE
   ${NILE_DIR}/include/Nile/scene/scene_graph.hh
   ${NILE_DIR}/include/Nile/scene/scene_node.hh
   ${NILE_DIR}/include/Nile/debug/benchmark_timer.hh
+  ${NILE_DIR}/include/Nile/graphics/rendering_device.hh
+  ${NILE_DIR}/include/Nile/drivers/vulkan/vulkan_rendering_device.hh
+  ${NILE_DIR}/include/Nile/drivers/vulkan/vulkan_utils.hh
   ${NILE_DIR}/src/2d/2d_camera.cc
   ${NILE_DIR}/src/core/input_manager.cc
   ${NILE_DIR}/src/core/settings.cc
@@ -118,11 +121,16 @@ set(NILE_SOURCES_CORE
   ${NILE_DIR}/src/log/stream_logger.cc
   ${NILE_DIR}/src/scene/scene_graph.cc
   ${NILE_DIR}/src/scene/scene_node.cc
+  ${NILE_DIR}/src/graphics/rendering_device.cc
+  ${NILE_DIR}/src/drivers/vulkan/vulkan_rendering_device.cc
+  ${NILE_DIR}/src/drivers/vulkan/vulkan_utils.cc
   )
 
 set(NILE_SOURCE_EXPERIMENTAL 
   ${NILE_DIR}/include/Nile/experimental/asset/asset_manager_helper.hh
   ${NILE_DIR}/src/experimental/asset/asset_manager_helper.cc
+  ${NILE_DIR}/include/Nile/experimental/core/ts_unordered_map.hh
+  ${NILE_DIR}/src/experimental/core/ts_unordered_map.cc
   )
 
 set(SOURCE_FILES ${NILE_SOURCES_CORE} ${NILE_SOURCE_EXPERIMENTAL})
@@ -158,6 +166,14 @@ if (GLEW_FOUND)
 else()
   message(FATAL_ERROR "Cannot find GLEW Library!")
 endif()
+
+# Vulkan
+find_package(Vulkan)
+if (Vulkan_FOUND)
+  message(STATUS ${Vulkan_LIBRARY} " Vulkan library has been found!")
+ELSE()
+  message(FATAL_ERROR "Cannot find vulkan library!")
+ENDIF()
 
 # OpenGL package
 find_package(OpenGL REQUIRED)
@@ -211,6 +227,7 @@ target_include_directories(nile_static PRIVATE
   ${NILE_DIR}/lib
   ${FREETYPE_INCUDE_DIRS}
   ${NILE_DIR}/external/stb
+  Vulkan::Vulkan
 )
 
 
@@ -294,8 +311,8 @@ target_include_directories(nile_static PUBLIC ${ASSIMP_INCLUDE_DIRS})
 
 
 target_link_libraries(nile_static PUBLIC ${SDL2_LIBRARY})
-target_link_libraries(nile_static INTERFACE ${GLEW_LIBRARIES} ${OPENGL_LIBRARIES} )
+target_link_libraries(nile_static INTERFACE ${GLEW_LIBRARIES} ${OPENGL_LIBRARIES}
+  Vulkan::Vulkan)
 target_link_libraries(nile_static PUBLIC ${FREETYPE_LIBRARIES} assimp )
 
 file(COPY resources DESTINATION ${CMAKE_BINARY_DIR})
-
