@@ -50,6 +50,7 @@ namespace nile {
     populateDebugMessengerCreateInfo( VkDebugUtilsMessengerCreateInfoEXT &createInfo ) noexcept;
     void pickPhysicalDevice() noexcept;
     QueueFamilyIndices findQueueFamilies( VkPhysicalDevice device ) noexcept;
+    void createLogicalDevice() noexcept;
 
     bool checkValidationLayerSupport() const noexcept;
     std::vector<const char *> getRequiredExtensions() const noexcept;
@@ -59,12 +60,22 @@ namespace nile {
         VkDebugUtilsMessageTypeFlagsEXT messageType,
         const VkDebugUtilsMessengerCallbackDataEXT *pCallbackData, void *pUserData ) noexcept;
 
+    // Check if the GPU is suitable for this engine
     bool isDeviceSuitable( VkPhysicalDevice device ) noexcept;
 
     SDL_Window *m_window = nullptr;
     VkInstance m_vulkanInstance;
     VkDebugUtilsMessengerEXT m_debugMessenger;
+
+    // Physical device, actually our handle to the GPU
     VkPhysicalDevice m_physicalDevice = VK_NULL_HANDLE;
+
+    // Logical device to interface with the physical device
+    VkDevice m_logicalDevice;
+
+    // Handle to interface with a graphics queue, which is automatically created
+    // along with the logical device
+    VkQueue m_graphicsQueue;
 
     std::vector<const char *> m_validationLayers = {"VK_LAYER_KHRONOS_validation"};
 

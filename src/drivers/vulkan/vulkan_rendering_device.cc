@@ -43,9 +43,12 @@ namespace nile {
     this->createVulkanInstance();
     this->setupDebugMessenger();
     this->pickPhysicalDevice();
+    this->createLogicalDevice();
   }
 
   void VulkanRenderingDevice::destory() noexcept {
+    
+    vkDestroyDevice(m_logicalDevice, nullptr);
 
     if ( m_enableValidationLayers ) {
       DestroyDebugUtilsMessengerEXT( m_vulkanInstance, m_debugMessenger, nullptr );
@@ -256,6 +259,39 @@ namespace nile {
     return indices;
   }
 
+  void VulkanRenderingDevice::createLogicalDevice() noexcept {
+
+    QueueFamilyIndices indices = findQueueFamilies( m_physicalDevice );
+
+    // Create queue with graphics capabilities
+    VkDeviceQueueCreateInfo queue_create_info = {};
+    queue_create_info.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
+    queue_create_info.queueFamilyIndex = indices.graphicsFamily.value();
+    queue_create_info.queueCount = 1;
+
+    f32 queue_priority = 1.0f;
+    queue_create_info.pQueuePriorities = &queue_priority;
+
+    VkPhysicalDeviceFeatures device_features = {};
+
+    VkDeviceCreateInfo create_info = {};
+    create_info.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
+    create_info.pQueueCreateInfos = &queue_create_info;
+    create_info.queueCreateInfoCount = 1;
+    create_info.pEnabledFeatures = &device_features;
+    create_info.enabledExtensionCount = 0;
+
+    if ( m_enableValidationLayers ) {
+      create_info.enabledLayerCount = static_cast<u32>( m_validationLayers.size() );
+      create_info.ppEnabledLayerNames = m_validationLayers.data();
+    } else {
+      create_info.enabledLayerCount = 0;
+    }
+
+    VK_CHECK_RESULT( vkCreateDevice( m_physicalDevice, &create_info, nullptr, &m_logicalDevice ) );
+
+    vkGetDeviceQueue(m_logicalDevice, indices.graphicsFamily.value(), 0, &m_graphicsQueue);
+  }
 
 }    // namespace nile
 
