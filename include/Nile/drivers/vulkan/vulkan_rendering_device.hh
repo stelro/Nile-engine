@@ -34,9 +34,10 @@ namespace nile {
   private:
     struct QueueFamilyIndices {
       std::optional<u32> graphicsFamily;
+      std::optional<u32> presentFamily;
 
       bool isComplete() const noexcept {
-        return graphicsFamily.has_value();
+        return graphicsFamily.has_value() && presentFamily.has_value();
       }
     };
 
@@ -45,6 +46,7 @@ namespace nile {
     // @move: make this seperate class to handle window
     void initWindow() noexcept;
     void createVulkanInstance() noexcept;
+    void createSurface() noexcept;
     void setupDebugMessenger() noexcept;
     void
     populateDebugMessengerCreateInfo( VkDebugUtilsMessengerCreateInfoEXT &createInfo ) noexcept;
@@ -76,6 +78,12 @@ namespace nile {
     // Handle to interface with a graphics queue, which is automatically created
     // along with the logical device
     VkQueue m_graphicsQueue;
+
+    // Handle to presentation queue
+    VkQueue m_presentQueue;
+
+    // Window surface ( where rendered iamges are presented at )
+    VkSurfaceKHR m_surface;
 
     std::vector<const char *> m_validationLayers = {"VK_LAYER_KHRONOS_validation"};
 

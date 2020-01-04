@@ -8,6 +8,7 @@
 #include <SDL2/SDL_vulkan.h>
 
 #include <cstring>
+#include <set>
 
 namespace nile {
 
@@ -41,19 +42,21 @@ namespace nile {
     this->initRenderingInternal();
     this->initWindow();
     this->createVulkanInstance();
+    this->createSurface();
     this->setupDebugMessenger();
     this->pickPhysicalDevice();
     this->createLogicalDevice();
   }
 
   void VulkanRenderingDevice::destory() noexcept {
-    
-    vkDestroyDevice(m_logicalDevice, nullptr);
+
+    vkDestroyDevice( m_logicalDevice, nullptr );
 
     if ( m_enableValidationLayers ) {
       DestroyDebugUtilsMessengerEXT( m_vulkanInstance, m_debugMessenger, nullptr );
     }
 
+    vkDestroySurfaceKHR( m_vulkanInstance, m_surface, nullptr );
     vkDestroyInstance( m_vulkanInstance, nullptr );
     SDL_DestroyWindow( m_window );
     m_window = nullptr;
@@ -92,6 +95,11 @@ namespace nile {
 
     auto extensions = getRequiredExtensions();
 
+    if ( m_enableValidationLayers ) {
+      for ( const auto &extension : extensions )
+        log::notice( " <~> enabled vulkan extension: %s\n", extension );
+    }
+
     for ( const auto &extension : extensions )
       ASSERT_M( isVkExtensionSupported( extension ), "Extension is not supported\n" );
 
@@ -114,7 +122,7 @@ namespace nile {
 
 
     VK_CHECK_RESULT( vkCreateInstance( &create_info, nullptr, &m_vulkanInstance ) );
-  }
+  }    // namespace nile
 
   void VulkanRenderingDevice::submitFrame() noexcept {}
 
@@ -250,6 +258,14 @@ namespace nile {
         indices.graphicsFamily = queue_count;
       }
 
+      VkBool32 present_support = false;
+      vkGetPhysicalDeviceSurfaceSupportKHR( device, queue_count, m_surface, &present_support );
+
+      if ( present_support ) {
+        indices.presentFamily = queue_count;
+      }
+
+
       if ( indices.isComplete() )
         break;
 
@@ -263,21 +279,27 @@ namespace nile {
 
     QueueFamilyIndices indices = findQueueFamilies( m_physicalDevice );
 
-    // Create queue with graphics capabilities
-    VkDeviceQueueCreateInfo queue_create_info = {};
-    queue_create_info.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
-    queue_create_info.queueFamilyIndex = indices.graphicsFamily.value();
-    queue_create_info.queueCount = 1;
+    std::vector<VkDeviceQueueCreateInfo> queue_create_infos;
+    std::set<u32> unique_queue_families = {indices.graphicsFamily.value(),
+                                           indices.presentFamily.value()};
 
     f32 queue_priority = 1.0f;
-    queue_create_info.pQueuePriorities = &queue_priority;
+
+    for ( u32 queue_family : unique_queue_families ) {
+      VkDeviceQueueCreateInfo queue_create_info = {};
+      queue_create_info.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
+      queue_create_info.queueFamilyIndex = queue_family;
+      queue_create_info.queueCount = 1;
+      queue_create_info.pQueuePriorities = &queue_priority;
+      queue_create_infos.push_back( queue_create_info );
+    }
 
     VkPhysicalDeviceFeatures device_features = {};
 
     VkDeviceCreateInfo create_info = {};
     create_info.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
-    create_info.pQueueCreateInfos = &queue_create_info;
-    create_info.queueCreateInfoCount = 1;
+    create_info.pQueueCreateInfos = queue_create_infos.data();
+    create_info.queueCreateInfoCount = static_cast<u32>( queue_create_infos.size() );
     create_info.pEnabledFeatures = &device_features;
     create_info.enabledExtensionCount = 0;
 
@@ -290,7 +312,13 @@ namespace nile {
 
     VK_CHECK_RESULT( vkCreateDevice( m_physicalDevice, &create_info, nullptr, &m_logicalDevice ) );
 
-    vkGetDeviceQueue(m_logicalDevice, indices.graphicsFamily.value(), 0, &m_graphicsQueue);
+    vkGetDeviceQueue( m_logicalDevice, indices.graphicsFamily.value(), 0, &m_graphicsQueue );
+    vkGetDeviceQueue( m_logicalDevice, indices.presentFamily.value(), 0, &m_presentQueue );
+  }
+
+  void VulkanRenderingDevice::createSurface() noexcept {
+    ASSERT_M( SDL_Vulkan_CreateSurface( m_window, m_vulkanInstance, &m_surface ),
+              "Failed to create window surface\n" );
   }
 
 }    // namespace nile
