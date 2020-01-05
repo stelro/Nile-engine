@@ -41,6 +41,12 @@ namespace nile {
       }
     };
 
+    struct SwapChainSupportDetails {
+      VkSurfaceCapabilitiesKHR capabilities;
+      std::vector<VkSurfaceFormatKHR> formats;
+      std::vector<VkPresentModeKHR> presentModes;
+    };
+
     void initRenderingInternal() noexcept;
 
     // @move: make this seperate class to handle window
@@ -51,19 +57,35 @@ namespace nile {
     void
     populateDebugMessengerCreateInfo( VkDebugUtilsMessengerCreateInfoEXT &createInfo ) noexcept;
     void pickPhysicalDevice() noexcept;
-    QueueFamilyIndices findQueueFamilies( VkPhysicalDevice device ) noexcept;
-    void createLogicalDevice() noexcept;
 
+    [[nodiscard]] QueueFamilyIndices findQueueFamilies( VkPhysicalDevice device ) const noexcept;
+    void createLogicalDevice() noexcept;
+    void createSwapChain() noexcept;
+
+    [[nodiscard]] SwapChainSupportDetails querySwapChainSupport( VkPhysicalDevice device ) const
+        noexcept;
     bool checkValidationLayerSupport() const noexcept;
     std::vector<const char *> getRequiredExtensions() const noexcept;
 
+    // Static functions
     static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(
         VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
         VkDebugUtilsMessageTypeFlagsEXT messageType,
         const VkDebugUtilsMessengerCallbackDataEXT *pCallbackData, void *pUserData ) noexcept;
 
+    [[nodiscard]] static VkSurfaceFormatKHR
+    chooseSwapSurfaceFormat( const std::vector<VkSurfaceFormatKHR> &availableFormats ) noexcept;
+
+    [[nodiscard]] static VkPresentModeKHR
+    chooseSwapPresentMode( const std::vector<VkPresentModeKHR> &availablePresentModes ) noexcept;
+
+    [[nodiscard]] static VkExtent2D
+    chooseSwapExtent( const VkSurfaceCapabilitiesKHR &capabilities, const std::shared_ptr<Settings>& settings ) noexcept;
+
+
     // Check if the GPU is suitable for this engine
-    bool isDeviceSuitable( VkPhysicalDevice device ) noexcept;
+    bool isDeviceSuitable( VkPhysicalDevice device ) const noexcept;
+    bool checkDeviceExtensionSuport( VkPhysicalDevice device ) const noexcept;
 
     SDL_Window *m_window = nullptr;
     VkInstance m_vulkanInstance;
@@ -85,7 +107,18 @@ namespace nile {
     // Window surface ( where rendered iamges are presented at )
     VkSurfaceKHR m_surface;
 
+    // @move(stel): move all swap chain operations to seprate class
+    // Active swap chaings
+    VkSwapchainKHR m_swapChain;
+
+    // Handles of VkImages in the swapchain
+    std::vector<VkImage> m_swapChainImages;
+
+    VkFormat m_swapChainFormat;
+    VkExtent2D m_swapChainExtent;
+
     std::vector<const char *> m_validationLayers = {"VK_LAYER_KHRONOS_validation"};
+    std::vector<const char *> m_deviceExtensions = {VK_KHR_SWAPCHAIN_EXTENSION_NAME};
 
   public:
     VulkanRenderingDevice( const std::shared_ptr<Settings> &settings ) noexcept;

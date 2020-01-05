@@ -46,10 +46,12 @@ namespace nile {
     this->setupDebugMessenger();
     this->pickPhysicalDevice();
     this->createLogicalDevice();
+    this->createSwapChain();
   }
 
   void VulkanRenderingDevice::destory() noexcept {
 
+    vkDestroySwapchainKHR( m_logicalDevice, m_swapChain, nullptr );
     vkDestroyDevice( m_logicalDevice, nullptr );
 
     if ( m_enableValidationLayers ) {
@@ -227,20 +229,45 @@ namespace nile {
     ASSERT_M( ( m_physicalDevice != VK_NULL_HANDLE ), "Failed to find suitable GPU!\n" );
   }
 
-  bool VulkanRenderingDevice::isDeviceSuitable( VkPhysicalDevice device ) noexcept {
-
-    // VkPhysicalDeviceProperties device_properties;
-    // VkPhysicalDeviceFeatures device_features;
-    // vkGetPhysicalDeviceProperties(device, &device_properties);
-    // vkGetPhysicalDeviceFeatures(device, &device_features);
+  bool VulkanRenderingDevice::isDeviceSuitable( VkPhysicalDevice device ) const noexcept {
 
     QueueFamilyIndices indices = findQueueFamilies( device );
 
-    return indices.isComplete();
+    bool extension_is_supported = checkDeviceExtensionSuport( device );
+
+    bool swap_chain_adequate = false;
+    if ( extension_is_supported ) {
+      auto swap_chain_support = querySwapChainSupport( device );
+      swap_chain_adequate =
+          !swap_chain_support.formats.empty() && !swap_chain_support.presentModes.empty();
+    }
+
+
+    return indices.isComplete() && extension_is_supported && swap_chain_adequate;
   }
 
-  VulkanRenderingDevice::QueueFamilyIndices
-  VulkanRenderingDevice::findQueueFamilies( VkPhysicalDevice device ) noexcept {
+  bool VulkanRenderingDevice::checkDeviceExtensionSuport( VkPhysicalDevice device ) const noexcept {
+
+    u32 extensions_count;
+    vkEnumerateDeviceExtensionProperties( device, nullptr, &extensions_count, nullptr );
+
+    std::vector<VkExtensionProperties> available_extensions( extensions_count );
+    vkEnumerateDeviceExtensionProperties( device, nullptr, &extensions_count,
+                                          available_extensions.data() );
+
+    std::set<std::string> required_extensions( m_deviceExtensions.begin(),
+                                               m_deviceExtensions.end() );
+
+    for ( const auto &extension : available_extensions ) {
+      required_extensions.erase( extension.extensionName );
+    }
+
+    return required_extensions.empty();
+  }
+
+
+  [[nodiscard]] VulkanRenderingDevice::QueueFamilyIndices
+  VulkanRenderingDevice::findQueueFamilies( VkPhysicalDevice device ) const noexcept {
 
     QueueFamilyIndices indices;
 
@@ -301,7 +328,8 @@ namespace nile {
     create_info.pQueueCreateInfos = queue_create_infos.data();
     create_info.queueCreateInfoCount = static_cast<u32>( queue_create_infos.size() );
     create_info.pEnabledFeatures = &device_features;
-    create_info.enabledExtensionCount = 0;
+    create_info.enabledExtensionCount = static_cast<u32>( m_deviceExtensions.size() );
+    create_info.ppEnabledExtensionNames = m_deviceExtensions.data();
 
     if ( m_enableValidationLayers ) {
       create_info.enabledLayerCount = static_cast<u32>( m_validationLayers.size() );
@@ -319,6 +347,156 @@ namespace nile {
   void VulkanRenderingDevice::createSurface() noexcept {
     ASSERT_M( SDL_Vulkan_CreateSurface( m_window, m_vulkanInstance, &m_surface ),
               "Failed to create window surface\n" );
+  }
+
+  [[nodiscard]] VulkanRenderingDevice::SwapChainSupportDetails
+  VulkanRenderingDevice::querySwapChainSupport( VkPhysicalDevice device ) const noexcept {
+
+    SwapChainSupportDetails details;
+
+    vkGetPhysicalDeviceSurfaceCapabilitiesKHR( device, m_surface, &details.capabilities );
+
+    u32 format_count;
+    vkGetPhysicalDeviceSurfaceFormatsKHR( device, m_surface, &format_count, nullptr );
+
+    if ( format_count != 0 ) {
+      details.formats.resize( format_count );
+      vkGetPhysicalDeviceSurfaceFormatsKHR( device, m_surface, &format_count,
+                                            details.formats.data() );
+    }
+
+    u32 present_mode_count;
+    vkGetPhysicalDeviceSurfacePresentModesKHR( device, m_surface, &present_mode_count, nullptr );
+
+    if ( present_mode_count != 0 ) {
+      details.presentModes.resize( present_mode_count );
+      vkGetPhysicalDeviceSurfacePresentModesKHR( device, m_surface, &present_mode_count,
+                                                 details.presentModes.data() );
+    }
+
+    return details;
+  }
+  [[nodiscard]] VkSurfaceFormatKHR VulkanRenderingDevice::chooseSwapSurfaceFormat(
+      const std::vector<VkSurfaceFormatKHR> &availableFormats ) noexcept {
+
+    for ( const auto &available_format : availableFormats ) {
+      if ( available_format.format == VK_FORMAT_B8G8R8A8_UNORM &&
+           available_format.colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR ) {
+        return available_format;
+      }
+    }
+
+    // If the above fails, return the first available format ( in most cases this is ok
+    // but we could write a rankning system to choose the format)
+    return availableFormats[ 0 ];
+  }
+
+  [[nodiscard]] VkPresentModeKHR VulkanRenderingDevice::chooseSwapPresentMode(
+      const std::vector<VkPresentModeKHR> &availablePresentModes ) noexcept {
+
+    // four possible presentation modes available in vulkan:
+    // 1.) VK_PRESENT_MODE_IMMEDIATE_KHR : images are submited and transfered to
+    //     the screen right away, which may resulting in tearing.
+    // 2.) VK_PRESENT_MODE_FIFO_KHR : The swap chain is a queue where the display is
+    //     take an image form the front of the queue, and the rendering image is pushed
+    //     to the back of the queue. If the queue is full then the program has to wait.
+    //     this is most similar to vertical sync.
+    // 3.) VK_PRESENT_MODE_FIFO_RELAXED_KHR: The mode is only differs from the previous one
+    //     in that if the application is late and the queue was empty at the last
+    //     vertical blank, instead of waiting the image is transfered right away when in
+    //     it finialy arives. this may cause visible tearing.
+    // 4.) VK_PRESENT_MODE_MAILBOX_KHR: this is another variation of the second mode
+    //     Instead of blocking the application when the queue is full, the images that are
+    //     already qued are simply replaced with the newer ones. This mode can be used to
+    //     implement triple buffering.
+
+    for ( const auto &available_present_mode : availablePresentModes ) {
+      if ( available_present_mode == VK_PRESENT_MODE_MAILBOX_KHR ) {
+        return available_present_mode;
+      }
+    }
+
+    // the VK_PRESENT_MODE_FIFO_KHR mode is guaranteed to be available, so in case of
+    // failure we return this
+    return VK_PRESENT_MODE_FIFO_KHR;
+  }
+
+  [[nodiscard]] VkExtent2D
+  VulkanRenderingDevice::chooseSwapExtent( const VkSurfaceCapabilitiesKHR &capabilities,
+                                           const std::shared_ptr<Settings> &settings ) noexcept {
+
+    if ( capabilities.currentExtent.width != std::numeric_limits<u32>::max() ) {
+      return capabilities.currentExtent;
+    } else {
+      VkExtent2D actual_extent = {settings->getWidth(), settings->getHeight()};
+
+      actual_extent.width = std::clamp( actual_extent.width, capabilities.minImageExtent.width,
+                                        capabilities.maxImageExtent.width );
+      actual_extent.height = std::clamp( actual_extent.height, capabilities.minImageExtent.height,
+                                         capabilities.maxImageExtent.height );
+
+      return actual_extent;
+    }
+  }
+
+  void VulkanRenderingDevice::createSwapChain() noexcept {
+
+    auto swap_chain_support = querySwapChainSupport( m_physicalDevice );
+
+    auto surface_format = chooseSwapSurfaceFormat( swap_chain_support.formats );
+    auto present_mode = chooseSwapPresentMode( swap_chain_support.presentModes );
+    auto extent = chooseSwapExtent( swap_chain_support.capabilities, m_settings );
+
+    u32 image_count = swap_chain_support.capabilities.minImageCount + 1;
+
+    if ( swap_chain_support.capabilities.maxImageCount > 0 &&
+         image_count > swap_chain_support.capabilities.maxImageCount ) {
+      image_count = swap_chain_support.capabilities.maxImageCount;
+    }
+
+    VkSwapchainCreateInfoKHR create_info = {};
+    create_info.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
+    create_info.surface = m_surface;
+    create_info.minImageCount = image_count;
+    create_info.imageFormat = surface_format.format;
+    create_info.imageColorSpace = surface_format.colorSpace;
+    create_info.imageExtent = extent;
+    create_info.imageArrayLayers = 1;
+    // we are going to render directly to images, that's why we are using
+    // color attachment, if we want to do some post-procssing we would use
+    // VK_IMAGE_USAGE_TRANSFER_DST_BIT
+    create_info.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
+
+    auto indices = findQueueFamilies( m_physicalDevice );
+    u32 queue_family_indices[] = {indices.graphicsFamily.value(), indices.presentFamily.value()};
+
+    if ( indices.graphicsFamily != indices.presentFamily ) {
+      create_info.imageSharingMode = VK_SHARING_MODE_CONCURRENT;
+      create_info.queueFamilyIndexCount = 2;
+      create_info.pQueueFamilyIndices = queue_family_indices;
+    } else {
+      create_info.imageSharingMode = VK_SHARING_MODE_EXCLUSIVE;
+      create_info.queueFamilyIndexCount = 0;
+      create_info.pQueueFamilyIndices = nullptr;
+    }
+
+    create_info.preTransform = swap_chain_support.capabilities.currentTransform;
+    create_info.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
+    create_info.presentMode = present_mode;
+    create_info.clipped = VK_TRUE;
+
+    // We should use this when we will recreate the swapchain, in case of window resizing
+    create_info.oldSwapchain = nullptr;
+
+    VK_CHECK_RESULT( vkCreateSwapchainKHR( m_logicalDevice, &create_info, nullptr, &m_swapChain ) );
+
+    vkGetSwapchainImagesKHR( m_logicalDevice, m_swapChain, &image_count, nullptr );
+    m_swapChainImages.resize( image_count );
+    vkGetSwapchainImagesKHR( m_logicalDevice, m_swapChain, &image_count, m_swapChainImages.data() );
+
+    m_swapChainFormat = surface_format.format;
+    m_swapChainExtent = extent;
+
   }
 
 }    // namespace nile
