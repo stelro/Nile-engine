@@ -123,10 +123,15 @@ namespace nile {
     VkFormat m_swapChainImageFormat;
     VkExtent2D m_swapChainExtent;
 
-VkRenderPass m_renderPass;
+    VkRenderPass m_renderPass;
+
+    // PIpelineLayout, the uniform and push values that referenced by the shader that
+    // can be updated at the draw time
     VkPipelineLayout m_pipelineLayout;
 
-    
+    VkPipeline m_graphicsPipeline;
+
+
     std::vector<VkImageView> m_sawapChainImageViews;
 
     std::vector<const char *> m_validationLayers = {"VK_LAYER_KHRONOS_validation"};

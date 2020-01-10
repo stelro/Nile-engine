@@ -54,8 +54,8 @@ namespace nile {
   }
 
   void VulkanRenderingDevice::destory() noexcept {
-
-
+  
+    vkDestroyPipeline(m_logicalDevice, m_graphicsPipeline, nullptr);
     vkDestroyPipelineLayout( m_logicalDevice, m_pipelineLayout, nullptr );
     vkDestroyRenderPass( m_logicalDevice, m_renderPass, nullptr );
 
@@ -708,6 +708,29 @@ namespace nile {
 
     VK_CHECK_RESULT( vkCreatePipelineLayout( m_logicalDevice, &pipeline_layotu_info, nullptr,
                                              &m_pipelineLayout ) );
+
+    VkGraphicsPipelineCreateInfo pipeline_info = {};
+    pipeline_info.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
+    pipeline_info.stageCount = 2;
+    pipeline_info.pStages = shader_stages;
+    pipeline_info.pVertexInputState = &vertex_input_info;
+    pipeline_info.pInputAssemblyState = &input_assembly;
+    pipeline_info.pViewportState = &view_port_state;
+    pipeline_info.pRasterizationState = &rasterizer;
+    pipeline_info.pMultisampleState = &multisampling;
+    pipeline_info.pDepthStencilState = nullptr;
+    pipeline_info.pColorBlendState = &color_blending;
+    pipeline_info.pDynamicState = nullptr;
+
+    pipeline_info.layout = m_pipelineLayout;
+    pipeline_info.renderPass = m_renderPass;
+    pipeline_info.subpass = 0;
+    pipeline_info.basePipelineHandle = VK_NULL_HANDLE;
+    pipeline_info.basePipelineIndex = -1;
+
+    VK_CHECK_RESULT( vkCreateGraphicsPipelines( m_logicalDevice, VK_NULL_HANDLE, 1, &pipeline_info,
+                                                nullptr, &m_graphicsPipeline ) );
+    
 
 
     vkDestroyShaderModule( m_logicalDevice, vertex_shader_module, nullptr );
