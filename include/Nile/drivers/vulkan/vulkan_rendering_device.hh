@@ -122,6 +122,8 @@ namespace nile {
     VkFormat m_swapChainImageFormat;
     VkExtent2D m_swapChainExtent;
 
+    VkPipelineLayout m_pipelineLayout;
+
     std::vector<VkImageView> m_sawapChainImageViews;
 
     std::vector<const char *> m_validationLayers = {"VK_LAYER_KHRONOS_validation"};

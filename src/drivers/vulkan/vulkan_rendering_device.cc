@@ -54,6 +54,8 @@ namespace nile {
 
   void VulkanRenderingDevice::destory() noexcept {
 
+    vkDestroyPipelineLayout(m_logicalDevice, m_pipelineLayout, nullptr);
+
     for ( auto imageView : m_sawapChainImageViews ) {
       vkDestroyImageView( m_logicalDevice, imageView, nullptr );
     }
@@ -567,6 +569,104 @@ namespace nile {
 
     VkPipelineShaderStageCreateInfo shader_stages[] = {vert_shader_stage_create_info,
                                                        frag_shader_stage_create_info};
+
+    VkPipelineVertexInputStateCreateInfo vertex_input_info = {};
+    vertex_input_info.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
+    vertex_input_info.vertexBindingDescriptionCount = 0;
+    vertex_input_info.pVertexBindingDescriptions = nullptr;
+    vertex_input_info.vertexAttributeDescriptionCount = 0;
+    vertex_input_info.pVertexAttributeDescriptions = nullptr;
+
+    VkPipelineInputAssemblyStateCreateInfo input_assembly = {};
+    input_assembly.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
+    // @tip: what kind of gemotetry will be drawn?
+    input_assembly.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
+    input_assembly.primitiveRestartEnable = VK_FALSE;
+
+    VkViewport view_port = {};
+    view_port.x = 0.0f;
+    view_port.y = 0.0f;
+    view_port.width = static_cast<f32>( m_swapChainExtent.width );
+    view_port.height = static_cast<f32>( m_swapChainExtent.height );
+    view_port.minDepth = 0.0f;
+    view_port.maxDepth = 1.0f;
+
+    VkRect2D scissor = {};
+    scissor.offset = {0, 0};
+    scissor.extent = m_swapChainExtent;
+
+    VkPipelineViewportStateCreateInfo view_port_state = {};
+    view_port_state.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
+    view_port_state.viewportCount = 1;
+    view_port_state.pViewports = &view_port;
+    view_port_state.scissorCount = 1;
+    view_port_state.pScissors = &scissor;
+
+    VkPipelineRasterizationStateCreateInfo rasterizer = {};
+    rasterizer.sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
+    rasterizer.depthClampEnable = VK_FALSE;
+    rasterizer.rasterizerDiscardEnable = VK_FALSE;
+    rasterizer.polygonMode = VK_POLYGON_MODE_FILL;
+    rasterizer.lineWidth = 1.0f;
+    rasterizer.cullMode = VK_CULL_MODE_BACK_BIT;
+    rasterizer.frontFace = VK_FRONT_FACE_CLOCKWISE;
+
+    rasterizer.depthBiasEnable = VK_FALSE;
+    rasterizer.depthBiasConstantFactor = 0.0f;
+    rasterizer.depthBiasClamp = 0.0f;
+    rasterizer.depthBiasSlopeFactor = 0.0f;
+
+    VkPipelineMultisampleStateCreateInfo multisampling = {};
+    multisampling.sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
+    multisampling.sampleShadingEnable = VK_FALSE;
+    multisampling.rasterizationSamples = VK_SAMPLE_COUNT_1_BIT;
+    multisampling.minSampleShading = 1.0f;
+    multisampling.pSampleMask = nullptr;
+    multisampling.alphaToCoverageEnable = VK_FALSE;
+    multisampling.alphaToOneEnable = VK_FALSE;
+
+    VkPipelineColorBlendAttachmentState color_blend_attachment = {};
+    color_blend_attachment.colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT |
+                                            VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
+    // @disabled: alpha blending is didabled
+    color_blend_attachment.blendEnable = VK_FALSE;
+    color_blend_attachment.srcColorBlendFactor = VK_BLEND_FACTOR_ONE;
+    color_blend_attachment.dstColorBlendFactor = VK_BLEND_FACTOR_ZERO;
+    color_blend_attachment.colorBlendOp = VK_BLEND_OP_ADD;
+    color_blend_attachment.srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE;
+    color_blend_attachment.dstAlphaBlendFactor = VK_BLEND_FACTOR_ZERO;
+    color_blend_attachment.alphaBlendOp = VK_BLEND_OP_ADD;
+
+
+    // the folowing code is to enable alpha blending
+    // color_blend_attachment.blendEnable = VK_TRUE;
+    // color_blend_attachment.srcColorBlendFactor = VK_BLEND_FACTOR_SRC_ALPHA;
+    // color_blend_attachment.dstColorBlendFactor = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
+    // color_blend_attachment.colorBlendOp = VK_BLEND_OP_ADD;
+    // color_blend_attachment.srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE;
+    // color_blend_attachment.dstAlphaBlendFactor = VK_BLEND_FACTOR_ZERO;
+    // color_blend_attachment.alphaBlendOp = VK_BLEND_OP_ADD;
+
+    VkPipelineColorBlendStateCreateInfo color_blending = {};
+    color_blending.sType = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;
+    color_blending.logicOpEnable = VK_FALSE;
+    color_blending.logicOp = VK_LOGIC_OP_COPY;
+    color_blending.attachmentCount = 1;
+    color_blending.pAttachments = &color_blend_attachment;
+    color_blending.blendConstants[ 0 ] = 0.0f;
+    color_blending.blendConstants[ 1 ] = 0.0f;
+    color_blending.blendConstants[ 2 ] = 0.0f;
+    color_blending.blendConstants[ 3 ] = 0.0f;
+
+    VkPipelineLayoutCreateInfo pipeline_layotu_info = {};
+    pipeline_layotu_info.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
+    pipeline_layotu_info.setLayoutCount = 0;
+    pipeline_layotu_info.pSetLayouts = nullptr;
+    pipeline_layotu_info.pushConstantRangeCount = 0;
+    pipeline_layotu_info.pPushConstantRanges = nullptr;
+
+    VK_CHECK_RESULT( vkCreatePipelineLayout( m_logicalDevice, &pipeline_layotu_info, nullptr,
+                                             &m_pipelineLayout ) );
 
 
     vkDestroyShaderModule( m_logicalDevice, vertex_shader_module, nullptr );
