@@ -1,5 +1,6 @@
 #include "Nile/drivers/vulkan/vulkan_rendering_device.hh"
 #include "Nile/core/assert.hh"
+#include "Nile/core/file_system.hh"
 #include "Nile/core/settings.hh"
 #include "Nile/core/types.hh"
 #include "Nile/drivers/vulkan/vulkan_utils.hh"
@@ -48,6 +49,7 @@ namespace nile {
     this->createLogicalDevice();
     this->createSwapChain();
     this->createImageViews();
+    this->createGraphicsPipeline();
   }
 
   void VulkanRenderingDevice::destory() noexcept {
@@ -530,6 +532,63 @@ namespace nile {
                                           &m_sawapChainImageViews[ i ] ) );
     }
   }
+
+  void VulkanRenderingDevice::createGraphicsPipeline() noexcept {
+
+    auto vertex_shader_result = FileSystem::readFile( "../assets/vk_shaders/shader.vert.spv" );
+    auto fragment_shader_result = FileSystem::readFile( "../assets/vk_shaders/shader.frag.spv" );
+
+    auto vertex_shader_code = std::get_if<std::vector<char>>( &vertex_shader_result );
+    auto fragment_shader_code = std::get_if<std::vector<char>>( &fragment_shader_result );
+
+    ASSERT_M( vertex_shader_code,
+              errorToString( std::get<ErrorCode>( vertex_shader_result ) ).c_str() );
+    ASSERT_M( fragment_shader_code,
+              errorToString( std::get<ErrorCode>( fragment_shader_result ) ).c_str() );
+
+    auto vertex_shader_module = createShaderModule( *vertex_shader_code );
+    auto fragment_shader_module = createShaderModule( *fragment_shader_code );
+
+    VkPipelineShaderStageCreateInfo vert_shader_stage_create_info = {};
+    vert_shader_stage_create_info.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+    vert_shader_stage_create_info.stage = VK_SHADER_STAGE_VERTEX_BIT;
+    vert_shader_stage_create_info.module = vertex_shader_module;
+    vert_shader_stage_create_info.pName = "main";
+    // pSpecializationInfo allows you to specify values for shader constants.
+    // this make the code more efficient rathen thatn settings constants at runtime
+    vert_shader_stage_create_info.pSpecializationInfo = nullptr;
+
+    VkPipelineShaderStageCreateInfo frag_shader_stage_create_info = {};
+    frag_shader_stage_create_info.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+    frag_shader_stage_create_info.stage = VK_SHADER_STAGE_FRAGMENT_BIT;
+    frag_shader_stage_create_info.module = fragment_shader_module;
+    frag_shader_stage_create_info.pName = "main";
+    frag_shader_stage_create_info.pSpecializationInfo = nullptr;
+
+    VkPipelineShaderStageCreateInfo shader_stages[] = {vert_shader_stage_create_info,
+                                                       frag_shader_stage_create_info};
+
+
+    vkDestroyShaderModule( m_logicalDevice, vertex_shader_module, nullptr );
+    vkDestroyShaderModule( m_logicalDevice, fragment_shader_module, nullptr );
+  }
+
+  [[nodiscard]] VkShaderModule
+  VulkanRenderingDevice::createShaderModule( const std::vector<char> &code ) noexcept {
+
+    VkShaderModuleCreateInfo create_info = {};
+    create_info.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
+    create_info.codeSize = code.size();
+    create_info.pCode = reinterpret_cast<const u32 *>( code.data() );
+
+    VkShaderModule shader_module;
+
+    VK_CHECK_RESULT(
+        vkCreateShaderModule( m_logicalDevice, &create_info, nullptr, &shader_module ) );
+
+    return shader_module;
+  }
+
 
 }    // namespace nile
 

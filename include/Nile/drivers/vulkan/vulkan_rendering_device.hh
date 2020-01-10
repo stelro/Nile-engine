@@ -62,6 +62,9 @@ namespace nile {
     void createLogicalDevice() noexcept;
     void createSwapChain() noexcept;
     void createImageViews() noexcept;
+    void createGraphicsPipeline() noexcept;
+
+    [[nodiscard]] VkShaderModule createShaderModule( const std::vector<char> &code ) noexcept;
 
     [[nodiscard]] SwapChainSupportDetails querySwapChainSupport( VkPhysicalDevice device ) const
         noexcept;
