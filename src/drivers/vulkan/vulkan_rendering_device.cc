@@ -47,9 +47,14 @@ namespace nile {
     this->pickPhysicalDevice();
     this->createLogicalDevice();
     this->createSwapChain();
+    this->createImageViews();
   }
 
   void VulkanRenderingDevice::destory() noexcept {
+
+    for ( auto imageView : m_sawapChainImageViews ) {
+      vkDestroyImageView( m_logicalDevice, imageView, nullptr );
+    }
 
     vkDestroySwapchainKHR( m_logicalDevice, m_swapChain, nullptr );
     vkDestroyDevice( m_logicalDevice, nullptr );
@@ -494,9 +499,36 @@ namespace nile {
     m_swapChainImages.resize( image_count );
     vkGetSwapchainImagesKHR( m_logicalDevice, m_swapChain, &image_count, m_swapChainImages.data() );
 
-    m_swapChainFormat = surface_format.format;
+    m_swapChainImageFormat = surface_format.format;
     m_swapChainExtent = extent;
+  }
 
+  void VulkanRenderingDevice::createImageViews() noexcept {
+
+    m_sawapChainImageViews.resize( m_swapChainImages.size() );
+
+    for ( size_t i = 0; i < m_swapChainImages.size(); i++ ) {
+
+      VkImageViewCreateInfo create_info = {};
+      create_info.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+      create_info.image = m_swapChainImages[ i ];
+      create_info.viewType = VK_IMAGE_VIEW_TYPE_2D;
+      create_info.format = m_swapChainImageFormat;
+
+      create_info.components.r = VK_COMPONENT_SWIZZLE_IDENTITY;
+      create_info.components.g = VK_COMPONENT_SWIZZLE_IDENTITY;
+      create_info.components.b = VK_COMPONENT_SWIZZLE_IDENTITY;
+      create_info.components.a = VK_COMPONENT_SWIZZLE_IDENTITY;
+
+      create_info.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+      create_info.subresourceRange.baseMipLevel = 0;
+      create_info.subresourceRange.levelCount = 1;
+      create_info.subresourceRange.baseArrayLayer = 0;
+      create_info.subresourceRange.layerCount = 1;
+
+      VK_CHECK_RESULT( vkCreateImageView( m_logicalDevice, &create_info, nullptr,
+                                          &m_sawapChainImageViews[ i ] ) );
+    }
   }
 
 }    // namespace nile

@@ -61,6 +61,7 @@ namespace nile {
     [[nodiscard]] QueueFamilyIndices findQueueFamilies( VkPhysicalDevice device ) const noexcept;
     void createLogicalDevice() noexcept;
     void createSwapChain() noexcept;
+    void createImageViews() noexcept;
 
     [[nodiscard]] SwapChainSupportDetails querySwapChainSupport( VkPhysicalDevice device ) const
         noexcept;
@@ -80,7 +81,8 @@ namespace nile {
     chooseSwapPresentMode( const std::vector<VkPresentModeKHR> &availablePresentModes ) noexcept;
 
     [[nodiscard]] static VkExtent2D
-    chooseSwapExtent( const VkSurfaceCapabilitiesKHR &capabilities, const std::shared_ptr<Settings>& settings ) noexcept;
+    chooseSwapExtent( const VkSurfaceCapabilitiesKHR &capabilities,
+                      const std::shared_ptr<Settings> &settings ) noexcept;
 
 
     // Check if the GPU is suitable for this engine
@@ -114,8 +116,10 @@ namespace nile {
     // Handles of VkImages in the swapchain
     std::vector<VkImage> m_swapChainImages;
 
-    VkFormat m_swapChainFormat;
+    VkFormat m_swapChainImageFormat;
     VkExtent2D m_swapChainExtent;
+
+    std::vector<VkImageView> m_sawapChainImageViews;
 
     std::vector<const char *> m_validationLayers = {"VK_LAYER_KHRONOS_validation"};
     std::vector<const char *> m_deviceExtensions = {VK_KHR_SWAPCHAIN_EXTENSION_NAME};
