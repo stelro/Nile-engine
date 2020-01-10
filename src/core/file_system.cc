@@ -22,13 +22,21 @@ namespace nile {
     return ( binary_root != nullptr ) ? binary_root : " ";
   }
 
-  std::vector<char> FileSystem::readFile( std::string_view fileName ) noexcept {
+  std::variant<ErrorCode,std::vector<char>>
+  FileSystem::readFile( std::string_view fileName ) noexcept {
 
     std::ifstream file( fileName.data(), std::ios::ate | std::ios::binary );
 
-    ASSERT_M( file.is_open(), "Failed to open file\n" );
+    if ( !file.is_open() ) {
+      return ErrorCode::FILE_NOT_FOUND;
+    }
 
     auto file_size = static_cast<size_t>( file.tellg() );
+
+    if ( file_size <= 0 ) {
+      return ErrorCode::FILE_IS_EMPTY;
+    }
+
     std::vector<char> buffer( file_size );
 
     file.seekg( 0 );

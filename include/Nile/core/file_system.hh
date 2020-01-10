@@ -1,6 +1,9 @@
 #pragma once
 
+#include "Nile/core/error_code.hh"
+
 #include <string>
+#include <variant>
 #include <vector>
 
 namespace nile {
@@ -14,9 +17,9 @@ namespace nile {
     static std::string getBinaryDir() noexcept;
 
     // @optimization: do we need handle IO/Async operations at reading file?!
-    static std::vector<char> readFile( std::string_view fileName ) noexcept;
-
-    static void sayHello() noexcept;
+    // returns variant, may contain payload or errorcode
+    static std::variant< ErrorCode,std::vector<char>>
+    readFile( std::string_view fileName ) noexcept;
   };
 
 }    // namespace nile
