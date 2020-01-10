@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include <vector>
 
 namespace nile {
 
@@ -12,6 +13,10 @@ namespace nile {
 
     static std::string getBinaryDir() noexcept;
 
+    // @optimization: do we need handle IO/Async operations at reading file?!
+    static std::vector<char> readFile( std::string_view fileName ) noexcept;
+
+    static void sayHello() noexcept;
   };
 
 }    // namespace nile
