@@ -30,6 +30,7 @@ set(NILE_SOURCES_CORE
   ${NILE_DIR}/include/Nile/core/camera_system.hh
   ${NILE_DIR}/include/Nile/core/file_system.hh
   ${NILE_DIR}/include/Nile/core/timer.hh
+  ${NILE_DIR}/include/Nile/core/error_code.hh
   ${NILE_DIR}/include/Nile/renderer/base_renderer.hh
   ${NILE_DIR}/include/Nile/renderer/opengl_renderer.hh
   ${NILE_DIR}/include/Nile/renderer/texture2d.hh
@@ -91,6 +92,7 @@ set(NILE_SOURCES_CORE
   ${NILE_DIR}/src/core/camera_system.cc
   ${NILE_DIR}/src/core/file_system.cc
   ${NILE_DIR}/src/core/timer.cc
+  ${NILE_DIR}/src/core/error_code.cc
   ${NILE_DIR}/src/renderer/base_renderer.cc
   ${NILE_DIR}/src/renderer/opengl_renderer.cc
   ${NILE_DIR}/src/renderer/texture2d.cc
