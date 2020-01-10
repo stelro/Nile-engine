@@ -62,6 +62,7 @@ namespace nile {
     void createLogicalDevice() noexcept;
     void createSwapChain() noexcept;
     void createImageViews() noexcept;
+    void createRenderPass() noexcept;
     void createGraphicsPipeline() noexcept;
 
     [[nodiscard]] VkShaderModule createShaderModule( const std::vector<char> &code ) noexcept;
@@ -122,8 +123,10 @@ namespace nile {
     VkFormat m_swapChainImageFormat;
     VkExtent2D m_swapChainExtent;
 
+VkRenderPass m_renderPass;
     VkPipelineLayout m_pipelineLayout;
 
+    
     std::vector<VkImageView> m_sawapChainImageViews;
 
     std::vector<const char *> m_validationLayers = {"VK_LAYER_KHRONOS_validation"};

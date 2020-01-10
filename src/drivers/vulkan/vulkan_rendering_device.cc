@@ -49,12 +49,15 @@ namespace nile {
     this->createLogicalDevice();
     this->createSwapChain();
     this->createImageViews();
+    this->createRenderPass();
     this->createGraphicsPipeline();
   }
 
   void VulkanRenderingDevice::destory() noexcept {
 
-    vkDestroyPipelineLayout(m_logicalDevice, m_pipelineLayout, nullptr);
+
+    vkDestroyPipelineLayout( m_logicalDevice, m_pipelineLayout, nullptr );
+    vkDestroyRenderPass( m_logicalDevice, m_renderPass, nullptr );
 
     for ( auto imageView : m_sawapChainImageViews ) {
       vkDestroyImageView( m_logicalDevice, imageView, nullptr );
@@ -533,6 +536,44 @@ namespace nile {
       VK_CHECK_RESULT( vkCreateImageView( m_logicalDevice, &create_info, nullptr,
                                           &m_sawapChainImageViews[ i ] ) );
     }
+  }
+
+  void VulkanRenderingDevice::createRenderPass() noexcept {
+
+    VkAttachmentDescription color_attachment = {};
+    color_attachment.format = m_swapChainImageFormat;
+    color_attachment.samples = VK_SAMPLE_COUNT_1_BIT;
+
+    // Color depth buffer
+    color_attachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+    color_attachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+
+    // We don't do anything with stencil data yeat ( maybe we will be using this
+    // in the editor )
+    color_attachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+    color_attachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+
+    color_attachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+    color_attachment.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+
+    VkAttachmentReference color_attachment_ref = {};
+    color_attachment_ref.attachment = 0;
+    color_attachment_ref.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+
+    VkSubpassDescription subpass = {};
+    subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
+    subpass.colorAttachmentCount = 1;
+    subpass.pColorAttachments = &color_attachment_ref;
+
+    VkRenderPassCreateInfo render_pass_info = {};
+    render_pass_info.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
+    render_pass_info.attachmentCount = 1;
+    render_pass_info.pAttachments = &color_attachment;
+    render_pass_info.subpassCount = 1;
+    render_pass_info.pSubpasses = &subpass;
+
+    VK_CHECK_RESULT(
+        vkCreateRenderPass( m_logicalDevice, &render_pass_info, nullptr, &m_renderPass ) );
   }
 
   void VulkanRenderingDevice::createGraphicsPipeline() noexcept {
