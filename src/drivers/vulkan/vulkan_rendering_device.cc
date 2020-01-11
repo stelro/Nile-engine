@@ -35,7 +35,6 @@ namespace nile {
     }
   }
 
-
   VulkanRenderingDevice::VulkanRenderingDevice( const std::shared_ptr<Settings> &settings ) noexcept
       : RenderingDevice( settings ) {}
 
@@ -51,15 +50,20 @@ namespace nile {
     this->createImageViews();
     this->createRenderPass();
     this->createGraphicsPipeline();
+    this->createFrameBuffers();
   }
 
   void VulkanRenderingDevice::destory() noexcept {
-  
-    vkDestroyPipeline(m_logicalDevice, m_graphicsPipeline, nullptr);
+
+    for ( const auto &framebuffer : m_swapChainFrameBuffers ) {
+      vkDestroyFramebuffer( m_logicalDevice, framebuffer, nullptr );
+    }
+
+    vkDestroyPipeline( m_logicalDevice, m_graphicsPipeline, nullptr );
     vkDestroyPipelineLayout( m_logicalDevice, m_pipelineLayout, nullptr );
     vkDestroyRenderPass( m_logicalDevice, m_renderPass, nullptr );
 
-    for ( auto imageView : m_sawapChainImageViews ) {
+    for ( const auto& imageView : m_sawapChainImageViews ) {
       vkDestroyImageView( m_logicalDevice, imageView, nullptr );
     }
 
@@ -730,7 +734,6 @@ namespace nile {
 
     VK_CHECK_RESULT( vkCreateGraphicsPipelines( m_logicalDevice, VK_NULL_HANDLE, 1, &pipeline_info,
                                                 nullptr, &m_graphicsPipeline ) );
-    
 
 
     vkDestroyShaderModule( m_logicalDevice, vertex_shader_module, nullptr );
@@ -753,6 +756,27 @@ namespace nile {
     return shader_module;
   }
 
+  void VulkanRenderingDevice::createFrameBuffers() noexcept {
+
+    m_swapChainFrameBuffers.resize( m_sawapChainImageViews.size() );
+
+    for ( size_t i = 0; i < m_sawapChainImageViews.size(); i++ ) {
+
+      VkImageView attachments[] = {m_sawapChainImageViews[ i ]};
+
+      VkFramebufferCreateInfo framebuffer_info = {};
+      framebuffer_info.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
+      framebuffer_info.renderPass = m_renderPass;
+      framebuffer_info.attachmentCount = 1;
+      framebuffer_info.pAttachments = attachments;
+      framebuffer_info.width = m_swapChainExtent.width;
+      framebuffer_info.height = m_swapChainExtent.height;
+      framebuffer_info.layers = 1;
+
+      VK_CHECK_RESULT( vkCreateFramebuffer( m_logicalDevice, &framebuffer_info, nullptr,
+                                            &m_swapChainFrameBuffers[ i ] ) );
+    }
+  }
 
 }    // namespace nile
 

@@ -64,6 +64,7 @@ namespace nile {
     void createImageViews() noexcept;
     void createRenderPass() noexcept;
     void createGraphicsPipeline() noexcept;
+    void createFrameBuffers() noexcept;
 
     [[nodiscard]] VkShaderModule createShaderModule( const std::vector<char> &code ) noexcept;
 
@@ -133,6 +134,7 @@ namespace nile {
 
 
     std::vector<VkImageView> m_sawapChainImageViews;
+    std::vector<VkFramebuffer> m_swapChainFrameBuffers;
 
     std::vector<const char *> m_validationLayers = {"VK_LAYER_KHRONOS_validation"};
     std::vector<const char *> m_deviceExtensions = {VK_KHR_SWAPCHAIN_EXTENSION_NAME};
