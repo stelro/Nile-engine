@@ -39,6 +39,7 @@ namespace nile {
       : RenderingDevice( settings ) {}
 
   void VulkanRenderingDevice::initialize() noexcept {
+
     this->initRenderingInternal();
     this->initWindow();
     this->createVulkanInstance();
@@ -51,9 +52,13 @@ namespace nile {
     this->createRenderPass();
     this->createGraphicsPipeline();
     this->createFrameBuffers();
+    this->createCommandPool();
+    this->createCommandBuffers();
   }
 
   void VulkanRenderingDevice::destory() noexcept {
+
+    vkDestroyCommandPool( m_logicalDevice, m_commandPool, nullptr );
 
     for ( const auto &framebuffer : m_swapChainFrameBuffers ) {
       vkDestroyFramebuffer( m_logicalDevice, framebuffer, nullptr );
@@ -63,7 +68,7 @@ namespace nile {
     vkDestroyPipelineLayout( m_logicalDevice, m_pipelineLayout, nullptr );
     vkDestroyRenderPass( m_logicalDevice, m_renderPass, nullptr );
 
-    for ( const auto& imageView : m_sawapChainImageViews ) {
+    for ( const auto &imageView : m_sawapChainImageViews ) {
       vkDestroyImageView( m_logicalDevice, imageView, nullptr );
     }
 
@@ -775,6 +780,75 @@ namespace nile {
 
       VK_CHECK_RESULT( vkCreateFramebuffer( m_logicalDevice, &framebuffer_info, nullptr,
                                             &m_swapChainFrameBuffers[ i ] ) );
+    }
+  }
+
+  void VulkanRenderingDevice::createCommandPool() noexcept {
+
+    auto queue_family_indices = findQueueFamilies( m_physicalDevice );
+
+    VkCommandPoolCreateInfo pool_info = {};
+    pool_info.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
+
+    // Command buffers are executed by submitting then on one of the device queues, like
+    // the graphics or presentaion queues.
+    pool_info.queueFamilyIndex = queue_family_indices.graphicsFamily.value();
+    pool_info.flags = 0;
+
+    VK_CHECK_RESULT( vkCreateCommandPool( m_logicalDevice, &pool_info, nullptr, &m_commandPool ) );
+  }
+
+
+  void VulkanRenderingDevice::createCommandBuffers() noexcept {
+
+    m_commandBuffers.resize( m_swapChainFrameBuffers.size() );
+
+    VkCommandBufferAllocateInfo alloc_info = {};
+    alloc_info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+    alloc_info.commandPool = m_commandPool;
+    // VK_COMMAND_BUFFER_LEVEL_PRIMARY : can be submitted to a queue for execution, but
+    // cannot be called from other command buffers
+    // VK_COMMAND_BUFFER_LEVEL_SECONDARY: cannot be submitted to a queue directly, but can
+    // be called from primary command buffers
+    alloc_info.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+    alloc_info.commandBufferCount = static_cast<u32>( m_commandBuffers.size() );
+
+    VK_CHECK_RESULT(
+        vkAllocateCommandBuffers( m_logicalDevice, &alloc_info, m_commandBuffers.data() ) );
+
+    // @ start the recording of the command buffers
+    for ( size_t i = 0; i < m_commandBuffers.size(); i++ ) {
+      VkCommandBufferBeginInfo begin_info = {};
+      begin_info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+      begin_info.flags = 0;
+      begin_info.pInheritanceInfo = nullptr;
+
+      VK_CHECK_RESULT( vkBeginCommandBuffer( m_commandBuffers[ i ], &begin_info ) );
+
+      VkRenderPassBeginInfo render_pass_info = {};
+      render_pass_info.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+      render_pass_info.renderPass = m_renderPass;
+      render_pass_info.framebuffer = m_swapChainFrameBuffers[ i ];
+      render_pass_info.renderArea.offset = {0, 0};
+      render_pass_info.renderArea.extent = m_swapChainExtent;
+
+      VkClearValue clear_color = {0.0f, 0.0f, 0.0f, 1.0f};
+      render_pass_info.clearValueCount = 1;
+      render_pass_info.pClearValues = &clear_color;
+
+      // Begin the recording
+      vkCmdBeginRenderPass( m_commandBuffers[ i ], &render_pass_info, VK_SUBPASS_CONTENTS_INLINE );
+
+      vkCmdBindPipeline( m_commandBuffers[ i ], VK_PIPELINE_BIND_POINT_GRAPHICS,
+                         m_graphicsPipeline );
+
+      // Draw a triangle
+      vkCmdDraw( m_commandBuffers[ i ], 3, 1, 0, 0 );
+
+      vkCmdEndRenderPass(m_commandBuffers[i]);
+
+      // Finish the recording
+      VK_CHECK_RESULT(vkEndCommandBuffer(m_commandBuffers[i]));
     }
   }
 

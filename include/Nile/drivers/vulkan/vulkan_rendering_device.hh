@@ -59,12 +59,15 @@ namespace nile {
     void pickPhysicalDevice() noexcept;
 
     [[nodiscard]] QueueFamilyIndices findQueueFamilies( VkPhysicalDevice device ) const noexcept;
+
     void createLogicalDevice() noexcept;
     void createSwapChain() noexcept;
     void createImageViews() noexcept;
     void createRenderPass() noexcept;
     void createGraphicsPipeline() noexcept;
     void createFrameBuffers() noexcept;
+    void createCommandPool() noexcept;
+    void createCommandBuffers() noexcept;
 
     [[nodiscard]] VkShaderModule createShaderModule( const std::vector<char> &code ) noexcept;
 
@@ -132,9 +135,12 @@ namespace nile {
 
     VkPipeline m_graphicsPipeline;
 
+    VkCommandPool m_commandPool;
+
 
     std::vector<VkImageView> m_sawapChainImageViews;
     std::vector<VkFramebuffer> m_swapChainFrameBuffers;
+    std::vector<VkCommandBuffer> m_commandBuffers;
 
     std::vector<const char *> m_validationLayers = {"VK_LAYER_KHRONOS_validation"};
     std::vector<const char *> m_deviceExtensions = {VK_KHR_SWAPCHAIN_EXTENSION_NAME};
