@@ -12,6 +12,8 @@
 
 namespace nile {
 
+  constexpr static const i32 MAX_FRAMES_IN_FLIGHT = 2;
+
   VkResult CreateDebugUtilsMessengerEXT( VkInstance instance,
                                          const VkDebugUtilsMessengerCreateInfoEXT *pCreateInfo,
                                          const VkAllocationCallbacks *pAllocator,
@@ -68,6 +70,7 @@ namespace nile {
     void createFrameBuffers() noexcept;
     void createCommandPool() noexcept;
     void createCommandBuffers() noexcept;
+    void createSyncObjects() noexcept;
 
     [[nodiscard]] VkShaderModule createShaderModule( const std::vector<char> &code ) noexcept;
 
@@ -137,6 +140,20 @@ namespace nile {
 
     VkCommandPool m_commandPool;
 
+    // Sempahores are used for GPU-GPU synchronazation
+    struct {
+      std::vector<VkSemaphore> iamgeIsAvailable;
+      std::vector<VkSemaphore> renderingHasFinished;
+    } m_semaphores;
+
+    // Fences are used for CPU-GPU synchronization
+    std::vector<VkFence> m_inFlightFences;
+    std::vector<VkFence> m_imagesInFlight;
+
+    // Keep track of the current frame, so we know which is the right pair
+    // of sempahores every frame
+    u32 m_currentFrame = 0;
+
 
     std::vector<VkImageView> m_sawapChainImageViews;
     std::vector<VkFramebuffer> m_swapChainFrameBuffers;
@@ -151,8 +168,11 @@ namespace nile {
     void initialize() noexcept override;
     void destory() noexcept override;
 
+    // Those both methods are called by the main loop every frame
     void submitFrame() noexcept override;
     void endFrame() noexcept override;
+    // this method is caled after the main loop
+    void waitIdel() noexcept;
   };
 
 }    // namespace nile

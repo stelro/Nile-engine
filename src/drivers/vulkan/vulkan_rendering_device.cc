@@ -54,9 +54,16 @@ namespace nile {
     this->createFrameBuffers();
     this->createCommandPool();
     this->createCommandBuffers();
+    this->createSyncObjects();
   }
 
   void VulkanRenderingDevice::destory() noexcept {
+
+    for ( size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++ ) {
+      vkDestroySemaphore( m_logicalDevice, m_semaphores.renderingHasFinished[ i ], nullptr );
+      vkDestroySemaphore( m_logicalDevice, m_semaphores.iamgeIsAvailable[ i ], nullptr );
+      vkDestroyFence( m_logicalDevice, m_inFlightFences[ i ], nullptr );
+    }
 
     vkDestroyCommandPool( m_logicalDevice, m_commandPool, nullptr );
 
@@ -147,7 +154,65 @@ namespace nile {
     VK_CHECK_RESULT( vkCreateInstance( &create_info, nullptr, &m_vulkanInstance ) );
   }    // namespace nile
 
-  void VulkanRenderingDevice::submitFrame() noexcept {}
+  void VulkanRenderingDevice::submitFrame() noexcept {
+
+    // @info: submitFrame will perform every frame the following operations:
+    // - aquire an image from the swap chain
+    // - execute the command buffer with that image as attachment in the framebuffer
+    // - return the image to the swap chain for presentation
+    //
+
+    vkWaitForFences( m_logicalDevice, 1, &m_inFlightFences[ m_currentFrame ], VK_TRUE, UINT64_MAX );
+
+    u32 image_index;
+    vkAcquireNextImageKHR( m_logicalDevice, m_swapChain, UINT64_MAX,
+                           m_semaphores.iamgeIsAvailable[ m_currentFrame ], VK_NULL_HANDLE,
+                           &image_index );
+
+    // Check if previous frame is using this image ( i.e. there is its fence to wait on)
+    if ( m_imagesInFlight[ image_index ] != VK_NULL_HANDLE ) {
+      vkWaitForFences( m_logicalDevice, 1, &m_imagesInFlight[ image_index ], VK_TRUE, UINT64_MAX );
+    }
+
+    // mark the image as now being in use by this frame
+    m_imagesInFlight[image_index] = m_inFlightFences[m_currentFrame];
+
+    // submitting the command buffer
+    VkSubmitInfo submit_info = {};
+    submit_info.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+
+    VkSemaphore wait_semaphores[] = {m_semaphores.iamgeIsAvailable[ m_currentFrame ]};
+    VkPipelineStageFlags wait_stages[] = {VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};
+    submit_info.waitSemaphoreCount = 1;
+    submit_info.pWaitSemaphores = wait_semaphores;
+    submit_info.pWaitDstStageMask = wait_stages;
+    submit_info.commandBufferCount = 1;
+    submit_info.pCommandBuffers = &m_commandBuffers[ image_index ];
+
+    VkSemaphore signal_semaphores[] = {m_semaphores.renderingHasFinished[ m_currentFrame ]};
+    submit_info.signalSemaphoreCount = 1;
+    submit_info.pSignalSemaphores = signal_semaphores;
+
+    vkResetFences( m_logicalDevice, 1, &m_inFlightFences[ m_currentFrame ] );
+
+    VK_CHECK_RESULT(
+        vkQueueSubmit( m_graphicsQueue, 1, &submit_info, m_inFlightFences[ m_currentFrame ] ) );
+
+    VkPresentInfoKHR present_info = {};
+    present_info.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
+    present_info.waitSemaphoreCount = 1;
+    present_info.pWaitSemaphores = signal_semaphores;
+
+    VkSwapchainKHR swap_chains[] = {m_swapChain};
+    present_info.swapchainCount = 1;
+    present_info.pSwapchains = swap_chains;
+    present_info.pImageIndices = &image_index;
+    present_info.pResults = nullptr;
+
+    vkQueuePresentKHR( m_presentQueue, &present_info );
+
+    m_currentFrame = ( m_currentFrame + 1 ) % MAX_FRAMES_IN_FLIGHT;
+  }
 
   void VulkanRenderingDevice::endFrame() noexcept {
     // swap buffers
@@ -574,12 +639,23 @@ namespace nile {
     subpass.colorAttachmentCount = 1;
     subpass.pColorAttachments = &color_attachment_ref;
 
+    VkSubpassDependency dependency = {};
+    dependency.srcSubpass = VK_SUBPASS_EXTERNAL;
+    dependency.dstSubpass = 0;
+    dependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+    dependency.srcAccessMask = 0;
+    dependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+    dependency.dstAccessMask =
+        VK_ACCESS_COLOR_ATTACHMENT_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+
     VkRenderPassCreateInfo render_pass_info = {};
     render_pass_info.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
     render_pass_info.attachmentCount = 1;
     render_pass_info.pAttachments = &color_attachment;
     render_pass_info.subpassCount = 1;
     render_pass_info.pSubpasses = &subpass;
+    render_pass_info.dependencyCount = 1;
+    render_pass_info.pDependencies = &dependency;
 
     VK_CHECK_RESULT(
         vkCreateRenderPass( m_logicalDevice, &render_pass_info, nullptr, &m_renderPass ) );
@@ -845,11 +921,39 @@ namespace nile {
       // Draw a triangle
       vkCmdDraw( m_commandBuffers[ i ], 3, 1, 0, 0 );
 
-      vkCmdEndRenderPass(m_commandBuffers[i]);
+      vkCmdEndRenderPass( m_commandBuffers[ i ] );
 
       // Finish the recording
-      VK_CHECK_RESULT(vkEndCommandBuffer(m_commandBuffers[i]));
+      VK_CHECK_RESULT( vkEndCommandBuffer( m_commandBuffers[ i ] ) );
     }
+  }
+
+  void VulkanRenderingDevice::createSyncObjects() noexcept {
+
+    m_semaphores.iamgeIsAvailable.resize( MAX_FRAMES_IN_FLIGHT );
+    m_semaphores.renderingHasFinished.resize( MAX_FRAMES_IN_FLIGHT );
+    m_inFlightFences.resize( MAX_FRAMES_IN_FLIGHT );
+    m_imagesInFlight.resize( m_swapChainImages.size(), VK_NULL_HANDLE );
+    VkSemaphoreCreateInfo semaphore_info = {};
+    semaphore_info.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
+
+    VkFenceCreateInfo fence_info = {};
+    fence_info.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
+    fence_info.flags = VK_FENCE_CREATE_SIGNALED_BIT;
+
+    for ( size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++ ) {
+      VK_CHECK_RESULT( vkCreateSemaphore( m_logicalDevice, &semaphore_info, nullptr,
+                                          &m_semaphores.iamgeIsAvailable[ i ] ) );
+
+      VK_CHECK_RESULT( vkCreateSemaphore( m_logicalDevice, &semaphore_info, nullptr,
+                                          &m_semaphores.renderingHasFinished[ i ] ) );
+      VK_CHECK_RESULT(
+          vkCreateFence( m_logicalDevice, &fence_info, nullptr, &m_inFlightFences[ i ] ) );
+    }
+  }
+
+  void VulkanRenderingDevice::waitIdel() noexcept {
+    vkDeviceWaitIdle( m_logicalDevice );
   }
 
 }    // namespace nile
