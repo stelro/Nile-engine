@@ -72,6 +72,11 @@ namespace nile {
     void createCommandBuffers() noexcept;
     void createSyncObjects() noexcept;
 
+    // Recreate swapchain every time the size of the window changes
+    // or some other events occures that make the current swap chain uncompatible.
+    void recreateSwapChain() noexcept;
+    void cleanupSwapChain() noexcept;
+
     [[nodiscard]] VkShaderModule createShaderModule( const std::vector<char> &code ) noexcept;
 
     [[nodiscard]] SwapChainSupportDetails querySwapChainSupport( VkPhysicalDevice device ) const
@@ -91,7 +96,7 @@ namespace nile {
     [[nodiscard]] static VkPresentModeKHR
     chooseSwapPresentMode( const std::vector<VkPresentModeKHR> &availablePresentModes ) noexcept;
 
-    [[nodiscard]] static VkExtent2D
+    [[nodiscard]] VkExtent2D
     chooseSwapExtent( const VkSurfaceCapabilitiesKHR &capabilities,
                       const std::shared_ptr<Settings> &settings ) noexcept;
 
@@ -154,6 +159,7 @@ namespace nile {
     // of sempahores every frame
     u32 m_currentFrame = 0;
 
+    bool m_frambufferResized = false;
 
     std::vector<VkImageView> m_sawapChainImageViews;
     std::vector<VkFramebuffer> m_swapChainFrameBuffers;
@@ -173,6 +179,8 @@ namespace nile {
     void endFrame() noexcept override;
     // this method is caled after the main loop
     void waitIdel() noexcept;
+
+    void setFrameBufferResized(bool value) noexcept;
   };
 
 }    // namespace nile

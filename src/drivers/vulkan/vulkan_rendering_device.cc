@@ -59,6 +59,8 @@ namespace nile {
 
   void VulkanRenderingDevice::destory() noexcept {
 
+    this->cleanupSwapChain();
+
     for ( size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++ ) {
       vkDestroySemaphore( m_logicalDevice, m_semaphores.renderingHasFinished[ i ], nullptr );
       vkDestroySemaphore( m_logicalDevice, m_semaphores.iamgeIsAvailable[ i ], nullptr );
@@ -67,19 +69,6 @@ namespace nile {
 
     vkDestroyCommandPool( m_logicalDevice, m_commandPool, nullptr );
 
-    for ( const auto &framebuffer : m_swapChainFrameBuffers ) {
-      vkDestroyFramebuffer( m_logicalDevice, framebuffer, nullptr );
-    }
-
-    vkDestroyPipeline( m_logicalDevice, m_graphicsPipeline, nullptr );
-    vkDestroyPipelineLayout( m_logicalDevice, m_pipelineLayout, nullptr );
-    vkDestroyRenderPass( m_logicalDevice, m_renderPass, nullptr );
-
-    for ( const auto &imageView : m_sawapChainImageViews ) {
-      vkDestroyImageView( m_logicalDevice, imageView, nullptr );
-    }
-
-    vkDestroySwapchainKHR( m_logicalDevice, m_swapChain, nullptr );
     vkDestroyDevice( m_logicalDevice, nullptr );
 
     if ( m_enableValidationLayers ) {
@@ -165,9 +154,19 @@ namespace nile {
     vkWaitForFences( m_logicalDevice, 1, &m_inFlightFences[ m_currentFrame ], VK_TRUE, UINT64_MAX );
 
     u32 image_index;
-    vkAcquireNextImageKHR( m_logicalDevice, m_swapChain, UINT64_MAX,
-                           m_semaphores.iamgeIsAvailable[ m_currentFrame ], VK_NULL_HANDLE,
-                           &image_index );
+
+
+    auto result = vkAcquireNextImageKHR( m_logicalDevice, m_swapChain, UINT64_MAX,
+                                         m_semaphores.iamgeIsAvailable[ m_currentFrame ],
+                                         VK_NULL_HANDLE, &image_index );
+
+    if ( result == VK_ERROR_OUT_OF_DATE_KHR ) {
+      this->recreateSwapChain();
+      return;
+    }
+
+    ASSERT_M( result == VK_SUCCESS || result == VK_SUBOPTIMAL_KHR,
+              "Failed to acquire swap chain image" );
 
     // Check if previous frame is using this image ( i.e. there is its fence to wait on)
     if ( m_imagesInFlight[ image_index ] != VK_NULL_HANDLE ) {
@@ -175,7 +174,7 @@ namespace nile {
     }
 
     // mark the image as now being in use by this frame
-    m_imagesInFlight[image_index] = m_inFlightFences[m_currentFrame];
+    m_imagesInFlight[ image_index ] = m_inFlightFences[ m_currentFrame ];
 
     // submitting the command buffer
     VkSubmitInfo submit_info = {};
@@ -209,7 +208,15 @@ namespace nile {
     present_info.pImageIndices = &image_index;
     present_info.pResults = nullptr;
 
-    vkQueuePresentKHR( m_presentQueue, &present_info );
+    result = vkQueuePresentKHR( m_presentQueue, &present_info );
+
+    if ( result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR ||
+         m_frambufferResized ) {
+      m_frambufferResized = false;
+      recreateSwapChain();
+    } else if ( result != VK_SUCCESS ) {
+      ASSERT_M( false, "Failed to present swap chain image\n" );
+    }
 
     m_currentFrame = ( m_currentFrame + 1 ) % MAX_FRAMES_IN_FLIGHT;
   }
@@ -514,7 +521,12 @@ namespace nile {
     if ( capabilities.currentExtent.width != std::numeric_limits<u32>::max() ) {
       return capabilities.currentExtent;
     } else {
-      VkExtent2D actual_extent = {settings->getWidth(), settings->getHeight()};
+
+      i32 width, height;
+      SDL_GetWindowSize( m_window, &width, &height );
+
+      // VkExtent2D actual_extent = {settings->getWidth(), settings->getHeight()};
+      VkExtent2D actual_extent = {static_cast<u32>( width ), static_cast<u32>( height )};
 
       actual_extent.width = std::clamp( actual_extent.width, capabilities.minImageExtent.width,
                                         capabilities.maxImageExtent.width );
@@ -956,5 +968,41 @@ namespace nile {
     vkDeviceWaitIdle( m_logicalDevice );
   }
 
+  void VulkanRenderingDevice::recreateSwapChain() noexcept {
+    vkDeviceWaitIdle( m_logicalDevice );
+
+    this->cleanupSwapChain();
+
+    this->createSwapChain();
+    this->createImageViews();
+    this->createRenderPass();
+    this->createGraphicsPipeline();
+    this->createFrameBuffers();
+    this->createCommandBuffers();
+  }
+
+  void VulkanRenderingDevice::cleanupSwapChain() noexcept {
+
+    for ( const auto &framebuffer : m_swapChainFrameBuffers ) {
+      vkDestroyFramebuffer( m_logicalDevice, framebuffer, nullptr );
+    }
+
+    vkFreeCommandBuffers( m_logicalDevice, m_commandPool,
+                          static_cast<u32>( m_commandBuffers.size() ), m_commandBuffers.data() );
+
+    vkDestroyPipeline( m_logicalDevice, m_graphicsPipeline, nullptr );
+    vkDestroyPipelineLayout( m_logicalDevice, m_pipelineLayout, nullptr );
+    vkDestroyRenderPass( m_logicalDevice, m_renderPass, nullptr );
+
+    for ( const auto &imageView : m_sawapChainImageViews ) {
+      vkDestroyImageView( m_logicalDevice, imageView, nullptr );
+    }
+
+    vkDestroySwapchainKHR( m_logicalDevice, m_swapChain, nullptr );
+  }
+
+  void VulkanRenderingDevice::setFrameBufferResized( bool value ) noexcept {
+    m_frambufferResized = value;
+  }
 }    // namespace nile
 
