@@ -3,9 +3,11 @@
 #include "Nile/graphics/rendering_device.hh"
 
 #include <SDL2/SDL.h>
+#include <glm/glm.hpp>
 #include <vulkan/vulkan.h>
 
 #include "Nile/log/log.hh"
+#include <array>
 #include <memory>
 #include <optional>
 #include <vector>
@@ -40,6 +42,41 @@ namespace nile {
 
       bool isComplete() const noexcept {
         return graphicsFamily.has_value() && presentFamily.has_value();
+      }
+    };
+
+    // @temporary: this struct used for debug purpouses here.
+    // we will be using the defualt vertex object provided by the engine
+    struct Vertex {
+      glm::vec2 position;
+      glm::vec3 color;
+
+      static VkVertexInputBindingDescription getBindingDescription() {
+        VkVertexInputBindingDescription binding_description = {};
+        binding_description.binding = 0;
+        binding_description.stride = sizeof( Vertex );
+        // VK_VERTEX_INPUT_RATE_VERTEX -> move to the next data entry after each vertex
+        // VK_VERTEX_INPUT_RATE_INTANCE -> move the the next data entry after each instance
+        // used for instanced rendering
+        binding_description.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
+        return binding_description;
+      }
+
+      static std::array<VkVertexInputAttributeDescription, 2> getAttributeDescriptions() {
+        std::array<VkVertexInputAttributeDescription, 2> attribute_descriptions = {};
+
+        attribute_descriptions[ 0 ].binding = 0;
+        attribute_descriptions[ 0 ].location = 0;
+        attribute_descriptions[ 0 ].format = VK_FORMAT_R32G32_SFLOAT;
+        attribute_descriptions[ 0 ].offset = offsetof( Vertex, position );
+
+        attribute_descriptions[ 1 ].binding = 0;
+        attribute_descriptions[ 1 ].location = 1;
+        attribute_descriptions[ 1 ].format = VK_FORMAT_R32G32B32_SFLOAT;
+        attribute_descriptions[ 1 ].offset = offsetof( Vertex, color );
+
+
+        return attribute_descriptions;
       }
     };
 
@@ -117,7 +154,7 @@ namespace nile {
     [[nodiscard]] static VkPresentModeKHR
     chooseSwapPresentMode( const std::vector<VkPresentModeKHR> &availablePresentModes ) noexcept;
 
-    // @fix: make this method static again ( for now only the m_window member is used ) 
+    // @fix: make this method static again ( for now only the m_window member is used )
     // when we will make the window object a seperate class
     [[nodiscard]] VkExtent2D chooseSwapExtent( const VkSurfaceCapabilitiesKHR &capabilities,
                                                const std::shared_ptr<Settings> &settings ) noexcept;
@@ -166,6 +203,10 @@ namespace nile {
     VkPipeline m_graphicsPipeline;
 
     VkCommandPool m_commandPool;
+
+    const std::vector<Vertex> m_vertices = {{{0.0f, -0.5f}, {1.0f, 0.0f, 0.0f}},
+                                            {{0.5f, 0.5f}, {0.0f, 1.0f, 0.0f}},
+                                            {{-0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}}};
 
     // Sempahores are used for GPU-GPU synchronazation
     struct {
