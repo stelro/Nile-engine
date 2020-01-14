@@ -53,23 +53,44 @@ namespace nile {
 
     // @move: make this seperate class to handle window
     void initWindow() noexcept;
+    // the main vulkan instance
     void createVulkanInstance() noexcept;
     void createSurface() noexcept;
     void setupDebugMessenger() noexcept;
     void
     populateDebugMessengerCreateInfo( VkDebugUtilsMessengerCreateInfoEXT &createInfo ) noexcept;
+    // find supported GPU by Vulkan API
     void pickPhysicalDevice() noexcept;
 
     [[nodiscard]] QueueFamilyIndices findQueueFamilies( VkPhysicalDevice device ) const noexcept;
 
+    // Create a handle to the GPU ( logical represention of the GPU )
     void createLogicalDevice() noexcept;
+    // Create the swapchain, swapchain will own the buffer we will render to
+    // before we visualize them on the screen. The swap chain is essentially a queue of
+    // images that are waiting to be presented on the screen.
     void createSwapChain() noexcept;
+    // An imageview is quite literally a view into an image. It describes how to access an
+    // image and which part of the image to access
     void createImageViews() noexcept;
+    // With renderpass we tell vulkan about the framebuffer attachments that we will be
+    // using while rendering. We specify how many color and depth buffers there will be
+    // how many samples to use for each of them and how their contents should be handled.
     void createRenderPass() noexcept;
+    // Create the main graphics pipeline, where all of the rendered results will be
+    // presented to the grahics queue. In this method we specify shader modules and also
+    // the rendering topology ( i.e. triangle list )
     void createGraphicsPipeline() noexcept;
+    // Create framebuffers where our image will be rendered
     void createFrameBuffers() noexcept;
+    // Command pools are memory pools for command bufrer objects
     void createCommandPool() noexcept;
+    // Command in Vulkan, like drawing operations and memory transfers are not
+    // executed directly using funcitons class, thus we have to record all of the
+    // operations we want to perform in a command buffer object.
     void createCommandBuffers() noexcept;
+    // Create synchronization primitievs that are used to synchornize operations
+    // between GPU-GPU ( semaphores ) and CPU-GPU ( fences )
     void createSyncObjects() noexcept;
 
     // Recreate swapchain every time the size of the window changes
@@ -96,9 +117,10 @@ namespace nile {
     [[nodiscard]] static VkPresentModeKHR
     chooseSwapPresentMode( const std::vector<VkPresentModeKHR> &availablePresentModes ) noexcept;
 
-    [[nodiscard]] VkExtent2D
-    chooseSwapExtent( const VkSurfaceCapabilitiesKHR &capabilities,
-                      const std::shared_ptr<Settings> &settings ) noexcept;
+    // @fix: make this method static again ( for now only the m_window member is used ) 
+    // when we will make the window object a seperate class
+    [[nodiscard]] VkExtent2D chooseSwapExtent( const VkSurfaceCapabilitiesKHR &capabilities,
+                                               const std::shared_ptr<Settings> &settings ) noexcept;
 
 
     // Check if the GPU is suitable for this engine
@@ -180,7 +202,7 @@ namespace nile {
     // this method is caled after the main loop
     void waitIdel() noexcept;
 
-    void setFrameBufferResized(bool value) noexcept;
+    void setFrameBufferResized( bool value ) noexcept;
   };
 
 }    // namespace nile
