@@ -166,6 +166,9 @@ namespace nile {
     bool checkDeviceExtensionSuport( VkPhysicalDevice device ) const noexcept;
     u32 findMemoryType(u32 typeFilter, VkMemoryPropertyFlags properties) noexcept;
 
+    void createBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer& buffer, VkDeviceMemory& bufferMemory) noexcept;
+    void copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size) noexcept;
+
     SDL_Window *m_window = nullptr;
     VkInstance m_vulkanInstance;
     VkDebugUtilsMessengerEXT m_debugMessenger;

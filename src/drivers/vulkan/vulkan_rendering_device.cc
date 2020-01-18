@@ -938,12 +938,12 @@ namespace nile {
       vkCmdBindPipeline( m_commandBuffers[ i ], VK_PIPELINE_BIND_POINT_GRAPHICS,
                          m_graphicsPipeline );
 
-      VkBuffer vertexBuffers[] = { m_vertexBuffer };
-      VkDeviceSize offsets[] = { 0 };
-      vkCmdBindVertexBuffers(m_commandBuffers[i], 0, 1, vertexBuffers, offsets);
+      VkBuffer vertexBuffers[] = {m_vertexBuffer};
+      VkDeviceSize offsets[] = {0};
+      vkCmdBindVertexBuffers( m_commandBuffers[ i ], 0, 1, vertexBuffers, offsets );
 
       // Draw a triangle
-      vkCmdDraw( m_commandBuffers[ i ], static_cast<u32>(m_vertices.size()), 1, 0, 0 );
+      vkCmdDraw( m_commandBuffers[ i ], static_cast<u32>( m_vertices.size() ), 1, 0, 0 );
 
       vkCmdEndRenderPass( m_commandBuffers[ i ] );
 
@@ -1019,33 +1019,28 @@ namespace nile {
 
   void VulkanRenderingDevice::createVertexBuffer() noexcept {
 
-    VkBufferCreateInfo buffer_info = {};
-    buffer_info.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
-    buffer_info.size = sizeof( m_vertices[ 0 ] ) * m_vertices.size();
-    buffer_info.usage = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
-    buffer_info.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+    VkDeviceSize buffer_size = sizeof( m_vertices[ 0 ] ) * m_vertices.size();
 
-    VK_CHECK_RESULT( vkCreateBuffer( m_logicalDevice, &buffer_info, nullptr, &m_vertexBuffer ) );
+    VkBuffer staging_buffer;
+    VkDeviceMemory staging_buffer_memory;
 
-    VkMemoryRequirements mem_requirements;
-    vkGetBufferMemoryRequirements( m_logicalDevice, m_vertexBuffer, &mem_requirements );
-
-    VkMemoryAllocateInfo alloc_info = {};
-    alloc_info.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
-    alloc_info.allocationSize = mem_requirements.size;
-    alloc_info.memoryTypeIndex =
-        findMemoryType( mem_requirements.memoryTypeBits, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
-                                                             VK_MEMORY_PROPERTY_HOST_COHERENT_BIT );
-
-    VK_CHECK_RESULT(
-        vkAllocateMemory( m_logicalDevice, &alloc_info, nullptr, &m_vertexBufferMemory ) );
-
-    vkBindBufferMemory( m_logicalDevice, m_vertexBuffer, m_vertexBufferMemory, 0 );
+    createBuffer( buffer_size, VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+                  VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+                  staging_buffer, staging_buffer_memory );
 
     void *data;
-    vkMapMemory( m_logicalDevice, m_vertexBufferMemory, 0, buffer_info.size, 0, &data );
-    memcpy( data, m_vertices.data(), static_cast<size_t>( buffer_info.size ) );
-    vkUnmapMemory( m_logicalDevice, m_vertexBufferMemory );
+    vkMapMemory( m_logicalDevice, staging_buffer_memory, 0, buffer_size, 0, &data );
+    memcpy( data, m_vertices.data(), static_cast<size_t>( buffer_size ) );
+    vkUnmapMemory( m_logicalDevice, staging_buffer_memory );
+
+
+    createBuffer( buffer_size, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
+                  VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, m_vertexBuffer, m_vertexBufferMemory );
+
+    copyBuffer( staging_buffer, m_vertexBuffer, buffer_size );
+
+    vkDestroyBuffer( m_logicalDevice, staging_buffer, nullptr );
+    vkFreeMemory( m_logicalDevice, staging_buffer_memory, nullptr );
   }
 
   u32 VulkanRenderingDevice::findMemoryType( u32 typeFilter,
@@ -1063,5 +1058,77 @@ namespace nile {
     ASSERT_M( false, "Failed to find suitable memory type!" );
     return 0;
   }
+
+  void VulkanRenderingDevice::createBuffer( VkDeviceSize size, VkBufferUsageFlags usage,
+                                            VkMemoryPropertyFlags properties, VkBuffer &buffer,
+                                            VkDeviceMemory &bufferMemory ) noexcept {
+
+    VkBufferCreateInfo buffer_info = {};
+    buffer_info.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
+    buffer_info.size = size;
+    buffer_info.usage = usage;
+    buffer_info.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+
+    VK_CHECK_RESULT( vkCreateBuffer( m_logicalDevice, &buffer_info, nullptr, &buffer ) );
+
+    VkMemoryRequirements mem_requirements;
+    vkGetBufferMemoryRequirements( m_logicalDevice, buffer, &mem_requirements );
+
+    VkMemoryAllocateInfo alloc_info = {};
+    alloc_info.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
+    alloc_info.allocationSize = mem_requirements.size;
+    alloc_info.memoryTypeIndex = findMemoryType( mem_requirements.memoryTypeBits, properties );
+
+    // @warning: In reality we are not supposed to actually call vkAllocateMemory for every
+    // individual buffer. The maximum number of simulatenous memory allocations is limited
+    // by the maxMemoryAllocationsCount physical device limit. The right way to allocate 
+    // memory for a large number of objects at the same time is to create a custom allocator
+    // that splits up a single allocation among many different objects by using offset 
+    // parameters.
+    VK_CHECK_RESULT( vkAllocateMemory( m_logicalDevice, &alloc_info, nullptr, &bufferMemory ) );
+
+    vkBindBufferMemory( m_logicalDevice, buffer, bufferMemory, 0 );
+  }
+
+  void VulkanRenderingDevice::copyBuffer( VkBuffer srcBuffer, VkBuffer dstBuffer,
+                                          VkDeviceSize size ) noexcept {
+
+    // @fix: we should create seperate command pool for this short-lived operations
+    // we should use the VK_COMMAND_POOL_CREATE_TRANSFER_BIT
+    VkCommandBufferAllocateInfo alloc_info = {};
+    alloc_info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+    alloc_info.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+    alloc_info.commandPool = m_commandPool;
+    alloc_info.commandBufferCount = 1;
+
+    VkCommandBuffer command_buffer;
+    vkAllocateCommandBuffers( m_logicalDevice, &alloc_info, &command_buffer );
+
+    VkCommandBufferBeginInfo begin_info = {};
+    begin_info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+    begin_info.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
+
+    vkBeginCommandBuffer( command_buffer, &begin_info );
+
+    VkBufferCopy copy_region = {};
+    copy_region.srcOffset = 0;
+    copy_region.dstOffset = 0;
+    copy_region.size = size;
+    vkCmdCopyBuffer( command_buffer, srcBuffer, dstBuffer, 1, &copy_region );
+    vkEndCommandBuffer( command_buffer );
+
+    VkSubmitInfo submit_info = {};
+    submit_info.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+    submit_info.commandBufferCount = 1;
+    submit_info.pCommandBuffers = &command_buffer;
+
+    // we should query a separte queue for transfer operations
+    vkQueueSubmit( m_graphicsQueue, 1, &submit_info, VK_NULL_HANDLE );
+    vkQueueWaitIdle( m_graphicsQueue );
+
+    vkFreeCommandBuffers( m_logicalDevice, m_commandPool, 1, &command_buffer );
+  }
+
+
 }    // namespace nile
 
