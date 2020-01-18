@@ -134,6 +134,7 @@ namespace nile {
     // or some other events occures that make the current swap chain uncompatible.
     void recreateSwapChain() noexcept;
     void cleanupSwapChain() noexcept;
+    void createVertexBuffer() noexcept;
 
     [[nodiscard]] VkShaderModule createShaderModule( const std::vector<char> &code ) noexcept;
 
@@ -163,6 +164,7 @@ namespace nile {
     // Check if the GPU is suitable for this engine
     bool isDeviceSuitable( VkPhysicalDevice device ) const noexcept;
     bool checkDeviceExtensionSuport( VkPhysicalDevice device ) const noexcept;
+    u32 findMemoryType(u32 typeFilter, VkMemoryPropertyFlags properties) noexcept;
 
     SDL_Window *m_window = nullptr;
     VkInstance m_vulkanInstance;
@@ -204,7 +206,12 @@ namespace nile {
 
     VkCommandPool m_commandPool;
 
-    const std::vector<Vertex> m_vertices = {{{0.0f, -0.5f}, {1.0f, 0.0f, 0.0f}},
+    // @fix: this will be moved the seperte VulkanBuffer class
+    // with all operations need for the buffer
+    VkBuffer m_vertexBuffer;
+    VkDeviceMemory m_vertexBufferMemory;
+
+    const std::vector<Vertex> m_vertices = {{{0.0f, -0.5f}, {1.0f, 1.0f, 1.0f}},
                                             {{0.5f, 0.5f}, {0.0f, 1.0f, 0.0f}},
                                             {{-0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}}};
 

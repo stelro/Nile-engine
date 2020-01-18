@@ -53,6 +53,7 @@ namespace nile {
     this->createGraphicsPipeline();
     this->createFrameBuffers();
     this->createCommandPool();
+    this->createVertexBuffer();
     this->createCommandBuffers();
     this->createSyncObjects();
   }
@@ -60,6 +61,9 @@ namespace nile {
   void VulkanRenderingDevice::destory() noexcept {
 
     this->cleanupSwapChain();
+
+    vkDestroyBuffer( m_logicalDevice, m_vertexBuffer, nullptr );
+    vkFreeMemory( m_logicalDevice, m_vertexBufferMemory, nullptr );
 
     for ( size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++ ) {
       vkDestroySemaphore( m_logicalDevice, m_semaphores.renderingHasFinished[ i ], nullptr );
@@ -715,7 +719,8 @@ namespace nile {
     vertex_input_info.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
     vertex_input_info.vertexBindingDescriptionCount = 1;
     vertex_input_info.pVertexBindingDescriptions = &binding_description;
-    vertex_input_info.vertexAttributeDescriptionCount = static_cast<u32>(attribute_descriptions.size());
+    vertex_input_info.vertexAttributeDescriptionCount =
+        static_cast<u32>( attribute_descriptions.size() );
     vertex_input_info.pVertexAttributeDescriptions = attribute_descriptions.data();
 
     VkPipelineInputAssemblyStateCreateInfo input_assembly = {};
@@ -933,8 +938,12 @@ namespace nile {
       vkCmdBindPipeline( m_commandBuffers[ i ], VK_PIPELINE_BIND_POINT_GRAPHICS,
                          m_graphicsPipeline );
 
+      VkBuffer vertexBuffers[] = { m_vertexBuffer };
+      VkDeviceSize offsets[] = { 0 };
+      vkCmdBindVertexBuffers(m_commandBuffers[i], 0, 1, vertexBuffers, offsets);
+
       // Draw a triangle
-      vkCmdDraw( m_commandBuffers[ i ], 3, 1, 0, 0 );
+      vkCmdDraw( m_commandBuffers[ i ], static_cast<u32>(m_vertices.size()), 1, 0, 0 );
 
       vkCmdEndRenderPass( m_commandBuffers[ i ] );
 
@@ -1006,6 +1015,53 @@ namespace nile {
 
   void VulkanRenderingDevice::setFrameBufferResized( bool value ) noexcept {
     m_frambufferResized = value;
+  }
+
+  void VulkanRenderingDevice::createVertexBuffer() noexcept {
+
+    VkBufferCreateInfo buffer_info = {};
+    buffer_info.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
+    buffer_info.size = sizeof( m_vertices[ 0 ] ) * m_vertices.size();
+    buffer_info.usage = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
+    buffer_info.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+
+    VK_CHECK_RESULT( vkCreateBuffer( m_logicalDevice, &buffer_info, nullptr, &m_vertexBuffer ) );
+
+    VkMemoryRequirements mem_requirements;
+    vkGetBufferMemoryRequirements( m_logicalDevice, m_vertexBuffer, &mem_requirements );
+
+    VkMemoryAllocateInfo alloc_info = {};
+    alloc_info.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
+    alloc_info.allocationSize = mem_requirements.size;
+    alloc_info.memoryTypeIndex =
+        findMemoryType( mem_requirements.memoryTypeBits, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
+                                                             VK_MEMORY_PROPERTY_HOST_COHERENT_BIT );
+
+    VK_CHECK_RESULT(
+        vkAllocateMemory( m_logicalDevice, &alloc_info, nullptr, &m_vertexBufferMemory ) );
+
+    vkBindBufferMemory( m_logicalDevice, m_vertexBuffer, m_vertexBufferMemory, 0 );
+
+    void *data;
+    vkMapMemory( m_logicalDevice, m_vertexBufferMemory, 0, buffer_info.size, 0, &data );
+    memcpy( data, m_vertices.data(), static_cast<size_t>( buffer_info.size ) );
+    vkUnmapMemory( m_logicalDevice, m_vertexBufferMemory );
+  }
+
+  u32 VulkanRenderingDevice::findMemoryType( u32 typeFilter,
+                                             VkMemoryPropertyFlags properties ) noexcept {
+
+    VkPhysicalDeviceMemoryProperties mem_properties;
+    vkGetPhysicalDeviceMemoryProperties( m_physicalDevice, &mem_properties );
+
+    for ( u32 i = 0; i < mem_properties.memoryTypeCount; i++ ) {
+      if ( ( typeFilter & ( 1 << i ) ) &&
+           ( mem_properties.memoryTypes[ i ].propertyFlags & properties ) == properties ) {
+        return i;
+      }
+    }
+    ASSERT_M( false, "Failed to find suitable memory type!" );
+    return 0;
   }
 }    // namespace nile
 
