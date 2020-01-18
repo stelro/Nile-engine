@@ -135,6 +135,7 @@ namespace nile {
     void recreateSwapChain() noexcept;
     void cleanupSwapChain() noexcept;
     void createVertexBuffer() noexcept;
+    void createIndexBuffer() noexcept;
 
     [[nodiscard]] VkShaderModule createShaderModule( const std::vector<char> &code ) noexcept;
 
@@ -164,10 +165,12 @@ namespace nile {
     // Check if the GPU is suitable for this engine
     bool isDeviceSuitable( VkPhysicalDevice device ) const noexcept;
     bool checkDeviceExtensionSuport( VkPhysicalDevice device ) const noexcept;
-    u32 findMemoryType(u32 typeFilter, VkMemoryPropertyFlags properties) noexcept;
+    u32 findMemoryType( u32 typeFilter, VkMemoryPropertyFlags properties ) noexcept;
 
-    void createBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer& buffer, VkDeviceMemory& bufferMemory) noexcept;
-    void copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size) noexcept;
+    void createBuffer( VkDeviceSize size, VkBufferUsageFlags usage,
+                       VkMemoryPropertyFlags properties, VkBuffer &buffer,
+                       VkDeviceMemory &bufferMemory ) noexcept;
+    void copyBuffer( VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size ) noexcept;
 
     SDL_Window *m_window = nullptr;
     VkInstance m_vulkanInstance;
@@ -213,10 +216,15 @@ namespace nile {
     // with all operations need for the buffer
     VkBuffer m_vertexBuffer;
     VkDeviceMemory m_vertexBufferMemory;
+    VkBuffer m_indexBuffer;
+    VkDeviceMemory m_indexBufferMemory;
 
-    const std::vector<Vertex> m_vertices = {{{0.0f, -0.5f}, {1.0f, 1.0f, 1.0f}},
-                                            {{0.5f, 0.5f}, {0.0f, 1.0f, 0.0f}},
-                                            {{-0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}}};
+    const std::vector<Vertex> m_vertices = {{{-0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}},
+                                            {{0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}},
+                                            {{0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}},
+                                            {{-0.5f, 0.5f}, {1.0f, 1.0f, 1.0f}}};
+    const std::vector<u16> m_indices = {0, 1, 2, 2, 3, 0};
+
 
     // Sempahores are used for GPU-GPU synchronazation
     struct {

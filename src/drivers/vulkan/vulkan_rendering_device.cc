@@ -54,6 +54,7 @@ namespace nile {
     this->createFrameBuffers();
     this->createCommandPool();
     this->createVertexBuffer();
+    this->createIndexBuffer();
     this->createCommandBuffers();
     this->createSyncObjects();
   }
@@ -61,6 +62,9 @@ namespace nile {
   void VulkanRenderingDevice::destory() noexcept {
 
     this->cleanupSwapChain();
+
+    vkDestroyBuffer( m_logicalDevice, m_indexBuffer, nullptr );
+    vkFreeMemory( m_logicalDevice, m_indexBufferMemory, nullptr );
 
     vkDestroyBuffer( m_logicalDevice, m_vertexBuffer, nullptr );
     vkFreeMemory( m_logicalDevice, m_vertexBufferMemory, nullptr );
@@ -941,9 +945,11 @@ namespace nile {
       VkBuffer vertexBuffers[] = {m_vertexBuffer};
       VkDeviceSize offsets[] = {0};
       vkCmdBindVertexBuffers( m_commandBuffers[ i ], 0, 1, vertexBuffers, offsets );
+      vkCmdBindIndexBuffer( m_commandBuffers[ i ], m_indexBuffer, 0, VK_INDEX_TYPE_UINT16 );
 
       // Draw a triangle
-      vkCmdDraw( m_commandBuffers[ i ], static_cast<u32>( m_vertices.size() ), 1, 0, 0 );
+      // vkCmdDraw( m_commandBuffers[ i ], static_cast<u32>( m_vertices.size() ), 1, 0, 0 );
+      vkCmdDrawIndexed(m_commandBuffers[i], static_cast<u32>(m_indices.size()), 1, 0,0,0);
 
       vkCmdEndRenderPass( m_commandBuffers[ i ] );
 
@@ -1081,9 +1087,9 @@ namespace nile {
 
     // @warning: In reality we are not supposed to actually call vkAllocateMemory for every
     // individual buffer. The maximum number of simulatenous memory allocations is limited
-    // by the maxMemoryAllocationsCount physical device limit. The right way to allocate 
+    // by the maxMemoryAllocationsCount physical device limit. The right way to allocate
     // memory for a large number of objects at the same time is to create a custom allocator
-    // that splits up a single allocation among many different objects by using offset 
+    // that splits up a single allocation among many different objects by using offset
     // parameters.
     VK_CHECK_RESULT( vkAllocateMemory( m_logicalDevice, &alloc_info, nullptr, &bufferMemory ) );
 
@@ -1129,6 +1135,30 @@ namespace nile {
     vkFreeCommandBuffers( m_logicalDevice, m_commandPool, 1, &command_buffer );
   }
 
+  void VulkanRenderingDevice::createIndexBuffer() noexcept {
+
+    VkDeviceSize buffer_size = sizeof( m_indices[ 0 ] ) * m_indices.size();
+
+    VkBuffer staging_buffer;
+    VkDeviceMemory staging_buffer_memory;
+
+    createBuffer( buffer_size, VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+                  VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+                  staging_buffer, staging_buffer_memory );
+
+    void *data;
+    vkMapMemory( m_logicalDevice, staging_buffer_memory, 0, buffer_size, 0, &data );
+    memcpy( data, m_indices.data(), static_cast<size_t>( buffer_size ) );
+    vkUnmapMemory( m_logicalDevice, staging_buffer_memory );
+
+    createBuffer( buffer_size, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT,
+                  VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, m_indexBuffer, m_indexBufferMemory );
+
+    copyBuffer( staging_buffer, m_indexBuffer, buffer_size );
+
+    vkDestroyBuffer( m_logicalDevice, staging_buffer, nullptr );
+    vkFreeMemory( m_logicalDevice, staging_buffer_memory, nullptr );
+  }
 
 }    // namespace nile
 
