@@ -18,7 +18,7 @@ namespace nile {
 
     // @optimization: do we need handle IO/Async operations at reading file?!
     // returns variant, may contain payload or errorcode
-    static std::variant< ErrorCode,std::vector<char>>
+    static std::variant<ErrorCode, std::vector<char>>
     readFile( std::string_view fileName ) noexcept;
   };
 
