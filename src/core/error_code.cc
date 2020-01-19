@@ -2,8 +2,7 @@
 
 namespace nile {
 
-  [[nodiscard]]
-  std::string errorToString( ErrorCode code ) noexcept {
+  [[nodiscard]] std::string errorToString( ErrorCode code ) noexcept {
     switch ( code ) {
       case ErrorCode::NONE:
         return "NONE";
