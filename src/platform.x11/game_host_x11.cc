@@ -38,6 +38,8 @@ $Notice: $
 #include "Nile/renderer/sprite_rendering_system.hh"
 #include "Nile/renderer/texture2d.hh"
 
+#include "Nile/drivers/vulkan/vulkan_rendering_device.hh"
+
 #include <GL/glew.h>
 #include <SDL2/SDL.h>
 
@@ -76,6 +78,8 @@ namespace nile::X11 {
     std::shared_ptr<InputManager> inputManager;
     std::shared_ptr<AssetManager> assetManager;
     std::shared_ptr<Coordinator> ecsCoordinator;
+
+    std::shared_ptr<VulkanRenderingDevice> vulkan_renderer;
   };
 
   GameHostX11::Impl::Impl( const std::shared_ptr<Settings> &settings ) noexcept
@@ -90,21 +94,32 @@ namespace nile::X11 {
     log::on_message.connect(
         []( const char *msg, LogType type ) { StreamLogger::printToStream( msg, type ); } );
 
+
     inputManager = std::make_shared<InputManager>( settings );
     ( inputManager ) ? log::notice( "InputManager have been created!\n" )
                      : log::fatal( "Engine has failed to create InputManager!\n" );
 
-    renderer = std::make_shared<OpenGLRenderer>( settings );
-    renderer->init();
 
-    ( renderer ) ? log::notice( "OpenGL Renderer have been created and initialized!\n" )
-                 : log::fatal( "Engine has failed to create OpenGL Renderer!\n" );
+    // renderer = std::make_shared<OpenGLRenderer>( settings );
+    // renderer->init();
+    //
+    // ( renderer ) ? log::notice( "OpenGL Renderer have been created and initialized!\n" )
+    //              : log::fatal( "Engine has failed to create OpenGL Renderer!\n" );
+    //
+    vulkan_renderer = std::make_shared<VulkanRenderingDevice>( settings );
+    vulkan_renderer->initialize();
+    ( vulkan_renderer ) ? log::notice( "Vulkan Renderer have been created and initialized!\n" )
+                        : log::fatal( "Engine has failed to create vulkan Renderer!\n" );
 
-    m_framebuffer = std::make_unique<OpenglFramebuffer>( settings );
-    m_framebuffer->prepareQuad();
-    ( m_framebuffer ) ? log::print( "\tOpenGL Frambuffer have been created and initialized!\n" )
-                      : log::fatal( "Engine has failed to create OpenGL Framebuffer!\n" );
+    inputManager->onWindowResized.connect( vulkan_renderer.get(),
+                                           &VulkanRenderingDevice::setFrameBufferResized );
 
+
+    // m_framebuffer = std::make_unique<OpenglFramebuffer>( settings );
+    // m_framebuffer->prepareQuad();
+    // ( m_framebuffer ) ? log::print( "\tOpenGL Frambuffer have been created and initialized!\n" )
+    //                   : log::fatal( "Engine has failed to create OpenGL Framebuffer!\n" );
+    //
 
     assetManager = std::make_shared<AssetManager>();
     ( assetManager ) ? log::notice( "AssetManager have been created!\n" )
@@ -112,54 +127,54 @@ namespace nile::X11 {
 
     // Create and initialize Entity Component System coordinator
     ecsCoordinator = std::make_shared<Coordinator>();
-    ecsCoordinator->init();
+    // ecsCoordinator->init();
     ( ecsCoordinator ) ? log::notice( "ECS Coordinator have been created!\n" )
                        : log::fatal( "Engine has failed to create ECS Coordinator!\n" );
 
     m_assetManagerHelper = std::make_shared<AssetManagerHelper>( assetManager );
     m_programMode = settings->getProgramMode();
 
-    auto spriteShader = assetManager->createBuilder<ShaderSet>()
-                            .setVertexPath( "../assets/shaders/sprite_vertex.glsl" )
-                            .setFragmentPath( "../assets/shaders/sprite_fragment.glsl" )
-                            .build();
-
-    assetManager->storeAsset<ShaderSet>( "sprite_shader", spriteShader );
-
-    auto fontShader = assetManager->createBuilder<ShaderSet>()
-                          .setVertexPath( "../assets/shaders/font_vertex.glsl" )
-                          .setFragmentPath( "../assets/shaders/font_fragment.glsl" )
-                          .build();
-
-    assetManager->storeAsset<ShaderSet>( "font_shader", fontShader );
-
-    auto lineShader = assetManager->createBuilder<ShaderSet>()
-                          .setVertexPath( "../assets/shaders/line_vertex.glsl" )
-                          .setFragmentPath( "../assets/shaders/line_fragment.glsl" )
-                          .build();
-
-    assetManager->storeAsset<ShaderSet>( "line_shader", lineShader );
-
-    auto modelShader = assetManager->createBuilder<ShaderSet>()
-                           .setVertexPath( "../assets/shaders/model.vert.glsl" )
-                           .setFragmentPath( "../assets/shaders/model.frag.glsl" )
-                           .build();
-
-
-    assetManager->storeAsset<ShaderSet>( "model_shader", modelShader );
-
-
+    // auto spriteShader = assetManager->createBuilder<ShaderSet>()
+    //                         .setVertexPath( "../assets/shaders/sprite_vertex.glsl" )
+    //                         .setFragmentPath( "../assets/shaders/sprite_fragment.glsl" )
+    //                         .build();
+    //
+    // assetManager->storeAsset<ShaderSet>( "sprite_shader", spriteShader );
+    //
+    // auto fontShader = assetManager->createBuilder<ShaderSet>()
+    //                       .setVertexPath( "../assets/shaders/font_vertex.glsl" )
+    //                       .setFragmentPath( "../assets/shaders/font_fragment.glsl" )
+    //                       .build();
+    //
+    // assetManager->storeAsset<ShaderSet>( "font_shader", fontShader );
+    //
+    // auto lineShader = assetManager->createBuilder<ShaderSet>()
+    //                       .setVertexPath( "../assets/shaders/line_vertex.glsl" )
+    //                       .setFragmentPath( "../assets/shaders/line_fragment.glsl" )
+    //                       .build();
+    //
+    // assetManager->storeAsset<ShaderSet>( "line_shader", lineShader );
+    //
+    // auto modelShader = assetManager->createBuilder<ShaderSet>()
+    //                        .setVertexPath( "../assets/shaders/model.vert.glsl" )
+    //                        .setFragmentPath( "../assets/shaders/model.frag.glsl" )
+    //                        .build();
+    //
+    //
+    // assetManager->storeAsset<ShaderSet>( "model_shader", modelShader );
+    //
+    //
     // main window framebuffer shader
-    m_fbScreenShader = assetManager->storeAsset<ShaderSet>(
-        "fb_screen_shader", assetManager->createBuilder<ShaderSet>()
-                                .setVertexPath( FileSystem::getBinaryDir() +
-                                                "/resources/shaders/screen_fb_vertex.glsl" )
-                                .setFragmentPath( FileSystem::getBinaryDir() +
-                                                  "/resources/shaders/screen_fb_fragment.glsl" )
-                                .build() );
-
-
-    this->registerEcs();
+    // m_fbScreenShader = assetManager->storeAsset<ShaderSet>(
+    //     "fb_screen_shader", assetManager->createBuilder<ShaderSet>()
+    //                             .setVertexPath( FileSystem::getBinaryDir() +
+    //                                             "/resources/shaders/screen_fb_vertex.glsl" )
+    //                             .setFragmentPath( FileSystem::getBinaryDir() +
+    //                                               "/resources/shaders/screen_fb_fragment.glsl" )
+    //                             .build() );
+    //
+    //
+    // this->registerEcs();
   }
 
   void GameHostX11::Impl::registerEcs() noexcept {
@@ -237,58 +252,69 @@ namespace nile::X11 {
     ecsCoordinator->setSystemSignature<FontRenderingSystem>( fontSignature );
   }
 
-  GameHostX11::Impl::~Impl() noexcept {}
+  GameHostX11::Impl::~Impl() noexcept {
+    vulkan_renderer->destory();
+  }
 
   void GameHostX11::Impl::run( Game &game ) noexcept {
 
-    game.initialize();
-    ecsCoordinator->createSystems();
+    // game.initialize();
+    // ecsCoordinator->createSystems();
     f64 lastStep = SDL_GetTicks();
 
-    std::thread t1( [=]() { m_assetManagerHelper->reloadShaders(); } );
-    t1.detach();
-
-
+    // @performance: should be fixed
+    // std::thread t1( [=]() { m_assetManagerHelper->reloadShaders(); } );
+    // t1.detach();
+    //
     // draw wireframe
     // glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
 
-    // u32 frame = 0;
+    //    u32 frame = 0;
 
     while ( !inputManager->shouldClose() ) {
 
-      //  log::print("[%d]\n", frame++);
+      //      log::print( "[%d]\n", frame++ );
+
 
       f64 currentStep = SDL_GetTicks();
       f64 delta = currentStep - lastStep;    // elapsed time
 
       inputManager->update( delta );
 
+      if ( inputManager->isKeyPressed( SDLK_r ) ) {
+        m_assetManagerHelper->reloadShaders();
+      }
+
+      vulkan_renderer->submitFrame();
+
       // @fix(stel) : move all of these framebuffer related stuff
       // to the framebuffer class
-      renderer->submitFrame();
-      m_framebuffer->bind();
-      glEnable( GL_DEPTH_TEST );
-      glClearColor( 0.1f, 0.1f, 0.1f, 1.0f );
-      glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
-
-      ecsCoordinator->update( delta );
-      ecsCoordinator->render( delta );
-
-      game.update( delta );
-
-      m_framebuffer->unbind();
-      glDisable( GL_DEPTH_TEST );
-      glClearColor( 1.0f, 1.0f, 1.0f, 1.0f );
-      glClear( GL_COLOR_BUFFER_BIT );
-
-      m_fbScreenShader->use();
-      m_framebuffer->submitFrame();
-      renderer->endFrame();
-
+      // renderer->submitFrame();
+      // m_framebuffer->bind();
+      // glEnable( GL_DEPTH_TEST );
+      // glClearColor( 0.1f, 0.1f, 0.1f, 1.0f );
+      // glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+      //
+      // ecsCoordinator->update( delta );
+      // ecsCoordinator->render( delta );
+      //
+      // game.update( delta );
+      //
+      // m_framebuffer->unbind();
+      // glDisable( GL_DEPTH_TEST );
+      // glClearColor( 1.0f, 1.0f, 1.0f, 1.0f );
+      // glClear( GL_COLOR_BUFFER_BIT );
+      //
+      // m_fbScreenShader->use();
+      // m_framebuffer->submitFrame();
+      // renderer->endFrame();
+      vulkan_renderer->endFrame();
       m_programMode = settings->getProgramMode();
 
       lastStep = currentStep;
     }
+
+    vulkan_renderer->waitIdel();
   }
 
   GameHostX11::GameHostX11( const std::shared_ptr<Settings> &settings ) noexcept

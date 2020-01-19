@@ -94,7 +94,7 @@ namespace nile {
     glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT );
   }
 
-  void OpenGLRenderer::endFrame() noexcept {
+   void OpenGLRenderer::endFrame() noexcept {
     SDL_GL_SwapWindow( m_window );
   }
 
