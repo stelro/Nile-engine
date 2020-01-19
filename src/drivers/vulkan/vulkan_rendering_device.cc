@@ -50,11 +50,13 @@ namespace nile {
     this->createSwapChain();
     this->createImageViews();
     this->createRenderPass();
+    this->createDescriptorSetLayout();
     this->createGraphicsPipeline();
     this->createFrameBuffers();
     this->createCommandPool();
     this->createVertexBuffer();
     this->createIndexBuffer();
+    this->createUniformBuffers();
     this->createCommandBuffers();
     this->createSyncObjects();
   }
@@ -62,6 +64,8 @@ namespace nile {
   void VulkanRenderingDevice::destory() noexcept {
 
     this->cleanupSwapChain();
+
+    vkDestroyDescriptorSetLayout( m_logicalDevice, m_descriptorSetLayout, nullptr );
 
     vkDestroyBuffer( m_logicalDevice, m_indexBuffer, nullptr );
     vkFreeMemory( m_logicalDevice, m_indexBufferMemory, nullptr );
@@ -172,6 +176,8 @@ namespace nile {
       this->recreateSwapChain();
       return;
     }
+
+    this->updateUniformBuffer( image_index );
 
     ASSERT_M( result == VK_SUCCESS || result == VK_SUBOPTIMAL_KHR,
               "Failed to acquire swap chain image" );
@@ -808,10 +814,12 @@ namespace nile {
     color_blending.blendConstants[ 2 ] = 0.0f;
     color_blending.blendConstants[ 3 ] = 0.0f;
 
+    // @brief: we specify here descriptor sets ( uniform buffers ) or push constants
+    // to use inside our shaders
     VkPipelineLayoutCreateInfo pipeline_layotu_info = {};
     pipeline_layotu_info.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-    pipeline_layotu_info.setLayoutCount = 0;
-    pipeline_layotu_info.pSetLayouts = nullptr;
+    pipeline_layotu_info.setLayoutCount = 1;
+    pipeline_layotu_info.pSetLayouts = &m_descriptorSetLayout;
     pipeline_layotu_info.pushConstantRangeCount = 0;
     pipeline_layotu_info.pPushConstantRanges = nullptr;
 
@@ -949,7 +957,7 @@ namespace nile {
 
       // Draw a triangle
       // vkCmdDraw( m_commandBuffers[ i ], static_cast<u32>( m_vertices.size() ), 1, 0, 0 );
-      vkCmdDrawIndexed(m_commandBuffers[i], static_cast<u32>(m_indices.size()), 1, 0,0,0);
+      vkCmdDrawIndexed( m_commandBuffers[ i ], static_cast<u32>( m_indices.size() ), 1, 0, 0, 0 );
 
       vkCmdEndRenderPass( m_commandBuffers[ i ] );
 
@@ -996,10 +1004,17 @@ namespace nile {
     this->createRenderPass();
     this->createGraphicsPipeline();
     this->createFrameBuffers();
+    this->createUniformBuffers();
     this->createCommandBuffers();
   }
 
   void VulkanRenderingDevice::cleanupSwapChain() noexcept {
+
+
+    for ( size_t i = 0; i < m_swapChainImages.size(); i++ ) {
+      vkDestroyBuffer( m_logicalDevice, m_uniformBuffers[ i ], nullptr );
+      vkFreeMemory( m_logicalDevice, m_uniformBuffersMemory[ i ], nullptr );
+    }
 
     for ( const auto &framebuffer : m_swapChainFrameBuffers ) {
       vkDestroyFramebuffer( m_logicalDevice, framebuffer, nullptr );
@@ -1158,6 +1173,68 @@ namespace nile {
 
     vkDestroyBuffer( m_logicalDevice, staging_buffer, nullptr );
     vkFreeMemory( m_logicalDevice, staging_buffer_memory, nullptr );
+  }
+
+  void VulkanRenderingDevice::createDescriptorSetLayout() noexcept {
+
+    VkDescriptorSetLayoutBinding ubo_layout_binding = {};
+    ubo_layout_binding.binding = 0;
+    ubo_layout_binding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+    ubo_layout_binding.descriptorCount = 1;
+    // Which shader stage will be using the descriptor ? use
+    // VK_SHADER_STAGE_ALL_GRAPHICS to use it everywhere
+    ubo_layout_binding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
+    ubo_layout_binding.pImmutableSamplers = nullptr;
+
+    VkDescriptorSetLayoutCreateInfo layout_info = {};
+    layout_info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+    layout_info.bindingCount = 1;
+    layout_info.pBindings = &ubo_layout_binding;
+
+    VK_CHECK_RESULT( vkCreateDescriptorSetLayout( m_logicalDevice, &layout_info, nullptr,
+                                                  &m_descriptorSetLayout ) );
+  }
+
+  void VulkanRenderingDevice::createUniformBuffers() noexcept {
+
+    VkDeviceSize buffer_size = sizeof( UniformBufferObject );
+
+    m_uniformBuffers.resize( m_swapChainImages.size() );
+    m_uniformBuffersMemory.resize( m_swapChainImages.size() );
+
+    for ( size_t i = 0; i < m_swapChainImages.size(); i++ ) {
+      createBuffer( buffer_size, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
+                    VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+                    m_uniformBuffers[ i ], m_uniformBuffersMemory[ i ] );
+    }
+  }
+
+  void VulkanRenderingDevice::updateUniformBuffer( u32 imageIndex ) noexcept {
+
+    static auto start_time = std::chrono::high_resolution_clock::now();
+
+    auto current_time = std::chrono::high_resolution_clock::now();
+    f32 time = std::chrono::duration<f32, std::chrono::seconds::period>( current_time - start_time )
+                   .count();
+
+    UniformBufferObject ubo = {};
+    ubo.model = glm::rotate( glm::mat4( 1.0f ), time * glm::radians( 90.0f ),
+                             glm::vec3( 0.0f, 0.0f, 1.0f ) );
+
+    ubo.view = glm::lookAt( glm::vec3( 2.0f, 2.0f, 2.0f ), glm::vec3( 0.0f, 0.0f, 0.0f ),
+                            glm::vec3( 0.0f, 0.0f, 1.0f ) );
+
+    ubo.proj = glm::perspective(
+        glm::radians( 45.0f ),
+        m_swapChainExtent.width / static_cast<f32>( m_swapChainExtent.height ), 0.1f, 10.0f );
+
+    // GLM has the Y coordinate of the clip coordinates inverted.
+    ubo.proj[1][1] *= -1;
+
+    void *data;
+    vkMapMemory(m_logicalDevice, m_uniformBuffersMemory[imageIndex],0, sizeof(ubo), 0, &data);
+    memcpy(data, &ubo, sizeof(ubo));
+    vkUnmapMemory(m_logicalDevice, m_uniformBuffersMemory[imageIndex]);
   }
 
 }    // namespace nile

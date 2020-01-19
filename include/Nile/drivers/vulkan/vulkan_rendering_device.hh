@@ -3,7 +3,10 @@
 #include "Nile/graphics/rendering_device.hh"
 
 #include <SDL2/SDL.h>
+
+#define GLM_FORCE_RADIANS
 #include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 #include <vulkan/vulkan.h>
 
 #include "Nile/log/log.hh"
@@ -11,6 +14,7 @@
 #include <memory>
 #include <optional>
 #include <vector>
+#include <chrono>
 
 namespace nile {
 
@@ -80,6 +84,12 @@ namespace nile {
       }
     };
 
+    struct UniformBufferObject {
+      glm::mat4 model;
+      glm::mat4 view;
+      glm::mat4 proj;
+    };
+
     struct SwapChainSupportDetails {
       VkSurfaceCapabilitiesKHR capabilities;
       std::vector<VkSurfaceFormatKHR> formats;
@@ -114,6 +124,8 @@ namespace nile {
     // using while rendering. We specify how many color and depth buffers there will be
     // how many samples to use for each of them and how their contents should be handled.
     void createRenderPass() noexcept;
+
+    void createDescriptorSetLayout() noexcept;
     // Create the main graphics pipeline, where all of the rendered results will be
     // presented to the grahics queue. In this method we specify shader modules and also
     // the rendering topology ( i.e. triangle list )
@@ -136,6 +148,9 @@ namespace nile {
     void cleanupSwapChain() noexcept;
     void createVertexBuffer() noexcept;
     void createIndexBuffer() noexcept;
+    void createUniformBuffers() noexcept;
+
+    void updateUniformBuffer(u32 imageIndex) noexcept;
 
     [[nodiscard]] VkShaderModule createShaderModule( const std::vector<char> &code ) noexcept;
 
@@ -204,6 +219,8 @@ namespace nile {
 
     VkRenderPass m_renderPass;
 
+    VkDescriptorSetLayout m_descriptorSetLayout;
+
     // PIpelineLayout, the uniform and push values that referenced by the shader that
     // can be updated at the draw time
     VkPipelineLayout m_pipelineLayout;
@@ -216,8 +233,13 @@ namespace nile {
     // with all operations need for the buffer
     VkBuffer m_vertexBuffer;
     VkDeviceMemory m_vertexBufferMemory;
+    // Driver developers recommend that we should store
+    // multiple buffers into a single buffer using offsets in commands.
     VkBuffer m_indexBuffer;
     VkDeviceMemory m_indexBufferMemory;
+
+    std::vector<VkBuffer> m_uniformBuffers;
+    std::vector<VkDeviceMemory> m_uniformBuffersMemory;
 
     const std::vector<Vertex> m_vertices = {{{-0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}},
                                             {{0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}},
