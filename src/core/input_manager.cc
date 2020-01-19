@@ -22,6 +22,26 @@ namespace nile {
 
   void InputManager::processInGameEvents() noexcept {
     switch ( m_event.type ) {
+      case SDL_WINDOWEVENT:
+        switch ( m_event.window.event ) {
+          case SDL_WINDOWEVENT_RESIZED:
+            //this->onWindowResized.emit( true );
+            m_windowEvents.windowHasResized = true;
+            break;
+          case SDL_WINDOWEVENT_MINIMIZED:
+            this->onWindowMinimized.emit( true );
+            m_windowEvents.windowHasMinimized = true;
+            break;
+          case SDL_WINDOWEVENT_MAXIMIZED:
+            this->onWindowMaximized.emit( true );
+            m_windowEvents.windowHasMaximized = true;
+            break;
+          case SDL_WINDOWEVENT_SIZE_CHANGED:
+            this->onWindowSizeHasChanged.emit( true );
+            m_windowEvents.windowSizeHasChanged = true;
+            break;
+        }
+        break;
       case SDL_KEYDOWN:
         this->pressKey( m_event.key.keysym.sym );
         break;

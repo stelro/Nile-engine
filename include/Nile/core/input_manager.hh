@@ -8,6 +8,7 @@ $Notice: $
 
 #pragma once
 
+#include "Nile/core/signal.hh"
 #include "Nile/core/types.hh"
 
 #include <SDL2/SDL.h>
@@ -39,6 +40,13 @@ namespace nile {
       bool button_x2 = false;
     } m_mouseButtonEvents;
 
+    mutable struct {
+      bool windowHasResized = false;
+      bool windowHasMinimized = false;
+      bool windowSizeHasChanged = false;
+      bool windowHasMaximized = false;
+    } m_windowEvents;
+
     std::shared_ptr<Settings> m_settings;
 
     std::unordered_map<SDL_Keycode, bool> m_pressedKeys;
@@ -56,6 +64,13 @@ namespace nile {
     ~InputManager() noexcept;
 
     void update( [[maybe_unused]] f32 dt ) noexcept;
+
+    // @roustenss: I am considering to use signals instead of methods for
+    // windowing events
+    Signal<bool> onWindowResized;
+    Signal<bool> onWindowMinimized;
+    Signal<bool> onWindowMaximized;
+    Signal<bool> onWindowSizeHasChanged;
 
     [[nodiscard]] inline bool shouldClose() const noexcept {
       return m_shouldClose;
@@ -114,6 +129,22 @@ namespace nile {
 
     i32 getHorizontalWheel() const noexcept {
       return m_mouseHorizontalWheel;
+    }
+
+    [[nodiscard]] bool windowHasResized() const noexcept {
+      return std::exchange( m_windowEvents.windowHasResized, false );
+    }
+
+    [[nodiscard]] bool windowHasMinimized() const noexcept {
+      return std::exchange( m_windowEvents.windowHasMinimized, false );
+    }
+
+    [[nodiscard]] bool windowHasMaximized() const noexcept {
+      return std::exchange( m_windowEvents.windowHasMaximized, false );
+    }
+
+    [[nodiscard]] bool windowSizeHasChanged() const noexcept {
+      return std::exchange( m_windowEvents.windowSizeHasChanged, false );
     }
   };
 
