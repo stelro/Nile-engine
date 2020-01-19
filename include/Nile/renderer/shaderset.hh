@@ -94,7 +94,6 @@ namespace nile {
 
 #endif
 
-
     void SetFloat( const char *name, f32 value, bool useShader = false ) noexcept;
     void SetInteger( const char *name, i32 value, bool useShader = false ) noexcept;
     void SetVector2f( const char *name, f32 x, f32 y, bool useShader = false ) noexcept;

@@ -31,6 +31,11 @@ namespace platformer {
 
     std::unique_ptr<TextBuffer> m_textBuffer;
 
+    std::shared_ptr<nile::ShaderSet> m_modelShader;
+    std::shared_ptr<nile::ShaderSet> m_lampShader;
+    std::shared_ptr<nile::ShaderSet> m_lineShader;
+
+
     nile::Entity m_cameraEntity;
     nile::Entity m_lampEntity;
     nile::Entity m_nanoModelEntity;

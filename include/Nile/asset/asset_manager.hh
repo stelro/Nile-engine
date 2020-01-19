@@ -50,7 +50,7 @@ namespace nile {
       return std::static_pointer_cast<T>( asset );
     }
 
-    // Stores asset to the AssetContainer, which is created outside of assetManager
+    // Stores asset to the AssetContainer, which asset is created outside of assetManager
     // class, usually with some specific Builder, which was Created by the manager class
     // this method is useful for e.g ShaderSets which need more than 1 file to be
     // created, or 3D models which contains more than one meshes and
@@ -58,12 +58,13 @@ namespace nile {
     template <typename T>
     std::shared_ptr<T> storeAsset( const std::string &assetName,
                                    const std::shared_ptr<Asset> &asset ) noexcept {
+
       if ( !m_assetContainer->isAssetExist( assetName ) ) {
         m_assetContainer->addAsset( assetName, asset );
       } else {
-        log::print("already exist\n");
+        log::print( "already exist\n" );
       }
-      
+
       return this->getAsset<T>( assetName );
     }
 
@@ -71,6 +72,8 @@ namespace nile {
     // console, and nullptr will returned
     template <typename T>
     std::shared_ptr<T> getAsset( const std::string &assetName ) const noexcept {
+
+      log::print( " try to call: %s\n", assetName.c_str() );
 
       if ( auto asset = m_assetContainer->getAsset( assetName ) ) {
         return std::static_pointer_cast<T>( asset );
@@ -106,7 +109,6 @@ namespace nile {
     AssetContainer::assets_iter end() noexcept;
     const AssetContainer::const_assets_iter end() const noexcept;
     const AssetContainer::const_assets_iter cend() const noexcept;
-
   };
 
 }    // namespace nile

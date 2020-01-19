@@ -3,6 +3,7 @@
 #include <Nile/asset/builder/model_builder.hh>
 #include <Nile/asset/builder/shaderset_builder.hh>
 #include <Nile/asset/subsystem/texture_loader.hh>
+#include <Nile/core/assert.hh>
 #include <Nile/core/file_system.hh>
 #include <Nile/debug/benchmark_timer.hh>
 #include <Nile/ecs/components/camera_component.hh>
@@ -56,6 +57,15 @@ namespace platformer {
 
     m_assetManager->storeAsset<ShaderSet>( "lamp_shader", lampShader );
 
+    // Load some shaders
+    m_lampShader = m_assetManager->getAsset<ShaderSet>( "lamp_shader" );
+    m_modelShader = m_assetManager->getAsset<ShaderSet>( "model_shader" );
+    m_lineShader = m_assetManager->getAsset<ShaderSet>( "line_shader" );
+
+    ASSERT_M( m_lampShader, "lamp shader is null\n" );
+    ASSERT_M( m_modelShader, "model shader is null\n" );
+    ASSERT_M( m_lineShader, "line shader is null\n" );
+
     m_cameraEntity = m_ecsCoordinator->createEntity();
 
     Transform camera_transform;
@@ -65,16 +75,16 @@ namespace platformer {
     CameraComponent cameraComponent( 0.1f, 200.0f, 45.0f, ProjectionType::PERSPECTIVE );
     m_ecsCoordinator->addComponent<CameraComponent>( m_cameraEntity, cameraComponent );
 
-    //m_assetManagerHelper = std::make_shared<AssetManagerHelper>( m_assetManager );
+    // m_assetManagerHelper = std::make_shared<AssetManagerHelper>( m_assetManager );
 
     m_textBuffer = std::make_unique<TextBuffer>( m_settings, m_ecsCoordinator, m_assetManager );
 
     //    this->drawTextureFloor();
     this->drawStoneTiles();
-  //  this->drawContainers();
-//    this->drawNanoModel();
- //   this->drawGrass();
-     this->drawWindows();
+    //  this->drawContainers();
+    //    this->drawNanoModel();
+    //   this->drawGrass();
+    this->drawWindows();
     // this->drawFont();
     this->drawLigths();
 
@@ -92,62 +102,56 @@ namespace platformer {
     this->processKeyboardEvents( deltaTime );
     this->processMouseScroll( deltaTime );
 
-    m_textBuffer->update( deltaTime );
-
-    auto &camera_component = m_ecsCoordinator->getComponent<CameraComponent>( m_cameraEntity );
-
-    auto &c_transform = m_ecsCoordinator->getComponent<Transform>( m_cameraEntity );
-    auto &c_camera = m_ecsCoordinator->getComponent<CameraComponent>( m_cameraEntity );
-
-
-    glm::mat4 view =
-        Math::lookAt( c_transform.position, c_transform.position + camera_component.cameraFront,
-                      camera_component.cameraUp );
-    glm::mat4 projection = glm::perspective( glm::radians( c_camera.fieldOfView ),
-                                             static_cast<f32>( m_settings->getWidth() ) /
-                                                 static_cast<f32>( m_settings->getHeight() ),
-                                             c_camera.near, c_camera.far );
-
-    // We set projection matrix to the object that are "moving"
-    // since the camera is static, and we shift the world
-
-    m_assetManager->getAsset<ShaderSet>( "line_shader" )
-        ->use()
-        .SetMatrix4( "projection", projection );
-
-    auto modelShader = m_assetManager->getAsset<ShaderSet>( "model_shader" );
-    modelShader->use();
-    modelShader->SetMatrix4( "view", view );
-    modelShader->SetMatrix4( "projection", projection );
-    modelShader->SetVector3f( "lightColor", lightColor );
-    modelShader->SetFloat( "material.shininess", 32.0f );
-    modelShader->SetVector3f( "pointLight.position", lightPos );
-    modelShader->SetVector3f( "pointLight.ambient", 0.2f, 0.2f, 0.2f );
-    modelShader->SetVector3f( "pointLight.diffuse", 0.7f, 0.7f, 0.7f );
-    modelShader->SetVector3f( "pointLight.specular", 0.6f, 0.6f, 0.6f );
-    modelShader->SetFloat( "pointLight.constant", 1.0f );
-    modelShader->SetFloat( "pointLight.linear", 0.045f );
-    modelShader->SetFloat( "pointLight.quadratic", 0.0075f );
-
-    modelShader->SetVector3f( "directionalLight.direction", -0.2f, -1.0f, -0.3f );
-    modelShader->SetVector3f( "directionalLight.ambient", 0.05f, 0.05f, 0.05f );
-    modelShader->SetVector3f( "directionalLight.diffuse", 0.4f, 0.4f, 0.4f );
-    modelShader->SetVector3f( "directionalLight.specular", 0.5f, 0.5f, 0.5f );
-
-    modelShader->SetVector3f( "viewPos", c_transform.position );
-
-    m_assetManager->getAsset<ShaderSet>( "lamp_shader" )
-        ->use()
-        .SetMatrix4( "projection", projection );
-
-    m_assetManager->getAsset<ShaderSet>( "lamp_shader" )->use().SetMatrix4( "view", view );
-
+    // m_textBuffer->update( deltaTime );
+    //
+    // auto &camera_component = m_ecsCoordinator->getComponent<CameraComponent>( m_cameraEntity );
+    //
+    // auto &c_transform = m_ecsCoordinator->getComponent<Transform>( m_cameraEntity );
+    // auto &c_camera = m_ecsCoordinator->getComponent<CameraComponent>( m_cameraEntity );
+    //
+    //
+    // glm::mat4 view =
+    //     Math::lookAt( c_transform.position, c_transform.position + camera_component.cameraFront,
+    //                   camera_component.cameraUp );
+    // glm::mat4 projection = glm::perspective( glm::radians( c_camera.fieldOfView ),
+    //                                          static_cast<f32>( m_settings->getWidth() ) /
+    //                                              static_cast<f32>( m_settings->getHeight() ),
+    //                                          c_camera.near, c_camera.far );
+    //
+    // // We set projection matrix to the object that are "moving"
+    // // since the camera is static, and we shift the world
+    //
+    // m_lineShader->use().SetMatrix4( "projection", projection );
+    //
+    // m_modelShader->use();
+    // m_modelShader->SetMatrix4( "view", view );
+    // m_modelShader->SetMatrix4( "projection", projection );
+    // m_modelShader->SetVector3f( "lightColor", lightColor );
+    // m_modelShader->SetFloat( "material.shininess", 32.0f );
+    // m_modelShader->SetVector3f( "pointLight.position", lightPos );
+    // m_modelShader->SetVector3f( "pointLight.ambient", 0.2f, 0.2f, 0.2f );
+    // m_modelShader->SetVector3f( "pointLight.diffuse", 0.7f, 0.7f, 0.7f );
+    // m_modelShader->SetVector3f( "pointLight.specular", 0.6f, 0.6f, 0.6f );
+    // m_modelShader->SetFloat( "pointLight.constant", 1.0f );
+    // m_modelShader->SetFloat( "pointLight.linear", 0.045f );
+    // m_modelShader->SetFloat( "pointLight.quadratic", 0.0075f );
+    //
+    // m_modelShader->SetVector3f( "directionalLight.direction", -0.2f, -1.0f, -0.3f );
+    // m_modelShader->SetVector3f( "directionalLight.ambient", 0.05f, 0.05f, 0.05f );
+    // m_modelShader->SetVector3f( "directionalLight.diffuse", 0.4f, 0.4f, 0.4f );
+    // m_modelShader->SetVector3f( "directionalLight.specular", 0.5f, 0.5f, 0.5f );
+    //
+    // m_modelShader->SetVector3f( "viewPos", c_transform.position );
+    //
+    // m_lampShader->use().SetMatrix4( "projection", projection );
+    // m_lampShader->use().SetMatrix4( "view", view );
+    //
     // char buffer[ 32 ];
     // sprintf( buffer, "@fps: %.3f", ( 1000 / deltaTime ) );
     //
     // m_screenText->print( buffer, TextPosition::LEFT_UP );
     //
-    // glCheckError();
+    //glCheckError();
   }
 
 
@@ -187,10 +191,7 @@ namespace platformer {
     if ( m_inputManager->isKeyPressed( SDLK_ESCAPE ) ) {
       m_inputManager->terminateEngine();
     }
-    //
-    // if ( m_inputManager->isKeyPressed( SDLK_r ) ) {
-    //   m_assetManagerHelper->reloadShaders();
-    // }
+
   }
 
   void Platformer::processMouseEvents( f32 dt ) noexcept {
@@ -383,7 +384,7 @@ namespace platformer {
     auto window_texture = m_assetManager->loadAsset<Texture2D>(
         "window", FileSystem::getPath( "assets/textures/window.png" ) );
 
-    log::print("count: %d\n", window_texture->getRefCount());
+    log::print( "count: %d\n", window_texture->getRefCount() );
 
     auto camera_transform = m_ecsCoordinator->getComponent<Transform>( m_cameraEntity );
 

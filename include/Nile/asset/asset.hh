@@ -10,6 +10,7 @@ $Notice: $
 
 #include "Nile/core/reference.hh"
 
+
 namespace nile {
 
   class AssetContainer;
