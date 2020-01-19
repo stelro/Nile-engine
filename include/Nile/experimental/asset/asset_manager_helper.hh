@@ -19,6 +19,8 @@ namespace nile {
     AssetManagerHelper( const std::shared_ptr<AssetManager> &assetManager ) noexcept;
     void operator ()() noexcept;
     void reloadShaders() noexcept;
+
+    bool checkShaderForChange();
   };
 
 }    // namespace nile
