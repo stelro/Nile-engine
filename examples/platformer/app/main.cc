@@ -11,12 +11,12 @@
 int main() {
 
   auto settings = nile::Settings::Builder {}
-                      .setWidth( 1920 )
-                      .setHeight( 920 )
+                      .setWidth( 1024 )    // 1920
+                      .setHeight( 768 )    // 920
                       .setTitle( "Nile Engine | Debugging " )
                       .setDebugMode( true )
-                      .setWindowFlags( SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN )
-                      .setProgramMode(nile::ProgramMode::EDITOR_MODE)
+                      .setWindowFlags( SDL_WINDOW_VULKAN | SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE )
+                      .setProgramMode( nile::ProgramMode::EDITOR_MODE )
                       .build();
 
   nile::X11::Boostrap bootstrap( std::make_shared<nile::Settings>( settings ) );
