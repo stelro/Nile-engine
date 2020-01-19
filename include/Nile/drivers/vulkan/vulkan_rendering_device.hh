@@ -85,9 +85,9 @@ namespace nile {
     };
 
     struct UniformBufferObject {
-      glm::mat4 model;
-      glm::mat4 view;
-      glm::mat4 proj;
+      alignas(16) glm::mat4 model;
+      alignas(16) glm::mat4 view;
+      alignas(16) glm::mat4 proj;
     };
 
     struct SwapChainSupportDetails {
@@ -149,6 +149,8 @@ namespace nile {
     void createVertexBuffer() noexcept;
     void createIndexBuffer() noexcept;
     void createUniformBuffers() noexcept;
+    void createDescriptorPool() noexcept;
+    void createDescriptorSets() noexcept;
 
     void updateUniformBuffer(u32 imageIndex) noexcept;
 
@@ -220,6 +222,8 @@ namespace nile {
     VkRenderPass m_renderPass;
 
     VkDescriptorSetLayout m_descriptorSetLayout;
+    VkDescriptorPool m_descriptorPool;
+    std::vector<VkDescriptorSet> m_descriptorSets;
 
     // PIpelineLayout, the uniform and push values that referenced by the shader that
     // can be updated at the draw time

@@ -57,6 +57,8 @@ namespace nile {
     this->createVertexBuffer();
     this->createIndexBuffer();
     this->createUniformBuffers();
+    this->createDescriptorPool();
+    this->createDescriptorSets();
     this->createCommandBuffers();
     this->createSyncObjects();
   }
@@ -765,7 +767,7 @@ namespace nile {
     rasterizer.polygonMode = VK_POLYGON_MODE_FILL;
     rasterizer.lineWidth = 1.0f;
     rasterizer.cullMode = VK_CULL_MODE_BACK_BIT;
-    rasterizer.frontFace = VK_FRONT_FACE_CLOCKWISE;
+    rasterizer.frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE;
 
     rasterizer.depthBiasEnable = VK_FALSE;
     rasterizer.depthBiasConstantFactor = 0.0f;
@@ -955,6 +957,9 @@ namespace nile {
       vkCmdBindVertexBuffers( m_commandBuffers[ i ], 0, 1, vertexBuffers, offsets );
       vkCmdBindIndexBuffer( m_commandBuffers[ i ], m_indexBuffer, 0, VK_INDEX_TYPE_UINT16 );
 
+      vkCmdBindDescriptorSets( m_commandBuffers[ i ], VK_PIPELINE_BIND_POINT_GRAPHICS,
+                               m_pipelineLayout, 0, 1, &m_descriptorSets[ i ], 0, nullptr );
+
       // Draw a triangle
       // vkCmdDraw( m_commandBuffers[ i ], static_cast<u32>( m_vertices.size() ), 1, 0, 0 );
       vkCmdDrawIndexed( m_commandBuffers[ i ], static_cast<u32>( m_indices.size() ), 1, 0, 0, 0 );
@@ -1005,6 +1010,8 @@ namespace nile {
     this->createGraphicsPipeline();
     this->createFrameBuffers();
     this->createUniformBuffers();
+    this->createDescriptorPool();
+    this->createDescriptorSets();
     this->createCommandBuffers();
   }
 
@@ -1015,6 +1022,8 @@ namespace nile {
       vkDestroyBuffer( m_logicalDevice, m_uniformBuffers[ i ], nullptr );
       vkFreeMemory( m_logicalDevice, m_uniformBuffersMemory[ i ], nullptr );
     }
+
+    vkDestroyDescriptorPool( m_logicalDevice, m_descriptorPool, nullptr );
 
     for ( const auto &framebuffer : m_swapChainFrameBuffers ) {
       vkDestroyFramebuffer( m_logicalDevice, framebuffer, nullptr );
@@ -1229,12 +1238,66 @@ namespace nile {
         m_swapChainExtent.width / static_cast<f32>( m_swapChainExtent.height ), 0.1f, 10.0f );
 
     // GLM has the Y coordinate of the clip coordinates inverted.
-    ubo.proj[1][1] *= -1;
+    ubo.proj[ 1 ][ 1 ] *= -1;
 
     void *data;
-    vkMapMemory(m_logicalDevice, m_uniformBuffersMemory[imageIndex],0, sizeof(ubo), 0, &data);
-    memcpy(data, &ubo, sizeof(ubo));
-    vkUnmapMemory(m_logicalDevice, m_uniformBuffersMemory[imageIndex]);
+    vkMapMemory( m_logicalDevice, m_uniformBuffersMemory[ imageIndex ], 0, sizeof( ubo ), 0,
+                 &data );
+    memcpy( data, &ubo, sizeof( ubo ) );
+    vkUnmapMemory( m_logicalDevice, m_uniformBuffersMemory[ imageIndex ] );
+  }
+
+  void VulkanRenderingDevice::createDescriptorPool() noexcept {
+
+    VkDescriptorPoolSize pool_size = {};
+    pool_size.type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+    pool_size.descriptorCount = static_cast<u32>( m_swapChainImages.size() );
+
+    VkDescriptorPoolCreateInfo pool_info = {};
+    pool_info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
+    pool_info.poolSizeCount = 1;
+    pool_info.pPoolSizes = &pool_size;
+    pool_info.maxSets = static_cast<u32>( m_swapChainImages.size() );
+
+    VK_CHECK_RESULT(
+        vkCreateDescriptorPool( m_logicalDevice, &pool_info, nullptr, &m_descriptorPool ) );
+  }
+
+  void VulkanRenderingDevice::createDescriptorSets() noexcept {
+
+    std::vector<VkDescriptorSetLayout> layouts( m_swapChainImages.size(), m_descriptorSetLayout );
+
+    VkDescriptorSetAllocateInfo alloc_info = {};
+    alloc_info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
+    alloc_info.descriptorPool = m_descriptorPool;
+    alloc_info.descriptorSetCount = static_cast<uint32_t>( m_swapChainImages.size() );
+    alloc_info.pSetLayouts = layouts.data();
+
+    m_descriptorSets.resize( m_swapChainImages.size() );
+
+    VK_CHECK_RESULT(
+        vkAllocateDescriptorSets( m_logicalDevice, &alloc_info, m_descriptorSets.data() ) );
+
+    for ( size_t i = 0; i < m_swapChainImages.size(); i++ ) {
+
+      VkDescriptorBufferInfo buffer_info = {};
+      buffer_info.buffer = m_uniformBuffers[ i ];
+      buffer_info.offset = 0;
+      buffer_info.range = sizeof( UniformBufferObject );
+
+      VkWriteDescriptorSet descriptor_write = {};
+      descriptor_write.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+      descriptor_write.dstSet = m_descriptorSets[ i ];
+      descriptor_write.dstBinding = 0;
+      descriptor_write.dstArrayElement = 0;
+      descriptor_write.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+      descriptor_write.descriptorCount = 1;
+      descriptor_write.pBufferInfo = &buffer_info;
+      descriptor_write.pImageInfo = nullptr;
+      descriptor_write.pTexelBufferView = nullptr;
+
+      vkUpdateDescriptorSets( m_logicalDevice, 1, &descriptor_write, 0, nullptr );
+    }
   }
 
 }    // namespace nile
