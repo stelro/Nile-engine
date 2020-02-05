@@ -12,6 +12,7 @@ $Notice: $
 #include "Nile/core/types.hh"
 #include <GL/glew.h>
 
+
 namespace nile {
 
   // Texture2D is able to store and configure texture in OpenGL.
@@ -104,6 +105,8 @@ namespace nile {
 
     TextureType m_textureType = TextureType::DIFFUSE;
 
+    unsigned char* m_imageData;
+
   public:
     Texture2D() noexcept;
 
@@ -146,8 +149,11 @@ namespace nile {
       m_textureType = type;
     }
 
-    void setParameter(TextureTargetParams target, TextureParams param) noexcept;
+    void setParameter( TextureTargetParams target, TextureParams param ) noexcept;
 
+    unsigned char* getData() const noexcept {
+      return m_imageData;
+    }
   };
 
 }    // namespace nile

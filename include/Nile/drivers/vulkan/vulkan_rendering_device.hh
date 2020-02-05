@@ -11,12 +11,13 @@
 
 #include "Nile/log/log.hh"
 #include <array>
+#include <chrono>
 #include <memory>
 #include <optional>
 #include <vector>
-#include <chrono>
 
 namespace nile {
+
 
   constexpr static const i32 MAX_FRAMES_IN_FLIGHT = 2;
 
@@ -29,6 +30,8 @@ namespace nile {
                                       const VkAllocationCallbacks *pAllocator );
 
   class Settings;
+  // @temporary
+  class AssetManager;
 
   class VulkanRenderingDevice : public RenderingDevice {
 
@@ -48,6 +51,8 @@ namespace nile {
         return graphicsFamily.has_value() && presentFamily.has_value();
       }
     };
+
+    std::shared_ptr<AssetManager> m_assetManager;
 
     // @temporary: this struct used for debug purpouses here.
     // we will be using the defualt vertex object provided by the engine
@@ -85,9 +90,9 @@ namespace nile {
     };
 
     struct UniformBufferObject {
-      alignas(16) glm::mat4 model;
-      alignas(16) glm::mat4 view;
-      alignas(16) glm::mat4 proj;
+      alignas( 16 ) glm::mat4 model;
+      alignas( 16 ) glm::mat4 view;
+      alignas( 16 ) glm::mat4 proj;
     };
 
     struct SwapChainSupportDetails {
@@ -152,7 +157,9 @@ namespace nile {
     void createDescriptorPool() noexcept;
     void createDescriptorSets() noexcept;
 
-    void updateUniformBuffer(u32 imageIndex) noexcept;
+    void updateUniformBuffer( u32 imageIndex ) noexcept;
+
+    void createTextureImage() noexcept;
 
     [[nodiscard]] VkShaderModule createShaderModule( const std::vector<char> &code ) noexcept;
 
@@ -188,6 +195,20 @@ namespace nile {
                        VkMemoryPropertyFlags properties, VkBuffer &buffer,
                        VkDeviceMemory &bufferMemory ) noexcept;
     void copyBuffer( VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size ) noexcept;
+
+
+    // those two next methods above belongs to copyBuffer but its also used by imageBuffer
+    VkCommandBuffer beginSingleTimeCommands() noexcept;
+    void endSingleTimeCommands( VkCommandBuffer commandBuffer ) noexcept;
+
+    void createImage( u32 width, u32 height, VkFormat format, VkImageTiling tiling,
+                      VkImageUsageFlags flags, VkMemoryPropertyFlags properties, VkImage &image,
+                      VkDeviceMemory &imageMemory ) noexcept;
+
+    void transitionImageLayout( VkImage image, VkFormat format, VkImageLayout oldLayout,
+                                VkImageLayout newLayout ) noexcept;
+
+    void copyBufferToImage( VkBuffer buffer, VkImage image, u32 width, u32 height ) noexcept;
 
     SDL_Window *m_window = nullptr;
     VkInstance m_vulkanInstance;
@@ -242,6 +263,9 @@ namespace nile {
     VkBuffer m_indexBuffer;
     VkDeviceMemory m_indexBufferMemory;
 
+    VkImage m_textureImage;
+    VkDeviceMemory m_textureImageMemory;
+
     std::vector<VkBuffer> m_uniformBuffers;
     std::vector<VkDeviceMemory> m_uniformBuffersMemory;
 
@@ -276,7 +300,8 @@ namespace nile {
     std::vector<const char *> m_deviceExtensions = {VK_KHR_SWAPCHAIN_EXTENSION_NAME};
 
   public:
-    VulkanRenderingDevice( const std::shared_ptr<Settings> &settings ) noexcept;
+    VulkanRenderingDevice( const std::shared_ptr<Settings> &settings,
+                           const std::shared_ptr<AssetManager> &assetManager ) noexcept;
 
     void initialize() noexcept override;
     void destory() noexcept override;

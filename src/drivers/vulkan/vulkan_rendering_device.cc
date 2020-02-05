@@ -1,10 +1,12 @@
 #include "Nile/drivers/vulkan/vulkan_rendering_device.hh"
+#include "Nile/asset/asset_manager.hh"
 #include "Nile/core/assert.hh"
 #include "Nile/core/file_system.hh"
 #include "Nile/core/settings.hh"
 #include "Nile/core/types.hh"
 #include "Nile/drivers/vulkan/vulkan_utils.hh"
 #include "Nile/log/log.hh"
+
 
 #include <SDL2/SDL_vulkan.h>
 
@@ -35,8 +37,11 @@ namespace nile {
     }
   }
 
-  VulkanRenderingDevice::VulkanRenderingDevice( const std::shared_ptr<Settings> &settings ) noexcept
-      : RenderingDevice( settings ) {}
+  VulkanRenderingDevice::VulkanRenderingDevice(
+      const std::shared_ptr<Settings> &settings,
+      const std::shared_ptr<AssetManager> &assetManager ) noexcept
+      : RenderingDevice( settings )
+      , m_assetManager( assetManager ) {}
 
   void VulkanRenderingDevice::initialize() noexcept {
 
@@ -54,6 +59,7 @@ namespace nile {
     this->createGraphicsPipeline();
     this->createFrameBuffers();
     this->createCommandPool();
+    this->createTextureImage();
     this->createVertexBuffer();
     this->createIndexBuffer();
     this->createUniformBuffers();
@@ -66,6 +72,9 @@ namespace nile {
   void VulkanRenderingDevice::destory() noexcept {
 
     this->cleanupSwapChain();
+
+    vkDestroyImage( m_logicalDevice, m_textureImage, nullptr );
+    vkFreeMemory( m_logicalDevice, m_textureImageMemory, nullptr );
 
     vkDestroyDescriptorSetLayout( m_logicalDevice, m_descriptorSetLayout, nullptr );
 
@@ -1123,6 +1132,19 @@ namespace nile {
   void VulkanRenderingDevice::copyBuffer( VkBuffer srcBuffer, VkBuffer dstBuffer,
                                           VkDeviceSize size ) noexcept {
 
+    auto command_buffer = beginSingleTimeCommands();
+
+    VkBufferCopy copy_region = {};
+    copy_region.srcOffset = 0;
+    copy_region.dstOffset = 0;
+    copy_region.size = size;
+
+    vkCmdCopyBuffer( command_buffer, srcBuffer, dstBuffer, 1, &copy_region );
+
+    endSingleTimeCommands( command_buffer );
+  }
+
+  VkCommandBuffer VulkanRenderingDevice::beginSingleTimeCommands() noexcept {
     // @fix: we should create seperate command pool for this short-lived operations
     // we should use the VK_COMMAND_POOL_CREATE_TRANSFER_BIT
     VkCommandBufferAllocateInfo alloc_info = {};
@@ -1140,24 +1162,25 @@ namespace nile {
 
     vkBeginCommandBuffer( command_buffer, &begin_info );
 
-    VkBufferCopy copy_region = {};
-    copy_region.srcOffset = 0;
-    copy_region.dstOffset = 0;
-    copy_region.size = size;
-    vkCmdCopyBuffer( command_buffer, srcBuffer, dstBuffer, 1, &copy_region );
-    vkEndCommandBuffer( command_buffer );
+    return command_buffer;
+  }
+
+  void VulkanRenderingDevice::endSingleTimeCommands( VkCommandBuffer commandBuffer ) noexcept {
+
+    vkEndCommandBuffer( commandBuffer );
 
     VkSubmitInfo submit_info = {};
     submit_info.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
     submit_info.commandBufferCount = 1;
-    submit_info.pCommandBuffers = &command_buffer;
+    submit_info.pCommandBuffers = &commandBuffer;
 
     // we should query a separte queue for transfer operations
     vkQueueSubmit( m_graphicsQueue, 1, &submit_info, VK_NULL_HANDLE );
     vkQueueWaitIdle( m_graphicsQueue );
 
-    vkFreeCommandBuffers( m_logicalDevice, m_commandPool, 1, &command_buffer );
+    vkFreeCommandBuffers( m_logicalDevice, m_commandPool, 1, &commandBuffer );
   }
+
 
   void VulkanRenderingDevice::createIndexBuffer() noexcept {
 
@@ -1299,6 +1322,164 @@ namespace nile {
       vkUpdateDescriptorSets( m_logicalDevice, 1, &descriptor_write, 0, nullptr );
     }
   }
+
+  void VulkanRenderingDevice::createTextureImage() noexcept {
+
+    // @fixit: do we know that texture has loaded? should we handle somehow the error?
+    auto texture = m_assetManager->loadAsset<Texture2D>(
+        "vulkan_texture", FileSystem::getPath( "assets/textures/statue.jpg" ) );
+
+    VkDeviceSize image_size = texture->getWidth() * texture->getHeight() * 4;
+
+    VkBuffer staging_buffer;
+    VkDeviceMemory staging_buffer_memory;
+
+    createBuffer( image_size, VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+                  VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+                  staging_buffer, staging_buffer_memory );
+
+
+    void *data;
+    vkMapMemory( m_logicalDevice, staging_buffer_memory, 0, image_size, 0, &data );
+    memcpy( data, texture->getData(), static_cast<size_t>( image_size ) );
+    vkUnmapMemory( m_logicalDevice, staging_buffer_memory );
+
+    createImage( texture->getWidth(), texture->getHeight(), VK_FORMAT_B8G8R8A8_UNORM,
+                 VK_IMAGE_TILING_OPTIMAL,
+                 VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT,
+                 VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, m_textureImage, m_textureImageMemory );
+
+    transitionImageLayout( m_textureImage, VK_FORMAT_B8G8R8A8_UNORM, VK_IMAGE_LAYOUT_UNDEFINED,
+                           VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL );
+
+    copyBufferToImage( staging_buffer, m_textureImage, texture->getWidth(), texture->getHeight() );
+
+    transitionImageLayout( m_textureImage, VK_FORMAT_B8G8R8A8_UNORM,
+                           VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+                           VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL );
+
+    vkDestroyBuffer( m_logicalDevice, staging_buffer, nullptr );
+    vkFreeMemory( m_logicalDevice, staging_buffer_memory, nullptr );
+  }
+
+
+  void VulkanRenderingDevice::createImage( u32 width, u32 height, VkFormat format,
+                                           VkImageTiling tiling, VkImageUsageFlags flags,
+                                           VkMemoryPropertyFlags properties, VkImage &image,
+                                           VkDeviceMemory &imageMemory ) noexcept {
+
+    VkImageCreateInfo image_info = {};
+    image_info.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
+    image_info.imageType = VK_IMAGE_TYPE_2D;
+    image_info.extent.width = width;
+    image_info.extent.height = height;
+    image_info.extent.depth = 1;
+    image_info.mipLevels = 1;
+    image_info.arrayLayers = 1;
+    image_info.format = format;
+    image_info.tiling = tiling;
+    image_info.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+    image_info.usage = flags;
+    image_info.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+    image_info.samples = VK_SAMPLE_COUNT_1_BIT;
+    // We could use this for spare images ( e.g 3D textures for voxels terrain, we could use
+    // this flag to avoid allocating memory to sotre large voloumes of "air" values.)
+    image_info.flags = 0;
+
+    VK_CHECK_RESULT( vkCreateImage( m_logicalDevice, &image_info, nullptr, &image ) );
+
+    VkMemoryRequirements mem_requirements;
+    vkGetImageMemoryRequirements( m_logicalDevice, image, &mem_requirements );
+
+    VkMemoryAllocateInfo alloc_info = {};
+    alloc_info.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
+    alloc_info.allocationSize = mem_requirements.size;
+    alloc_info.memoryTypeIndex =
+        findMemoryType( mem_requirements.memoryTypeBits, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT );
+
+    VK_CHECK_RESULT( vkAllocateMemory( m_logicalDevice, &alloc_info, nullptr, &imageMemory ) );
+
+    vkBindImageMemory( m_logicalDevice, image, imageMemory, 0 );
+  }
+
+  void VulkanRenderingDevice::transitionImageLayout( VkImage image, VkFormat format,
+                                                     VkImageLayout oldLayout,
+                                                     VkImageLayout newLayout ) noexcept {
+
+    auto command_buffer = beginSingleTimeCommands();
+
+    // Sync layout transitions  ( ensuring that a write to a buffer completes before
+    // reading from it)
+    VkImageMemoryBarrier barrier = {};
+    barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+    barrier.oldLayout = oldLayout;
+    barrier.newLayout = newLayout;
+    barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+    barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+
+    barrier.image = image;
+    barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+    barrier.subresourceRange.baseMipLevel = 0;
+    barrier.subresourceRange.levelCount = 1;
+    barrier.subresourceRange.baseArrayLayer = 0;
+    barrier.subresourceRange.layerCount = 1;
+
+    VkPipelineStageFlags source_stage;
+    VkPipelineStageFlags destinatino_stage;
+
+    if ( oldLayout == VK_IMAGE_LAYOUT_UNDEFINED &&
+         newLayout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL ) {
+
+      barrier.srcAccessMask = 0;
+      barrier.dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+
+      source_stage = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
+      destinatino_stage = VK_PIPELINE_STAGE_TRANSFER_BIT;
+    } else if ( oldLayout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL &&
+                newLayout == VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL ) {
+
+      barrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+      barrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
+
+      source_stage = VK_PIPELINE_STAGE_TRANSFER_BIT;
+      source_stage = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
+    } else {
+      ASSERT_M( false, "Unsupported layout transition!" );
+    }
+
+
+    vkCmdPipelineBarrier( command_buffer, source_stage, destinatino_stage, 0, 0, nullptr, 0,
+                          nullptr, 1, &barrier );
+
+
+    endSingleTimeCommands( command_buffer );
+  }
+
+  void VulkanRenderingDevice::copyBufferToImage( VkBuffer buffer, VkImage image, u32 width,
+                                                 u32 height ) noexcept {
+
+    auto command_buffer = beginSingleTimeCommands();
+
+    VkBufferImageCopy region = {};
+    region.bufferOffset = 0;
+    region.bufferRowLength = 0;
+    region.bufferImageHeight = 0;
+
+    region.imageSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+    region.imageSubresource.mipLevel = 0;
+    region.imageSubresource.baseArrayLayer = 0;
+    region.imageSubresource.layerCount = 1;
+
+    region.imageOffset = {0, 0, 0};
+    region.imageExtent = {width, height, 1};
+
+    vkCmdCopyBufferToImage( command_buffer, buffer, image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1,
+                            &region );
+
+
+    endSingleTimeCommands( command_buffer );
+  }
+
 
 }    // namespace nile
 

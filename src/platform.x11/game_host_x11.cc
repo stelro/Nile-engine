@@ -99,6 +99,9 @@ namespace nile::X11 {
     ( inputManager ) ? log::notice( "InputManager have been created!\n" )
                      : log::fatal( "Engine has failed to create InputManager!\n" );
 
+    assetManager = std::make_shared<AssetManager>();
+    ( assetManager ) ? log::notice( "AssetManager have been created!\n" )
+                     : log::fatal( "Engine has failed to create AssetManager!\n" );
 
     // renderer = std::make_shared<OpenGLRenderer>( settings );
     // renderer->init();
@@ -106,7 +109,7 @@ namespace nile::X11 {
     // ( renderer ) ? log::notice( "OpenGL Renderer have been created and initialized!\n" )
     //              : log::fatal( "Engine has failed to create OpenGL Renderer!\n" );
     //
-    vulkan_renderer = std::make_shared<VulkanRenderingDevice>( settings );
+    vulkan_renderer = std::make_shared<VulkanRenderingDevice>( settings, assetManager );
     vulkan_renderer->initialize();
     ( vulkan_renderer ) ? log::notice( "Vulkan Renderer have been created and initialized!\n" )
                         : log::fatal( "Engine has failed to create vulkan Renderer!\n" );
@@ -120,10 +123,6 @@ namespace nile::X11 {
     // ( m_framebuffer ) ? log::print( "\tOpenGL Frambuffer have been created and initialized!\n" )
     //                   : log::fatal( "Engine has failed to create OpenGL Framebuffer!\n" );
     //
-
-    assetManager = std::make_shared<AssetManager>();
-    ( assetManager ) ? log::notice( "AssetManager have been created!\n" )
-                     : log::fatal( "Engine has failed to create AssetManager!\n" );
 
     // Create and initialize Entity Component System coordinator
     ecsCoordinator = std::make_shared<Coordinator>();

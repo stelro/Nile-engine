@@ -30,6 +30,8 @@ namespace nile {
     this->m_width = width;
     this->m_height = height;
 
+    m_imageData = data;
+
     // create texture
     glBindTexture( GL_TEXTURE_2D, this->m_id );
     glTexImage2D( GL_TEXTURE_2D, 0, this->m_internalFormat, width, height, 0, this->m_imageFormat,
