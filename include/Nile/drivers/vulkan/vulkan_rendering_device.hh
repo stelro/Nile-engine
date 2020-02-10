@@ -160,6 +160,8 @@ namespace nile {
     void updateUniformBuffer( u32 imageIndex ) noexcept;
 
     void createTextureImage() noexcept;
+    void createTextureImageView() noexcept;
+    void createTextureSampler() noexcept;
 
     [[nodiscard]] VkShaderModule createShaderModule( const std::vector<char> &code ) noexcept;
 
@@ -265,6 +267,8 @@ namespace nile {
 
     VkImage m_textureImage;
     VkDeviceMemory m_textureImageMemory;
+    VkImageView m_textureImageView;
+    VkSampler m_textureSampler;
 
     std::vector<VkBuffer> m_uniformBuffers;
     std::vector<VkDeviceMemory> m_uniformBuffersMemory;

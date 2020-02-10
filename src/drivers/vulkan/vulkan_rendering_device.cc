@@ -54,12 +54,14 @@ namespace nile {
     this->createLogicalDevice();
     this->createSwapChain();
     this->createImageViews();
+    this->createTextureSampler();
     this->createRenderPass();
     this->createDescriptorSetLayout();
     this->createGraphicsPipeline();
     this->createFrameBuffers();
     this->createCommandPool();
     this->createTextureImage();
+    this->createTextureImageView();
     this->createVertexBuffer();
     this->createIndexBuffer();
     this->createUniformBuffers();
@@ -73,6 +75,8 @@ namespace nile {
 
     this->cleanupSwapChain();
 
+    vkDestroySampler(m_logicalDevice, m_textureSampler, nullptr);
+    vkDestroyImageView(m_logicalDevice, m_textureImageView, nullptr);
     vkDestroyImage( m_logicalDevice, m_textureImage, nullptr );
     vkFreeMemory( m_logicalDevice, m_textureImageMemory, nullptr );
 
@@ -353,6 +357,9 @@ namespace nile {
 
     bool extension_is_supported = checkDeviceExtensionSuport( device );
 
+    VkPhysicalDeviceFeatures supported_features;
+    vkGetPhysicalDeviceFeatures(device, &supported_features);
+
     bool swap_chain_adequate = false;
     if ( extension_is_supported ) {
       auto swap_chain_support = querySwapChainSupport( device );
@@ -361,7 +368,7 @@ namespace nile {
     }
 
 
-    return indices.isComplete() && extension_is_supported && swap_chain_adequate;
+    return indices.isComplete() && extension_is_supported && swap_chain_adequate && supported_features.samplerAnisotropy;
   }
 
   bool VulkanRenderingDevice::checkDeviceExtensionSuport( VkPhysicalDevice device ) const noexcept {
@@ -440,6 +447,7 @@ namespace nile {
     }
 
     VkPhysicalDeviceFeatures device_features = {};
+    device_features.samplerAnisotropy = VK_TRUE;
 
     VkDeviceCreateInfo create_info = {};
     create_info.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
@@ -1344,17 +1352,17 @@ namespace nile {
     memcpy( data, texture->getData(), static_cast<size_t>( image_size ) );
     vkUnmapMemory( m_logicalDevice, staging_buffer_memory );
 
-    createImage( texture->getWidth(), texture->getHeight(), VK_FORMAT_B8G8R8A8_UNORM,
+    createImage( texture->getWidth(), texture->getHeight(), VK_FORMAT_B8G8R8A8_SRGB,
                  VK_IMAGE_TILING_OPTIMAL,
                  VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT,
                  VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, m_textureImage, m_textureImageMemory );
 
-    transitionImageLayout( m_textureImage, VK_FORMAT_B8G8R8A8_UNORM, VK_IMAGE_LAYOUT_UNDEFINED,
+    transitionImageLayout( m_textureImage, VK_FORMAT_B8G8R8A8_SRGB, VK_IMAGE_LAYOUT_UNDEFINED,
                            VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL );
 
     copyBufferToImage( staging_buffer, m_textureImage, texture->getWidth(), texture->getHeight() );
 
-    transitionImageLayout( m_textureImage, VK_FORMAT_B8G8R8A8_UNORM,
+    transitionImageLayout( m_textureImage, VK_FORMAT_B8G8R8A8_SRGB,
                            VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
                            VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL );
 
@@ -1416,7 +1424,6 @@ namespace nile {
     barrier.newLayout = newLayout;
     barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
     barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-
     barrier.image = image;
     barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
     barrier.subresourceRange.baseMipLevel = 0;
@@ -1425,7 +1432,7 @@ namespace nile {
     barrier.subresourceRange.layerCount = 1;
 
     VkPipelineStageFlags source_stage;
-    VkPipelineStageFlags destinatino_stage;
+    VkPipelineStageFlags destination_stage;
 
     if ( oldLayout == VK_IMAGE_LAYOUT_UNDEFINED &&
          newLayout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL ) {
@@ -1434,7 +1441,7 @@ namespace nile {
       barrier.dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
 
       source_stage = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
-      destinatino_stage = VK_PIPELINE_STAGE_TRANSFER_BIT;
+      destination_stage = VK_PIPELINE_STAGE_TRANSFER_BIT;
     } else if ( oldLayout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL &&
                 newLayout == VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL ) {
 
@@ -1448,7 +1455,7 @@ namespace nile {
     }
 
 
-    vkCmdPipelineBarrier( command_buffer, source_stage, destinatino_stage, 0, 0, nullptr, 0,
+    vkCmdPipelineBarrier( command_buffer, source_stage, destination_stage, 0, 0, nullptr, 0,
                           nullptr, 1, &barrier );
 
 
@@ -1480,6 +1487,50 @@ namespace nile {
     endSingleTimeCommands( command_buffer );
   }
 
+  void VulkanRenderingDevice::createTextureImageView() noexcept {
+
+    VkImageViewCreateInfo create_info = {};
+    create_info.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+    create_info.image = m_textureImage;
+    create_info.viewType = VK_IMAGE_VIEW_TYPE_2D;
+    create_info.format = VK_FORMAT_B8G8R8A8_SRGB;
+    create_info.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+    create_info.subresourceRange.baseMipLevel = 0;
+    create_info.subresourceRange.levelCount = 1;
+    create_info.subresourceRange.baseArrayLayer = 0;
+    create_info.subresourceRange.layerCount = 1;
+
+    VK_CHECK_RESULT(
+        vkCreateImageView( m_logicalDevice, &create_info, nullptr, &m_textureImageView ) );
+  }
+
+  void VulkanRenderingDevice::createTextureSampler() noexcept {
+
+    VkSamplerCreateInfo sampler_info = {};
+    sampler_info.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
+    sampler_info.magFilter = VK_FILTER_LINEAR;
+    sampler_info.minFilter = VK_FILTER_LINEAR;
+    sampler_info.addressModeU = VK_SAMPLER_ADDRESS_MODE_REPEAT;
+    sampler_info.addressModeV = VK_SAMPLER_ADDRESS_MODE_REPEAT;
+    sampler_info.addressModeW = VK_SAMPLER_ADDRESS_MODE_REPEAT;
+    sampler_info.anisotropyEnable = VK_TRUE;
+    sampler_info.maxAnisotropy = 16;
+    sampler_info.borderColor = VK_BORDER_COLOR_INT_OPAQUE_BLACK;
+    // @consider: unnormalizedCoordinates is used to spcify which coordinates type
+    // we want to use, e.g normalized ( [0,1] range or unnormalized [0, texWidth] range ).
+    // consider this for 2D apps and 3D apps
+    sampler_info.unnormalizedCoordinates = VK_FALSE;
+    // the above is usefull for shadow mapping
+    sampler_info.compareEnable = VK_FALSE;
+    sampler_info.compareOp = VK_COMPARE_OP_ALWAYS;
+    sampler_info.mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
+    sampler_info.mipLodBias = 0.0f;
+    sampler_info.minLod = 0.0f;
+    sampler_info.maxLod = 0.0f;
+
+    VK_CHECK_RESULT(vkCreateSampler(m_logicalDevice, &sampler_info, nullptr, &m_textureSampler));
+
+  }
 
 }    // namespace nile
 
