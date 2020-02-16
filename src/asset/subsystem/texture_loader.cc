@@ -22,6 +22,11 @@ namespace nile {
                                       const std::string &filePath ) noexcept {
 
     auto texture = std::make_shared<Texture2D>();
+
+    // @incomplete
+    // @incomplete
+    // @incomplete
+    // this should be handeled as game engine option or parameter
     const auto alpha = true;
 
     if ( alpha ) {
