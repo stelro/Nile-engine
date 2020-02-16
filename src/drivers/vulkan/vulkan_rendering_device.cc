@@ -6,6 +6,7 @@
 #include "Nile/core/types.hh"
 #include "Nile/drivers/vulkan/vulkan_utils.hh"
 #include "Nile/log/log.hh"
+#include "stb_image.h"
 
 
 #include <SDL2/SDL_vulkan.h>
@@ -75,8 +76,8 @@ namespace nile {
 
     this->cleanupSwapChain();
 
-    vkDestroySampler(m_logicalDevice, m_textureSampler, nullptr);
-    vkDestroyImageView(m_logicalDevice, m_textureImageView, nullptr);
+    vkDestroySampler( m_logicalDevice, m_textureSampler, nullptr );
+    vkDestroyImageView( m_logicalDevice, m_textureImageView, nullptr );
     vkDestroyImage( m_logicalDevice, m_textureImage, nullptr );
     vkFreeMemory( m_logicalDevice, m_textureImageMemory, nullptr );
 
@@ -358,7 +359,7 @@ namespace nile {
     bool extension_is_supported = checkDeviceExtensionSuport( device );
 
     VkPhysicalDeviceFeatures supported_features;
-    vkGetPhysicalDeviceFeatures(device, &supported_features);
+    vkGetPhysicalDeviceFeatures( device, &supported_features );
 
     bool swap_chain_adequate = false;
     if ( extension_is_supported ) {
@@ -368,7 +369,8 @@ namespace nile {
     }
 
 
-    return indices.isComplete() && extension_is_supported && swap_chain_adequate && supported_features.samplerAnisotropy;
+    return indices.isComplete() && extension_is_supported && swap_chain_adequate &&
+           supported_features.samplerAnisotropy;
   }
 
   bool VulkanRenderingDevice::checkDeviceExtensionSuport( VkPhysicalDevice device ) const noexcept {
@@ -506,7 +508,7 @@ namespace nile {
       const std::vector<VkSurfaceFormatKHR> &availableFormats ) noexcept {
 
     for ( const auto &available_format : availableFormats ) {
-      if ( available_format.format == VK_FORMAT_B8G8R8A8_UNORM &&
+      if ( available_format.format == VK_FORMAT_R8G8B8A8_SRGB &&
            available_format.colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR ) {
         return available_format;
       }
@@ -1221,15 +1223,25 @@ namespace nile {
     ubo_layout_binding.binding = 0;
     ubo_layout_binding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
     ubo_layout_binding.descriptorCount = 1;
-    // Which shader stage will be using the descriptor ? use
+    // @notice: Which shader stage will be using the descriptor ? use
     // VK_SHADER_STAGE_ALL_GRAPHICS to use it everywhere
     ubo_layout_binding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
     ubo_layout_binding.pImmutableSamplers = nullptr;
 
+    VkDescriptorSetLayoutBinding sampler_layout_binding = {};
+    sampler_layout_binding.binding = 1;
+    sampler_layout_binding.descriptorCount = 1;
+    sampler_layout_binding.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+    sampler_layout_binding.pImmutableSamplers = nullptr;
+    sampler_layout_binding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+
+    std::array<VkDescriptorSetLayoutBinding, 2> bindings = {ubo_layout_binding,
+                                                            sampler_layout_binding};
+
     VkDescriptorSetLayoutCreateInfo layout_info = {};
     layout_info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-    layout_info.bindingCount = 1;
-    layout_info.pBindings = &ubo_layout_binding;
+    layout_info.bindingCount = static_cast<u32>( bindings.size() );
+    layout_info.pBindings = bindings.data();
 
     VK_CHECK_RESULT( vkCreateDescriptorSetLayout( m_logicalDevice, &layout_info, nullptr,
                                                   &m_descriptorSetLayout ) );
@@ -1280,14 +1292,16 @@ namespace nile {
 
   void VulkanRenderingDevice::createDescriptorPool() noexcept {
 
-    VkDescriptorPoolSize pool_size = {};
-    pool_size.type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-    pool_size.descriptorCount = static_cast<u32>( m_swapChainImages.size() );
+    std::array<VkDescriptorPoolSize, 2> pool_sizes = {};
+    pool_sizes[ 0 ].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+    pool_sizes[ 0 ].descriptorCount = static_cast<u32>( m_swapChainImages.size() );
+    pool_sizes[ 1 ].type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+    pool_sizes[ 1 ].descriptorCount = static_cast<u32>( m_swapChainImages.size() );
 
     VkDescriptorPoolCreateInfo pool_info = {};
     pool_info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
-    pool_info.poolSizeCount = 1;
-    pool_info.pPoolSizes = &pool_size;
+    pool_info.poolSizeCount = static_cast<u32>( pool_sizes.size() );
+    pool_info.pPoolSizes = pool_sizes.data();
     pool_info.maxSets = static_cast<u32>( m_swapChainImages.size() );
 
     VK_CHECK_RESULT(
@@ -1316,18 +1330,31 @@ namespace nile {
       buffer_info.offset = 0;
       buffer_info.range = sizeof( UniformBufferObject );
 
-      VkWriteDescriptorSet descriptor_write = {};
-      descriptor_write.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-      descriptor_write.dstSet = m_descriptorSets[ i ];
-      descriptor_write.dstBinding = 0;
-      descriptor_write.dstArrayElement = 0;
-      descriptor_write.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-      descriptor_write.descriptorCount = 1;
-      descriptor_write.pBufferInfo = &buffer_info;
-      descriptor_write.pImageInfo = nullptr;
-      descriptor_write.pTexelBufferView = nullptr;
+      VkDescriptorImageInfo image_info = {};
+      image_info.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+      image_info.imageView = m_textureImageView;
+      image_info.sampler = m_textureSampler;
 
-      vkUpdateDescriptorSets( m_logicalDevice, 1, &descriptor_write, 0, nullptr );
+      std::array<VkWriteDescriptorSet, 2> descriptor_writes = {};
+      descriptor_writes[ 0 ].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+      descriptor_writes[ 0 ].dstSet = m_descriptorSets[ i ];
+      descriptor_writes[ 0 ].dstBinding = 0;
+      descriptor_writes[ 0 ].dstArrayElement = 0;
+      descriptor_writes[ 0 ].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+      descriptor_writes[ 0 ].descriptorCount = 1;
+      descriptor_writes[ 0 ].pBufferInfo = &buffer_info;
+
+      descriptor_writes[ 1 ].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+      descriptor_writes[ 1 ].dstSet = m_descriptorSets[ i ];
+      descriptor_writes[ 1 ].dstBinding = 1;
+      descriptor_writes[ 1 ].dstArrayElement = 0;
+      descriptor_writes[ 1 ].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+      descriptor_writes[ 1 ].descriptorCount = 1;
+      descriptor_writes[ 1 ].pImageInfo = &image_info;
+
+
+      vkUpdateDescriptorSets( m_logicalDevice, static_cast<u32>( descriptor_writes.size() ),
+                              descriptor_writes.data(), 0, nullptr );
     }
   }
 
@@ -1337,7 +1364,10 @@ namespace nile {
     auto texture = m_assetManager->loadAsset<Texture2D>(
         "vulkan_texture", FileSystem::getPath( "assets/textures/statue.jpg" ) );
 
-    VkDeviceSize image_size = texture->getWidth() * texture->getHeight() * 4;
+    const auto tex_width = texture->getWidth();
+    const auto tex_height = texture->getHeight();
+
+    VkDeviceSize image_size = tex_width * tex_height * 4;
 
     VkBuffer staging_buffer;
     VkDeviceMemory staging_buffer_memory;
@@ -1352,17 +1382,16 @@ namespace nile {
     memcpy( data, texture->getData(), static_cast<size_t>( image_size ) );
     vkUnmapMemory( m_logicalDevice, staging_buffer_memory );
 
-    createImage( texture->getWidth(), texture->getHeight(), VK_FORMAT_B8G8R8A8_SRGB,
-                 VK_IMAGE_TILING_OPTIMAL,
+    createImage( tex_width, tex_height, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_TILING_OPTIMAL,
                  VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT,
                  VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, m_textureImage, m_textureImageMemory );
 
-    transitionImageLayout( m_textureImage, VK_FORMAT_B8G8R8A8_SRGB, VK_IMAGE_LAYOUT_UNDEFINED,
+    transitionImageLayout( m_textureImage, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_UNDEFINED,
                            VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL );
 
-    copyBufferToImage( staging_buffer, m_textureImage, texture->getWidth(), texture->getHeight() );
+    copyBufferToImage( staging_buffer, m_textureImage, tex_width, tex_height );
 
-    transitionImageLayout( m_textureImage, VK_FORMAT_B8G8R8A8_SRGB,
+    transitionImageLayout( m_textureImage, VK_FORMAT_R8G8B8A8_SRGB,
                            VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
                            VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL );
 
@@ -1493,7 +1522,7 @@ namespace nile {
     create_info.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
     create_info.image = m_textureImage;
     create_info.viewType = VK_IMAGE_VIEW_TYPE_2D;
-    create_info.format = VK_FORMAT_B8G8R8A8_SRGB;
+    create_info.format = VK_FORMAT_R8G8B8A8_SRGB;
     create_info.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
     create_info.subresourceRange.baseMipLevel = 0;
     create_info.subresourceRange.levelCount = 1;
@@ -1528,8 +1557,8 @@ namespace nile {
     sampler_info.minLod = 0.0f;
     sampler_info.maxLod = 0.0f;
 
-    VK_CHECK_RESULT(vkCreateSampler(m_logicalDevice, &sampler_info, nullptr, &m_textureSampler));
-
+    VK_CHECK_RESULT(
+        vkCreateSampler( m_logicalDevice, &sampler_info, nullptr, &m_textureSampler ) );
   }
 
 }    // namespace nile
