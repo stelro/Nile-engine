@@ -5,6 +5,7 @@
 #include <SDL2/SDL.h>
 
 #define GLM_FORCE_RADIANS
+#define GLM_FORCE_DEPTH_ZERO_TO_ONE
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <vulkan/vulkan.h>
@@ -57,7 +58,7 @@ namespace nile {
     // @temporary: this struct used for debug purpouses here.
     // we will be using the defualt vertex object provided by the engine
     struct Vertex {
-      glm::vec2 position;
+      glm::vec3 position;
       glm::vec3 color;
       glm::vec2 texCoord;
 
@@ -77,7 +78,7 @@ namespace nile {
 
         attribute_descriptions[ 0 ].binding = 0;
         attribute_descriptions[ 0 ].location = 0;
-        attribute_descriptions[ 0 ].format = VK_FORMAT_R32G32_SFLOAT;
+        attribute_descriptions[ 0 ].format = VK_FORMAT_R32G32B32_SFLOAT;
         attribute_descriptions[ 0 ].offset = offsetof( Vertex, position );
 
         attribute_descriptions[ 1 ].binding = 0;
@@ -167,6 +168,7 @@ namespace nile {
     void createTextureImage() noexcept;
     void createTextureImageView() noexcept;
     void createTextureSampler() noexcept;
+    void createDepthResources() noexcept;
 
     [[nodiscard]] VkShaderModule createShaderModule( const std::vector<char> &code ) noexcept;
 
@@ -174,6 +176,13 @@ namespace nile {
         noexcept;
     bool checkValidationLayerSupport() const noexcept;
     std::vector<const char *> getRequiredExtensions() const noexcept;
+
+    VkFormat findSupportedFormat( const std::vector<VkFormat> &canditates, VkImageTiling tiling,
+                                  VkFormatFeatureFlags feature ) const noexcept;
+
+    VkFormat findDepthFormat() const noexcept;
+
+    static bool hasSteniclComponent( VkFormat format ) noexcept;
 
     // Static functions
     static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(
@@ -203,6 +212,8 @@ namespace nile {
                        VkDeviceMemory &bufferMemory ) noexcept;
     void copyBuffer( VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size ) noexcept;
 
+    VkImageView createImageView( VkImage image, VkFormat format,
+                                 VkImageAspectFlags aspectFlags ) noexcept;
 
     // those two next methods above belongs to copyBuffer but its also used by imageBuffer
     VkCommandBuffer beginSingleTimeCommands() noexcept;
@@ -275,15 +286,28 @@ namespace nile {
     VkImageView m_textureImageView;
     VkSampler m_textureSampler;
 
+    VkImage m_depthImage;
+    VkDeviceMemory m_depthImageMemory;
+    VkImageView m_depthImageView;
+
     std::vector<VkBuffer> m_uniformBuffers;
     std::vector<VkDeviceMemory> m_uniformBuffersMemory;
 
-    const std::vector<Vertex> m_vertices = {{{-0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}, {1.0f, 0.0f}},
-                                            {{0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f}},
-                                            {{0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}, {0.0f, 1.0f}},
-                                            {{-0.5f, 0.5f}, {1.0f, 1.0f, 1.0f}, {1.0f, 1.0f}}};
+    const std::vector<Vertex> m_vertices = {
+        {{-0.5f, -0.5f, 0.0f}, {1.0f, 0.0f, 0.0f}, {1.0f, 0.0f}},
+        {{0.5f, -0.5f, 0.0f}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f}},
+        {{0.5f, 0.5f, 0.0f}, {0.0f, 0.0f, 1.0f}, {0.0f, 1.0f}},
+        {{-0.5f, 0.5f, 0.0f}, {1.0f, 1.0f, 1.0f}, {1.0f, 1.0f}},
 
-    const std::vector<u16> m_indices = {0, 1, 2, 2, 3, 0};
+        {{-0.5f, -0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}, {1.0f, 0.0f}},
+        {{0.5f, -0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f}},
+        {{0.5f, 0.5f, -0.5f}, {0.0f, 0.0f, 1.0f}, {0.0f, 1.0f}},
+        {{-0.5f, 0.5f, -0.5f}, {1.0f, 1.0f, 1.0f}, {1.0f, 1.0f}}
+
+
+    };
+
+    const std::vector<u16> m_indices = {0, 1, 2, 2, 3, 0, 4, 5, 6, 6, 7, 4};
 
 
     // Sempahores are used for GPU-GPU synchronazation

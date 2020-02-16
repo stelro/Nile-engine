@@ -59,6 +59,7 @@ namespace nile {
     this->createRenderPass();
     this->createDescriptorSetLayout();
     this->createGraphicsPipeline();
+    this->createDepthResources();
     this->createFrameBuffers();
     this->createCommandPool();
     this->createTextureImage();
@@ -637,25 +638,8 @@ namespace nile {
 
     for ( size_t i = 0; i < m_swapChainImages.size(); i++ ) {
 
-      VkImageViewCreateInfo create_info = {};
-      create_info.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
-      create_info.image = m_swapChainImages[ i ];
-      create_info.viewType = VK_IMAGE_VIEW_TYPE_2D;
-      create_info.format = m_swapChainImageFormat;
-
-      create_info.components.r = VK_COMPONENT_SWIZZLE_IDENTITY;
-      create_info.components.g = VK_COMPONENT_SWIZZLE_IDENTITY;
-      create_info.components.b = VK_COMPONENT_SWIZZLE_IDENTITY;
-      create_info.components.a = VK_COMPONENT_SWIZZLE_IDENTITY;
-
-      create_info.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-      create_info.subresourceRange.baseMipLevel = 0;
-      create_info.subresourceRange.levelCount = 1;
-      create_info.subresourceRange.baseArrayLayer = 0;
-      create_info.subresourceRange.layerCount = 1;
-
-      VK_CHECK_RESULT( vkCreateImageView( m_logicalDevice, &create_info, nullptr,
-                                          &m_sawapChainImageViews[ i ] ) );
+      m_sawapChainImageViews[ i ] = createImageView( m_swapChainImages[ i ], m_swapChainImageFormat,
+                                                     VK_IMAGE_ASPECT_COLOR_BIT );
     }
   }
 
@@ -681,10 +665,25 @@ namespace nile {
     color_attachment_ref.attachment = 0;
     color_attachment_ref.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 
+    VkAttachmentDescription depth_attachment = {};
+    depth_attachment.format = findDepthFormat();
+    depth_attachment.samples = VK_SAMPLE_COUNT_1_BIT;
+    depth_attachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+    depth_attachment.storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+    depth_attachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+    depth_attachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+    depth_attachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+    depth_attachment.finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+
+    VkAttachmentReference depth_attachment_ref = {};
+    depth_attachment_ref.attachment = 1;
+    depth_attachment_ref.layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+
     VkSubpassDescription subpass = {};
     subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
     subpass.colorAttachmentCount = 1;
     subpass.pColorAttachments = &color_attachment_ref;
+    subpass.pDepthStencilAttachment = &depth_attachment_ref;
 
     VkSubpassDependency dependency = {};
     dependency.srcSubpass = VK_SUBPASS_EXTERNAL;
@@ -695,10 +694,11 @@ namespace nile {
     dependency.dstAccessMask =
         VK_ACCESS_COLOR_ATTACHMENT_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
 
+    std::array<VkAttachmentDescription, 2> attachments = {color_attachment, depth_attachment};
     VkRenderPassCreateInfo render_pass_info = {};
     render_pass_info.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
-    render_pass_info.attachmentCount = 1;
-    render_pass_info.pAttachments = &color_attachment;
+    render_pass_info.attachmentCount = static_cast<u32>( attachments.size() );
+    render_pass_info.pAttachments = attachments.data();
     render_pass_info.subpassCount = 1;
     render_pass_info.pSubpasses = &subpass;
     render_pass_info.dependencyCount = 1;
@@ -802,6 +802,14 @@ namespace nile {
     multisampling.alphaToCoverageEnable = VK_FALSE;
     multisampling.alphaToOneEnable = VK_FALSE;
 
+    VkPipelineDepthStencilStateCreateInfo depth_stencil = {};
+    depth_stencil.sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO;
+    depth_stencil.depthTestEnable = VK_TRUE;
+    depth_stencil.depthWriteEnable = VK_TRUE;
+    depth_stencil.depthCompareOp = VK_COMPARE_OP_LESS;
+    depth_stencil.depthBoundsTestEnable = VK_FALSE;
+    depth_stencil.stencilTestEnable = VK_FALSE;
+
     VkPipelineColorBlendAttachmentState color_blend_attachment = {};
     color_blend_attachment.colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT |
                                             VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
@@ -856,7 +864,7 @@ namespace nile {
     pipeline_info.pViewportState = &view_port_state;
     pipeline_info.pRasterizationState = &rasterizer;
     pipeline_info.pMultisampleState = &multisampling;
-    pipeline_info.pDepthStencilState = nullptr;
+    pipeline_info.pDepthStencilState = &depth_stencil;
     pipeline_info.pColorBlendState = &color_blending;
     pipeline_info.pDynamicState = nullptr;
 
@@ -896,13 +904,13 @@ namespace nile {
 
     for ( size_t i = 0; i < m_sawapChainImageViews.size(); i++ ) {
 
-      VkImageView attachments[] = {m_sawapChainImageViews[ i ]};
+      std::array<VkImageView, 2> attachments = {m_sawapChainImageViews[ i ], m_depthImageView};
 
       VkFramebufferCreateInfo framebuffer_info = {};
       framebuffer_info.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
       framebuffer_info.renderPass = m_renderPass;
-      framebuffer_info.attachmentCount = 1;
-      framebuffer_info.pAttachments = attachments;
+      framebuffer_info.attachmentCount = static_cast<u32>( attachments.size() );
+      framebuffer_info.pAttachments = attachments.data();
       framebuffer_info.width = m_swapChainExtent.width;
       framebuffer_info.height = m_swapChainExtent.height;
       framebuffer_info.layers = 1;
@@ -961,9 +969,12 @@ namespace nile {
       render_pass_info.renderArea.offset = {0, 0};
       render_pass_info.renderArea.extent = m_swapChainExtent;
 
-      VkClearValue clear_color = {0.0f, 0.0f, 0.0f, 1.0f};
-      render_pass_info.clearValueCount = 1;
-      render_pass_info.pClearValues = &clear_color;
+      std::array<VkClearValue, 2> clear_values = {};
+      clear_values[ 0 ].color = {{0.0f, 0.0f, 0.0f, 1.0f}};
+      clear_values[ 1 ].depthStencil = {1.0f, 0};
+
+      render_pass_info.clearValueCount = static_cast<u32>( clear_values.size() );
+      render_pass_info.pClearValues = clear_values.data();
 
       // Begin the recording
       vkCmdBeginRenderPass( m_commandBuffers[ i ], &render_pass_info, VK_SUBPASS_CONTENTS_INLINE );
@@ -1027,6 +1038,7 @@ namespace nile {
     this->createImageViews();
     this->createRenderPass();
     this->createGraphicsPipeline();
+    this->createDepthResources();
     this->createFrameBuffers();
     this->createUniformBuffers();
     this->createDescriptorPool();
@@ -1036,6 +1048,9 @@ namespace nile {
 
   void VulkanRenderingDevice::cleanupSwapChain() noexcept {
 
+    vkDestroyImageView(m_logicalDevice, m_depthImageView, nullptr);
+    vkDestroyImage(m_logicalDevice, m_depthImage, nullptr);
+    vkFreeMemory(m_logicalDevice, m_depthImageMemory, nullptr);
 
     for ( size_t i = 0; i < m_swapChainImages.size(); i++ ) {
       vkDestroyBuffer( m_logicalDevice, m_uniformBuffers[ i ], nullptr );
@@ -1479,6 +1494,15 @@ namespace nile {
 
       source_stage = VK_PIPELINE_STAGE_TRANSFER_BIT;
       source_stage = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
+    } else if ( oldLayout == VK_IMAGE_LAYOUT_UNDEFINED &&
+                newLayout == VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL ) {
+      barrier.srcAccessMask = 0;
+      barrier.dstAccessMask = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT |
+                              VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
+
+      source_stage = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
+      destination_stage = VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
+
     } else {
       ASSERT_M( false, "Unsupported layout transition!" );
     }
@@ -1517,20 +1541,8 @@ namespace nile {
   }
 
   void VulkanRenderingDevice::createTextureImageView() noexcept {
-
-    VkImageViewCreateInfo create_info = {};
-    create_info.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
-    create_info.image = m_textureImage;
-    create_info.viewType = VK_IMAGE_VIEW_TYPE_2D;
-    create_info.format = VK_FORMAT_R8G8B8A8_SRGB;
-    create_info.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-    create_info.subresourceRange.baseMipLevel = 0;
-    create_info.subresourceRange.levelCount = 1;
-    create_info.subresourceRange.baseArrayLayer = 0;
-    create_info.subresourceRange.layerCount = 1;
-
-    VK_CHECK_RESULT(
-        vkCreateImageView( m_logicalDevice, &create_info, nullptr, &m_textureImageView ) );
+    m_textureImageView =
+        createImageView( m_textureImage, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_ASPECT_COLOR_BIT );
   }
 
   void VulkanRenderingDevice::createTextureSampler() noexcept {
@@ -1560,6 +1572,70 @@ namespace nile {
     VK_CHECK_RESULT(
         vkCreateSampler( m_logicalDevice, &sampler_info, nullptr, &m_textureSampler ) );
   }
+
+  void VulkanRenderingDevice::createDepthResources() noexcept {
+
+    VkFormat depth_format = findDepthFormat();
+
+    createImage( m_swapChainExtent.width, m_swapChainExtent.height, depth_format,
+                 VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT,
+                 VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, m_depthImage, m_depthImageMemory );
+
+    m_depthImageView = createImageView( m_depthImage, depth_format, VK_IMAGE_ASPECT_DEPTH_BIT );
+
+  }
+
+  VkFormat VulkanRenderingDevice::findSupportedFormat( const std::vector<VkFormat> &canditates,
+                                                       VkImageTiling tiling,
+                                                       VkFormatFeatureFlags features ) const
+      noexcept {
+
+    for ( VkFormat format : canditates ) {
+      VkFormatProperties props;
+      vkGetPhysicalDeviceFormatProperties( m_physicalDevice, format, &props );
+
+      if ( tiling == VK_IMAGE_TILING_LINEAR &&
+           ( props.linearTilingFeatures & features ) == features ) {
+        return format;
+      } else if ( tiling == VK_IMAGE_TILING_OPTIMAL &&
+                  ( props.optimalTilingFeatures & features ) == features )
+        return format;
+    }
+
+    ASSERT_M( false, "Failed to find supported format" );
+  }
+
+  VkFormat VulkanRenderingDevice::findDepthFormat() const noexcept {
+    return findSupportedFormat(
+        {VK_FORMAT_D32_SFLOAT, VK_FORMAT_D32_SFLOAT_S8_UINT, VK_FORMAT_D24_UNORM_S8_UINT},
+        VK_IMAGE_TILING_OPTIMAL, VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT );
+  }
+
+  bool VulkanRenderingDevice::hasSteniclComponent( VkFormat format ) noexcept {
+    return format == VK_FORMAT_D32_SFLOAT_S8_UINT || format == VK_FORMAT_D24_UNORM_S8_UINT;
+  }
+
+  VkImageView VulkanRenderingDevice::createImageView( VkImage image, VkFormat format,
+                                                      VkImageAspectFlags aspectFlags ) noexcept {
+
+    VkImageViewCreateInfo create_info = {};
+    create_info.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+    create_info.image = image;
+    create_info.viewType = VK_IMAGE_VIEW_TYPE_2D;
+    create_info.format = format;
+    create_info.subresourceRange.aspectMask = aspectFlags;
+    create_info.subresourceRange.baseMipLevel = 0;
+    create_info.subresourceRange.levelCount = 1;
+    create_info.subresourceRange.baseArrayLayer = 0;
+    create_info.subresourceRange.layerCount = 1;
+
+    VkImageView image_view;
+
+    VK_CHECK_RESULT( vkCreateImageView( m_logicalDevice, &create_info, nullptr, &image_view ) );
+
+    return image_view;
+  }
+
 
 }    // namespace nile
 
