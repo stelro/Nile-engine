@@ -19,6 +19,8 @@
 
 namespace nile {
 
+  class VulkanDevice;
+
 
   constexpr static const i32 MAX_FRAMES_IN_FLIGHT = 2;
 
@@ -236,7 +238,7 @@ namespace nile {
     VkPhysicalDevice m_physicalDevice = VK_NULL_HANDLE;
 
     // Logical device to interface with the physical device
-    VkDevice m_logicalDevice;
+    VulkanDevice *m_device;
 
     // Handle to interface with a graphics queue, which is automatically created
     // along with the logical device

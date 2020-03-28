@@ -85,6 +85,7 @@ set(NILE_SOURCES_CORE
   ${NILE_DIR}/include/Nile/graphics/rendering_device.hh
   ${NILE_DIR}/include/Nile/drivers/vulkan/vulkan_rendering_device.hh
   ${NILE_DIR}/include/Nile/drivers/vulkan/vulkan_utils.hh
+  ${NILE_DIR}/include/Nile/drivers/vulkan/vulkan_device.hh
   ${NILE_DIR}/src/2d/2d_camera.cc
   ${NILE_DIR}/src/core/input_manager.cc
   ${NILE_DIR}/src/core/settings.cc
@@ -126,6 +127,7 @@ set(NILE_SOURCES_CORE
   ${NILE_DIR}/src/graphics/rendering_device.cc
   ${NILE_DIR}/src/drivers/vulkan/vulkan_rendering_device.cc
   ${NILE_DIR}/src/drivers/vulkan/vulkan_utils.cc
+  ${NILE_DIR}/src/drivers/vulkan/vulkan_device.cc
   )
 
 set(NILE_SOURCE_EXPERIMENTAL 
