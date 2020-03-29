@@ -20,7 +20,6 @@ namespace nile {
     m_queueFamilyProperties.resize( queue_family_count );
     vkGetPhysicalDeviceQueueFamilyProperties( m_physicalDevice, &queue_family_count,
                                               m_queueFamilyProperties.data() );
-
   }
 
   VulkanDevice::~VulkanDevice() noexcept {
@@ -43,7 +42,9 @@ namespace nile {
 
     if ( queueFlagBits & VK_QUEUE_GRAPHICS_BIT ) {
 
+      // This needs to be fixed
       m_queueFamilyIndices.graphics = getQueueFamilyIndex( VK_QUEUE_GRAPHICS_BIT );
+      m_queueFamilyIndices.present = getQueueFamilyIndex( VK_QUEUE_GRAPHICS_BIT );
 
       VkDeviceQueueCreateInfo queue_info {};
       queue_info.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
@@ -55,6 +56,7 @@ namespace nile {
 
     } else {
       m_queueFamilyIndices.graphics = VK_NULL_HANDLE;
+      m_queueFamilyIndices.present = VK_NULL_HANDLE;
     }
 
     if ( queueFlagBits & VK_QUEUE_COMPUTE_BIT ) {
@@ -128,7 +130,6 @@ namespace nile {
 
     VK_CHECK_RESULT(
         vkCreateDevice( m_physicalDevice, &device_create_info, nullptr, &m_logicalDevice ) );
-
   }
 
   [[nodiscard]] u32 VulkanDevice::getQueueFamilyIndex( VkQueueFlagBits queueFlag ) const noexcept {
@@ -163,6 +164,78 @@ namespace nile {
     }
 
     log::fatal( "No queue family is supported by this GPU" );
+    return 0;
+  }
+
+  VkResult VulkanDevice::createBuffer( VkBufferUsageFlags usageFlags,
+                                       VkMemoryPropertyFlags memoryPropertyFlags,
+                                       VulkanBuffer *buffer, VkDeviceSize size,
+                                       void *data ) noexcept {
+
+    buffer->device = m_logicalDevice;
+
+    VkBufferCreateInfo buffer_info = {};
+    buffer_info.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
+    buffer_info.size = size;
+    buffer_info.usage = usageFlags;
+    buffer_info.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+
+    VK_CHECK_RESULT( vkCreateBuffer( m_logicalDevice, &buffer_info, nullptr, &buffer->buffer ) );
+
+    VkMemoryRequirements mem_requirements;
+    vkGetBufferMemoryRequirements( m_logicalDevice, buffer->buffer, &mem_requirements );
+
+    VkMemoryAllocateInfo alloc_info = {};
+    alloc_info.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
+    alloc_info.allocationSize = mem_requirements.size;
+    alloc_info.memoryTypeIndex =
+        getMemoryType( mem_requirements.memoryTypeBits, memoryPropertyFlags );
+
+    // @warning: In reality we are not supposed to actually call vkAllocateMemory for every
+    // individual buffer. The maximum number of simulatenous memory allocations is limited
+    // by the maxMemoryAllocationsCount physical device limit. The right way to allocate
+    // memory for a large number of objects at the same time is to create a custom allocator
+    // that splits up a single allocation among many different objects by using offset
+    // parameters.
+    VK_CHECK_RESULT( vkAllocateMemory( m_logicalDevice, &alloc_info, nullptr, &buffer->memory ) );
+
+    buffer->alignment = mem_requirements.alignment;
+    buffer->size = size;
+    buffer->usageFlags = usageFlags;
+    buffer->memoryPropertyFlags = memoryPropertyFlags;
+
+    // If a pointer to the buffer data has been passed, map the buffer and copy over the data
+    if ( data != nullptr ) {
+
+      VK_CHECK_RESULT( buffer->map() );
+      memcpy( buffer->data, data, size );
+      if ( ( memoryPropertyFlags & VK_MEMORY_PROPERTY_HOST_COHERENT_BIT ) == 0 ) {
+        buffer->flush();
+      }
+
+      buffer->unmap();
+    }
+
+    buffer->setupDescriptor();
+
+    // Attach the memory to the buffer object
+    return buffer->bind();
+  }
+
+  u32 VulkanDevice::getMemoryType( u32 typeFilter, VkMemoryPropertyFlags memoryPropertyFlags ) const
+      noexcept {
+
+    VkPhysicalDeviceMemoryProperties mem_properties;
+    vkGetPhysicalDeviceMemoryProperties( m_physicalDevice, &mem_properties );
+
+    for ( u32 i = 0; i < mem_properties.memoryTypeCount; i++ ) {
+      if ( ( typeFilter & ( 1 << i ) ) && ( mem_properties.memoryTypes[ i ].propertyFlags &
+                                            memoryPropertyFlags ) == memoryPropertyFlags ) {
+        return i;
+      }
+    }
+
+    ASSERT_M( false, "Failed to find suitable memory type!" );
     return 0;
   }
 

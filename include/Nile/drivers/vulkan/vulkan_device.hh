@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Nile/core/types.hh"
+#include "Nile/drivers/vulkan/vulkan_buffer.hh"
 
 #include <vulkan/vulkan.h>
 
@@ -41,9 +42,13 @@ namespace nile {
       u32 transfer;
       u32 compute;
       u32 present;
+
+      bool isComplete() const noexcept {
+        return graphics && present;
+      }
+
     } m_queueFamilyIndices;
 
-    [[nodiscard]] u32 getQueueFamilyIndex( VkQueueFlagBits queueFlag ) const noexcept;
 
   public:
     VulkanDevice( VkPhysicalDevice physicalDevice ) noexcept;
@@ -64,6 +69,13 @@ namespace nile {
     [[nodiscard]] QueueFamilyIndices getQueueFamilyIndices() const noexcept {
       return m_queueFamilyIndices;
     }
+
+    [[nodiscard]] u32 getQueueFamilyIndex( VkQueueFlagBits queueFlag ) const noexcept;
+
+    VkResult createBuffer( VkBufferUsageFlags usageFlags, VkMemoryPropertyFlags memoryPropertyFlags,
+                           VulkanBuffer *buffer, VkDeviceSize size, void *data = nullptr ) noexcept;
+
+    u32 getMemoryType( u32 typeFilter, VkMemoryPropertyFlags memoryPropertyFlags ) const noexcept;
   };
 
 }    // namespace nile

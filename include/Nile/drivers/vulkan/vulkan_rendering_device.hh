@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Nile/drivers/vulkan/vulkan_buffer.hh"
 #include "Nile/graphics/rendering_device.hh"
 
 #include <SDL2/SDL.h>
@@ -46,15 +47,6 @@ namespace nile {
 #endif
 
   private:
-    struct QueueFamilyIndices {
-      std::optional<u32> graphicsFamily;
-      std::optional<u32> presentFamily;
-
-      bool isComplete() const noexcept {
-        return graphicsFamily.has_value() && presentFamily.has_value();
-      }
-    };
-
     std::shared_ptr<AssetManager> m_assetManager;
 
     // @temporary: this struct used for debug purpouses here.
@@ -121,8 +113,6 @@ namespace nile {
     populateDebugMessengerCreateInfo( VkDebugUtilsMessengerCreateInfoEXT &createInfo ) noexcept;
     // find supported GPU by Vulkan API
     void pickPhysicalDevice() noexcept;
-
-    [[nodiscard]] QueueFamilyIndices findQueueFamilies( VkPhysicalDevice device ) const noexcept;
 
     // Create a handle to the GPU ( logical represention of the GPU )
     void createLogicalDevice() noexcept;
@@ -274,12 +264,11 @@ namespace nile {
 
     VkCommandPool m_commandPool;
 
-    // @fix: this will be moved the seperte VulkanBuffer class
-    // with all operations need for the buffer
-    VkBuffer m_vertexBuffer;
-    VkDeviceMemory m_vertexBufferMemory;
     // Driver developers recommend that we should store
     // multiple buffers into a single buffer using offsets in commands.
+    VulkanBuffer m_vertexBuffer;
+
+    //VulkanBuffer m_indexBuffer;
     VkBuffer m_indexBuffer;
     VkDeviceMemory m_indexBufferMemory;
 
@@ -295,16 +284,15 @@ namespace nile {
     std::vector<VkBuffer> m_uniformBuffers;
     std::vector<VkDeviceMemory> m_uniformBuffersMemory;
 
-    const std::vector<Vertex> m_vertices = {
-        {{-0.5f, -0.5f, 0.0f}, {1.0f, 0.0f, 0.0f}, {1.0f, 0.0f}},
-        {{0.5f, -0.5f, 0.0f}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f}},
-        {{0.5f, 0.5f, 0.0f}, {0.0f, 0.0f, 1.0f}, {0.0f, 1.0f}},
-        {{-0.5f, 0.5f, 0.0f}, {1.0f, 1.0f, 1.0f}, {1.0f, 1.0f}},
+    std::vector<Vertex> m_vertices = {{{-0.5f, -0.5f, 0.0f}, {1.0f, 0.0f, 0.0f}, {1.0f, 0.0f}},
+                                      {{0.5f, -0.5f, 0.0f}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f}},
+                                      {{0.5f, 0.5f, 0.0f}, {0.0f, 0.0f, 1.0f}, {0.0f, 1.0f}},
+                                      {{-0.5f, 0.5f, 0.0f}, {1.0f, 1.0f, 1.0f}, {1.0f, 1.0f}},
 
-        {{-0.5f, -0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}, {1.0f, 0.0f}},
-        {{0.5f, -0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f}},
-        {{0.5f, 0.5f, -0.5f}, {0.0f, 0.0f, 1.0f}, {0.0f, 1.0f}},
-        {{-0.5f, 0.5f, -0.5f}, {1.0f, 1.0f, 1.0f}, {1.0f, 1.0f}}
+                                      {{-0.5f, -0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}, {1.0f, 0.0f}},
+                                      {{0.5f, -0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f}},
+                                      {{0.5f, 0.5f, -0.5f}, {0.0f, 0.0f, 1.0f}, {0.0f, 1.0f}},
+                                      {{-0.5f, 0.5f, -0.5f}, {1.0f, 1.0f, 1.0f}, {1.0f, 1.0f}}
 
 
     };

@@ -88,8 +88,7 @@ namespace nile {
     vkDestroyBuffer( m_device->getDevice(), m_indexBuffer, nullptr );
     vkFreeMemory( m_device->getDevice(), m_indexBufferMemory, nullptr );
 
-    vkDestroyBuffer( m_device->getDevice(), m_vertexBuffer, nullptr );
-    vkFreeMemory( m_device->getDevice(), m_vertexBufferMemory, nullptr );
+    m_vertexBuffer.destory();
 
     for ( size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++ ) {
       vkDestroySemaphore( m_device->getDevice(), m_semaphores.renderingHasFinished[ i ], nullptr );
@@ -181,7 +180,8 @@ namespace nile {
     // - return the image to the swap chain for presentation
     //
 
-    vkWaitForFences( m_device->getDevice(), 1, &m_inFlightFences[ m_currentFrame ], VK_TRUE, UINT64_MAX );
+    vkWaitForFences( m_device->getDevice(), 1, &m_inFlightFences[ m_currentFrame ], VK_TRUE,
+                     UINT64_MAX );
 
     u32 image_index;
 
@@ -202,7 +202,8 @@ namespace nile {
 
     // Check if previous frame is using this image ( i.e. there is its fence to wait on)
     if ( m_imagesInFlight[ image_index ] != VK_NULL_HANDLE ) {
-      vkWaitForFences( m_device->getDevice(), 1, &m_imagesInFlight[ image_index ], VK_TRUE, UINT64_MAX );
+      vkWaitForFences( m_device->getDevice(), 1, &m_imagesInFlight[ image_index ], VK_TRUE,
+                       UINT64_MAX );
     }
 
     // mark the image as now being in use by this frame
@@ -356,8 +357,6 @@ namespace nile {
 
   bool VulkanRenderingDevice::isDeviceSuitable( VkPhysicalDevice device ) const noexcept {
 
-    QueueFamilyIndices indices = findQueueFamilies( device );
-
     bool extension_is_supported = checkDeviceExtensionSuport( device );
 
     VkPhysicalDeviceFeatures supported_features;
@@ -370,9 +369,7 @@ namespace nile {
           !swap_chain_support.formats.empty() && !swap_chain_support.presentModes.empty();
     }
 
-
-    return indices.isComplete() && extension_is_supported && swap_chain_adequate &&
-           supported_features.samplerAnisotropy;
+    return extension_is_supported && swap_chain_adequate && supported_features.samplerAnisotropy;
   }
 
   bool VulkanRenderingDevice::checkDeviceExtensionSuport( VkPhysicalDevice device ) const noexcept {
@@ -392,47 +389,6 @@ namespace nile {
     }
 
     return required_extensions.empty();
-  }
-
-
-  [[nodiscard]] VulkanRenderingDevice::QueueFamilyIndices
-  VulkanRenderingDevice::findQueueFamilies( VkPhysicalDevice device ) const noexcept {
-
-    // @ has moved to VulkanDevice
-    // @ has moved to VulkanDevice
-    // @ has moved to VulkanDevice
-    // @ has moved to VulkanDevice
-    QueueFamilyIndices indices;
-
-    u32 queue_family_count = 0;
-    vkGetPhysicalDeviceQueueFamilyProperties( device, &queue_family_count, nullptr );
-
-    std::vector<VkQueueFamilyProperties> queue_families( queue_family_count );
-    vkGetPhysicalDeviceQueueFamilyProperties( device, &queue_family_count, queue_families.data() );
-
-    u32 queue_count = 0;
-
-    for ( const auto &queue_family : queue_families ) {
-
-      if ( queue_family.queueFlags & VK_QUEUE_GRAPHICS_BIT ) {
-        indices.graphicsFamily = queue_count;
-      }
-
-      VkBool32 present_support = false;
-      vkGetPhysicalDeviceSurfaceSupportKHR( device, queue_count, m_surface, &present_support );
-
-      if ( present_support ) {
-        indices.presentFamily = queue_count;
-      }
-
-
-      if ( indices.isComplete() )
-        break;
-
-      queue_count++;
-    }
-
-    return indices;
   }
 
   void VulkanRenderingDevice::createLogicalDevice() noexcept {
@@ -589,10 +545,10 @@ namespace nile {
     // VK_IMAGE_USAGE_TRANSFER_DST_BIT
     create_info.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
 
-    auto indices = findQueueFamilies( m_physicalDevice );
-    u32 queue_family_indices[] = {indices.graphicsFamily.value(), indices.presentFamily.value()};
+    auto indices = m_device->getQueueFamilyIndices();
+    u32 queue_family_indices[] = {indices.graphics, indices.present};
 
-    if ( indices.graphicsFamily != indices.presentFamily ) {
+    if ( indices.graphics != indices.present ) {
       create_info.imageSharingMode = VK_SHARING_MODE_CONCURRENT;
       create_info.queueFamilyIndexCount = 2;
       create_info.pQueueFamilyIndices = queue_family_indices;
@@ -610,11 +566,13 @@ namespace nile {
     // We should use this when we will recreate the swapchain, in case of window resizing
     create_info.oldSwapchain = nullptr;
 
-    VK_CHECK_RESULT( vkCreateSwapchainKHR( m_device->getDevice(), &create_info, nullptr, &m_swapChain ) );
+    VK_CHECK_RESULT(
+        vkCreateSwapchainKHR( m_device->getDevice(), &create_info, nullptr, &m_swapChain ) );
 
     vkGetSwapchainImagesKHR( m_device->getDevice(), m_swapChain, &image_count, nullptr );
     m_swapChainImages.resize( image_count );
-    vkGetSwapchainImagesKHR( m_device->getDevice(), m_swapChain, &image_count, m_swapChainImages.data() );
+    vkGetSwapchainImagesKHR( m_device->getDevice(), m_swapChain, &image_count,
+                             m_swapChainImages.data() );
 
     m_swapChainImageFormat = surface_format.format;
     m_swapChainExtent = extent;
@@ -862,8 +820,8 @@ namespace nile {
     pipeline_info.basePipelineHandle = VK_NULL_HANDLE;
     pipeline_info.basePipelineIndex = -1;
 
-    VK_CHECK_RESULT( vkCreateGraphicsPipelines( m_device->getDevice(), VK_NULL_HANDLE, 1, &pipeline_info,
-                                                nullptr, &m_graphicsPipeline ) );
+    VK_CHECK_RESULT( vkCreateGraphicsPipelines( m_device->getDevice(), VK_NULL_HANDLE, 1,
+                                                &pipeline_info, nullptr, &m_graphicsPipeline ) );
 
 
     vkDestroyShaderModule( m_device->getDevice(), vertex_shader_module, nullptr );
@@ -910,17 +868,17 @@ namespace nile {
 
   void VulkanRenderingDevice::createCommandPool() noexcept {
 
-    auto queue_family_indices = findQueueFamilies( m_physicalDevice );
 
     VkCommandPoolCreateInfo pool_info = {};
     pool_info.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
 
     // Command buffers are executed by submitting then on one of the device queues, like
     // the graphics or presentaion queues.
-    pool_info.queueFamilyIndex = queue_family_indices.graphicsFamily.value();
+    pool_info.queueFamilyIndex = m_device->getQueueFamilyIndices().graphics;
     pool_info.flags = 0;
 
-    VK_CHECK_RESULT( vkCreateCommandPool( m_device->getDevice(), &pool_info, nullptr, &m_commandPool ) );
+    VK_CHECK_RESULT(
+        vkCreateCommandPool( m_device->getDevice(), &pool_info, nullptr, &m_commandPool ) );
   }
 
 
@@ -970,7 +928,7 @@ namespace nile {
       vkCmdBindPipeline( m_commandBuffers[ i ], VK_PIPELINE_BIND_POINT_GRAPHICS,
                          m_graphicsPipeline );
 
-      VkBuffer vertexBuffers[] = {m_vertexBuffer};
+      VkBuffer vertexBuffers[] = {m_vertexBuffer.buffer};
       VkDeviceSize offsets[] = {0};
       vkCmdBindVertexBuffers( m_commandBuffers[ i ], 0, 1, vertexBuffers, offsets );
       vkCmdBindIndexBuffer( m_commandBuffers[ i ], m_indexBuffer, 0, VK_INDEX_TYPE_UINT16 );
@@ -1073,26 +1031,28 @@ namespace nile {
 
     VkDeviceSize buffer_size = sizeof( m_vertices[ 0 ] ) * m_vertices.size();
 
-    VkBuffer staging_buffer;
-    VkDeviceMemory staging_buffer_memory;
-
-    createBuffer( buffer_size, VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
-                  VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-                  staging_buffer, staging_buffer_memory );
-
-    void *data;
-    vkMapMemory( m_device->getDevice(), staging_buffer_memory, 0, buffer_size, 0, &data );
-    memcpy( data, m_vertices.data(), static_cast<size_t>( buffer_size ) );
-    vkUnmapMemory( m_device->getDevice(), staging_buffer_memory );
+    VulkanBuffer staging_buffer;
 
 
-    createBuffer( buffer_size, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
-                  VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, m_vertexBuffer, m_vertexBufferMemory );
+    m_device->createBuffer( VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+                            VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
+                                VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+                            &staging_buffer, buffer_size, m_vertices.data() );
 
-    copyBuffer( staging_buffer, m_vertexBuffer, buffer_size );
 
-    vkDestroyBuffer( m_device->getDevice(), staging_buffer, nullptr );
-    vkFreeMemory( m_device->getDevice(), staging_buffer_memory, nullptr );
+    m_device->createBuffer( VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
+                            VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, &m_vertexBuffer, buffer_size );
+
+
+    auto commandBuffer = this->beginSingleTimeCommands();
+
+    VkBufferCopy copyRegion{};
+    copyRegion.size = buffer_size;
+    vkCmdCopyBuffer(commandBuffer, staging_buffer.buffer, m_vertexBuffer.buffer, 1, &copyRegion);
+    this->endSingleTimeCommands(commandBuffer);
+
+    staging_buffer.destory();
+
   }
 
   u32 VulkanRenderingDevice::findMemoryType( u32 typeFilter,
@@ -1137,7 +1097,8 @@ namespace nile {
     // memory for a large number of objects at the same time is to create a custom allocator
     // that splits up a single allocation among many different objects by using offset
     // parameters.
-    VK_CHECK_RESULT( vkAllocateMemory( m_device->getDevice(), &alloc_info, nullptr, &bufferMemory ) );
+    VK_CHECK_RESULT(
+        vkAllocateMemory( m_device->getDevice(), &alloc_info, nullptr, &bufferMemory ) );
 
     vkBindBufferMemory( m_device->getDevice(), buffer, bufferMemory, 0 );
   }
@@ -1437,7 +1398,8 @@ namespace nile {
     alloc_info.memoryTypeIndex =
         findMemoryType( mem_requirements.memoryTypeBits, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT );
 
-    VK_CHECK_RESULT( vkAllocateMemory( m_device->getDevice(), &alloc_info, nullptr, &imageMemory ) );
+    VK_CHECK_RESULT(
+        vkAllocateMemory( m_device->getDevice(), &alloc_info, nullptr, &imageMemory ) );
 
     vkBindImageMemory( m_device->getDevice(), image, imageMemory, 0 );
   }
@@ -1618,7 +1580,8 @@ namespace nile {
 
     VkImageView image_view;
 
-    VK_CHECK_RESULT( vkCreateImageView( m_device->getDevice(), &create_info, nullptr, &image_view ) );
+    VK_CHECK_RESULT(
+        vkCreateImageView( m_device->getDevice(), &create_info, nullptr, &image_view ) );
 
     return image_view;
   }
