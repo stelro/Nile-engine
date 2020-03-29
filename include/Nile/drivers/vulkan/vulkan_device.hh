@@ -36,6 +36,8 @@ namespace nile {
     // Validations layers that are enabled by this device
     std::vector<const char *> m_validationLayers = {"VK_LAYER_KHRONOS_validation"};
 
+    // Default command pool for graphics queue family index
+    VkCommandPool m_commandPool = VK_NULL_HANDLE;
 
     struct QueueFamilyIndices {
       u32 graphics;
@@ -57,10 +59,11 @@ namespace nile {
 
     operator VkDevice() noexcept;
 
-    void createLogicalDevice( VkPhysicalDeviceFeatures enabledFeatures,
-                              std::vector<const char *> enabledExtensions, bool useSwapChain = true,
-                              VkQueueFlags queueFalgBits = VK_QUEUE_GRAPHICS_BIT |
-                                                           VK_QUEUE_TRANSFER_BIT ) noexcept;
+    VkResult createLogicalDevice( VkPhysicalDeviceFeatures enabledFeatures,
+                                  std::vector<const char *> enabledExtensions,
+                                  bool useSwapChain = true,
+                                  VkQueueFlags queueFalgBits = VK_QUEUE_GRAPHICS_BIT |
+                                                               VK_QUEUE_TRANSFER_BIT ) noexcept;
 
     [[nodiscard]] VkDevice getDevice() const noexcept {
       return m_logicalDevice;
@@ -75,7 +78,27 @@ namespace nile {
     VkResult createBuffer( VkBufferUsageFlags usageFlags, VkMemoryPropertyFlags memoryPropertyFlags,
                            VulkanBuffer *buffer, VkDeviceSize size, void *data = nullptr ) noexcept;
 
-    u32 getMemoryType( u32 typeFilter, VkMemoryPropertyFlags memoryPropertyFlags ) const noexcept;
+    void copyBuffer( VulkanBuffer *dest, VulkanBuffer *src, VkQueue queue,
+                     VkBufferCopy *copyRegion = nullptr ) const noexcept;
+
+    [[nodiscard]] u32 getMemoryType( u32 typeFilter,
+                                     VkMemoryPropertyFlags memoryPropertyFlags ) const noexcept;
+
+    [[nodiscard]] VkCommandPool
+    createCommandPool( u32 queueFamilyIndex,
+                       VkCommandPoolCreateFlags createFlags =
+                           VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT ) noexcept;
+
+    [[nodiscard]] VkCommandBuffer createCommandBuffer( VkCommandBufferLevel level,
+                                                       VkCommandPool pool,
+                                                       bool begin = false ) const noexcept;
+    [[nodiscard]] VkCommandBuffer createCommandBuffer( VkCommandBufferLevel level,
+                                                       bool begin = false ) const noexcept;
+
+    void flushCommandBuffer( VkCommandBuffer buffer, VkQueue queue, VkCommandPool pool,
+                             bool free = true ) const noexcept;
+    void flushCommandBuffer( VkCommandBuffer buffer, VkQueue queue, bool free = true ) const
+        noexcept;
   };
 
 }    // namespace nile

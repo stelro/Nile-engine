@@ -85,9 +85,7 @@ namespace nile {
 
     vkDestroyDescriptorSetLayout( m_device->getDevice(), m_descriptorSetLayout, nullptr );
 
-    vkDestroyBuffer( m_device->getDevice(), m_indexBuffer, nullptr );
-    vkFreeMemory( m_device->getDevice(), m_indexBufferMemory, nullptr );
-
+    m_indexBuffer.destory();
     m_vertexBuffer.destory();
 
     for ( size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++ ) {
@@ -180,6 +178,10 @@ namespace nile {
     // - return the image to the swap chain for presentation
     //
 
+    //@deprecated
+    //@deprecated
+    //@deprecated
+    //@deprecated
     vkWaitForFences( m_device->getDevice(), 1, &m_inFlightFences[ m_currentFrame ], VK_TRUE,
                      UINT64_MAX );
 
@@ -227,6 +229,9 @@ namespace nile {
 
     vkResetFences( m_device->getDevice(), 1, &m_inFlightFences[ m_currentFrame ] );
 
+    // @Deprecated ( replace with flushCommandBuffer )
+    // @Deprecated ( replace with flushCommandBuffer )
+    // @Deprecated ( replace with flushCommandBuffer )
     VK_CHECK_RESULT(
         vkQueueSubmit( m_graphicsQueue, 1, &submit_info, m_inFlightFences[ m_currentFrame ] ) );
 
@@ -398,7 +403,7 @@ namespace nile {
     VkPhysicalDeviceFeatures device_features = {};
     device_features.samplerAnisotropy = VK_TRUE;
 
-    m_device->createLogicalDevice( device_features, m_deviceExtensions );
+    VK_CHECK_RESULT( m_device->createLogicalDevice( device_features, m_deviceExtensions ) );
 
     // @CHECK WHAT TO DO WITH THIS
     // @CHECK WHAT TO DO WITH THIS
@@ -866,13 +871,16 @@ namespace nile {
     }
   }
 
+  //@derpecated
+  //@derpecated
+  //@derpecated
   void VulkanRenderingDevice::createCommandPool() noexcept {
 
 
     VkCommandPoolCreateInfo pool_info = {};
     pool_info.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
 
-    // Command buffers are executed by submitting then on one of the device queues, like
+    // Command buffers are executed by submitting them on one of the device queues, like
     // the graphics or presentaion queues.
     pool_info.queueFamilyIndex = m_device->getQueueFamilyIndices().graphics;
     pool_info.flags = 0;
@@ -882,6 +890,9 @@ namespace nile {
   }
 
 
+  //@deprecated??
+  //@deprecated??
+  //@deprecated??
   void VulkanRenderingDevice::createCommandBuffers() noexcept {
 
     m_commandBuffers.resize( m_swapChainFrameBuffers.size() );
@@ -931,7 +942,7 @@ namespace nile {
       VkBuffer vertexBuffers[] = {m_vertexBuffer.buffer};
       VkDeviceSize offsets[] = {0};
       vkCmdBindVertexBuffers( m_commandBuffers[ i ], 0, 1, vertexBuffers, offsets );
-      vkCmdBindIndexBuffer( m_commandBuffers[ i ], m_indexBuffer, 0, VK_INDEX_TYPE_UINT16 );
+      vkCmdBindIndexBuffer( m_commandBuffers[ i ], m_indexBuffer.buffer, 0, VK_INDEX_TYPE_UINT16 );
 
       vkCmdBindDescriptorSets( m_commandBuffers[ i ], VK_PIPELINE_BIND_POINT_GRAPHICS,
                                m_pipelineLayout, 0, 1, &m_descriptorSets[ i ], 0, nullptr );
@@ -966,6 +977,10 @@ namespace nile {
 
       VK_CHECK_RESULT( vkCreateSemaphore( m_device->getDevice(), &semaphore_info, nullptr,
                                           &m_semaphores.renderingHasFinished[ i ] ) );
+
+      //@deprecated ( check command buffer endSignal)
+      //@deprecated ( check command buffer endSignal)
+      //@deprecated ( check command buffer endSignal)
       VK_CHECK_RESULT(
           vkCreateFence( m_device->getDevice(), &fence_info, nullptr, &m_inFlightFences[ i ] ) );
     }
@@ -998,9 +1013,8 @@ namespace nile {
     vkDestroyImage( m_device->getDevice(), m_depthImage, nullptr );
     vkFreeMemory( m_device->getDevice(), m_depthImageMemory, nullptr );
 
-    for ( size_t i = 0; i < m_swapChainImages.size(); i++ ) {
-      vkDestroyBuffer( m_device->getDevice(), m_uniformBuffers[ i ], nullptr );
-      vkFreeMemory( m_device->getDevice(), m_uniformBuffersMemory[ i ], nullptr );
+    for ( auto &ubuffer : m_uniformBuffers ) {
+      ubuffer.destory();
     }
 
     vkDestroyDescriptorPool( m_device->getDevice(), m_descriptorPool, nullptr );
@@ -1044,15 +1058,9 @@ namespace nile {
                             VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, &m_vertexBuffer, buffer_size );
 
 
-    auto commandBuffer = this->beginSingleTimeCommands();
-
-    VkBufferCopy copyRegion{};
-    copyRegion.size = buffer_size;
-    vkCmdCopyBuffer(commandBuffer, staging_buffer.buffer, m_vertexBuffer.buffer, 1, &copyRegion);
-    this->endSingleTimeCommands(commandBuffer);
+    m_device->copyBuffer( &m_vertexBuffer, &staging_buffer, m_graphicsQueue );
 
     staging_buffer.destory();
-
   }
 
   u32 VulkanRenderingDevice::findMemoryType( u32 typeFilter,
@@ -1071,53 +1079,11 @@ namespace nile {
     return 0;
   }
 
-  void VulkanRenderingDevice::createBuffer( VkDeviceSize size, VkBufferUsageFlags usage,
-                                            VkMemoryPropertyFlags properties, VkBuffer &buffer,
-                                            VkDeviceMemory &bufferMemory ) noexcept {
 
-    VkBufferCreateInfo buffer_info = {};
-    buffer_info.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
-    buffer_info.size = size;
-    buffer_info.usage = usage;
-    buffer_info.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
-
-    VK_CHECK_RESULT( vkCreateBuffer( m_device->getDevice(), &buffer_info, nullptr, &buffer ) );
-
-    VkMemoryRequirements mem_requirements;
-    vkGetBufferMemoryRequirements( m_device->getDevice(), buffer, &mem_requirements );
-
-    VkMemoryAllocateInfo alloc_info = {};
-    alloc_info.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
-    alloc_info.allocationSize = mem_requirements.size;
-    alloc_info.memoryTypeIndex = findMemoryType( mem_requirements.memoryTypeBits, properties );
-
-    // @warning: In reality we are not supposed to actually call vkAllocateMemory for every
-    // individual buffer. The maximum number of simulatenous memory allocations is limited
-    // by the maxMemoryAllocationsCount physical device limit. The right way to allocate
-    // memory for a large number of objects at the same time is to create a custom allocator
-    // that splits up a single allocation among many different objects by using offset
-    // parameters.
-    VK_CHECK_RESULT(
-        vkAllocateMemory( m_device->getDevice(), &alloc_info, nullptr, &bufferMemory ) );
-
-    vkBindBufferMemory( m_device->getDevice(), buffer, bufferMemory, 0 );
-  }
-
-  void VulkanRenderingDevice::copyBuffer( VkBuffer srcBuffer, VkBuffer dstBuffer,
-                                          VkDeviceSize size ) noexcept {
-
-    auto command_buffer = beginSingleTimeCommands();
-
-    VkBufferCopy copy_region = {};
-    copy_region.srcOffset = 0;
-    copy_region.dstOffset = 0;
-    copy_region.size = size;
-
-    vkCmdCopyBuffer( command_buffer, srcBuffer, dstBuffer, 1, &copy_region );
-
-    endSingleTimeCommands( command_buffer );
-  }
-
+  //@ deprecated
+  //@ deprecated
+  //@ deprecated
+  //@ deprecated
   VkCommandBuffer VulkanRenderingDevice::beginSingleTimeCommands() noexcept {
     // @fix: we should create seperate command pool for this short-lived operations
     // we should use the VK_COMMAND_POOL_CREATE_TRANSFER_BIT
@@ -1139,6 +1105,9 @@ namespace nile {
     return command_buffer;
   }
 
+  // @deprecated ( logic moved to VulkanDevice::flushCommandBuffer )
+  // @deprecated ( logic moved to VulkanDevice::flushCommandBuffer )
+  // @deprecated ( logic moved to VulkanDevice::flushCommandBuffer )
   void VulkanRenderingDevice::endSingleTimeCommands( VkCommandBuffer commandBuffer ) noexcept {
 
     vkEndCommandBuffer( commandBuffer );
@@ -1160,25 +1129,20 @@ namespace nile {
 
     VkDeviceSize buffer_size = sizeof( m_indices[ 0 ] ) * m_indices.size();
 
-    VkBuffer staging_buffer;
-    VkDeviceMemory staging_buffer_memory;
+    VulkanBuffer staging_buffer;
 
-    createBuffer( buffer_size, VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
-                  VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-                  staging_buffer, staging_buffer_memory );
+    m_device->createBuffer( VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+                            VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
+                                VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+                            &staging_buffer, buffer_size, m_indices.data() );
 
-    void *data;
-    vkMapMemory( m_device->getDevice(), staging_buffer_memory, 0, buffer_size, 0, &data );
-    memcpy( data, m_indices.data(), static_cast<size_t>( buffer_size ) );
-    vkUnmapMemory( m_device->getDevice(), staging_buffer_memory );
 
-    createBuffer( buffer_size, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT,
-                  VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, m_indexBuffer, m_indexBufferMemory );
+    m_device->createBuffer( VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT,
+                            VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, &m_indexBuffer, buffer_size );
 
-    copyBuffer( staging_buffer, m_indexBuffer, buffer_size );
+    m_device->copyBuffer( &m_indexBuffer, &staging_buffer, m_graphicsQueue );
 
-    vkDestroyBuffer( m_device->getDevice(), staging_buffer, nullptr );
-    vkFreeMemory( m_device->getDevice(), staging_buffer_memory, nullptr );
+    staging_buffer.destory();
   }
 
   void VulkanRenderingDevice::createDescriptorSetLayout() noexcept {
@@ -1216,12 +1180,12 @@ namespace nile {
     VkDeviceSize buffer_size = sizeof( UniformBufferObject );
 
     m_uniformBuffers.resize( m_swapChainImages.size() );
-    m_uniformBuffersMemory.resize( m_swapChainImages.size() );
 
-    for ( size_t i = 0; i < m_swapChainImages.size(); i++ ) {
-      createBuffer( buffer_size, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
-                    VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-                    m_uniformBuffers[ i ], m_uniformBuffersMemory[ i ] );
+    for ( auto &ubuffer : m_uniformBuffers ) {
+      m_device->createBuffer( VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
+                              VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
+                                  VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+                              &ubuffer, buffer_size );
     }
   }
 
@@ -1247,11 +1211,9 @@ namespace nile {
     // GLM has the Y coordinate of the clip coordinates inverted.
     ubo.proj[ 1 ][ 1 ] *= -1;
 
-    void *data;
-    vkMapMemory( m_device->getDevice(), m_uniformBuffersMemory[ imageIndex ], 0, sizeof( ubo ), 0,
-                 &data );
-    memcpy( data, &ubo, sizeof( ubo ) );
-    vkUnmapMemory( m_device->getDevice(), m_uniformBuffersMemory[ imageIndex ] );
+    m_uniformBuffers[ imageIndex ].map( sizeof( ubo ) );
+    m_uniformBuffers[ imageIndex ].copyTo( &ubo, sizeof( ubo ) );
+    m_uniformBuffers[ imageIndex ].unmap();
   }
 
   void VulkanRenderingDevice::createDescriptorPool() noexcept {
@@ -1290,7 +1252,7 @@ namespace nile {
     for ( size_t i = 0; i < m_swapChainImages.size(); i++ ) {
 
       VkDescriptorBufferInfo buffer_info = {};
-      buffer_info.buffer = m_uniformBuffers[ i ];
+      buffer_info.buffer = m_uniformBuffers[ i ].buffer;
       buffer_info.offset = 0;
       buffer_info.range = sizeof( UniformBufferObject );
 
@@ -1333,18 +1295,13 @@ namespace nile {
 
     VkDeviceSize image_size = tex_width * tex_height * 4;
 
-    VkBuffer staging_buffer;
-    VkDeviceMemory staging_buffer_memory;
+    VulkanBuffer staging_buffer;
 
-    createBuffer( image_size, VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
-                  VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-                  staging_buffer, staging_buffer_memory );
+    m_device->createBuffer( VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+                            VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
+                                VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+                            &staging_buffer, image_size, texture->getData() );
 
-
-    void *data;
-    vkMapMemory( m_device->getDevice(), staging_buffer_memory, 0, image_size, 0, &data );
-    memcpy( data, texture->getData(), static_cast<size_t>( image_size ) );
-    vkUnmapMemory( m_device->getDevice(), staging_buffer_memory );
 
     createImage( tex_width, tex_height, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_TILING_OPTIMAL,
                  VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT,
@@ -1353,14 +1310,13 @@ namespace nile {
     transitionImageLayout( m_textureImage, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_UNDEFINED,
                            VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL );
 
-    copyBufferToImage( staging_buffer, m_textureImage, tex_width, tex_height );
+    copyBufferToImage( staging_buffer.buffer, m_textureImage, tex_width, tex_height );
 
     transitionImageLayout( m_textureImage, VK_FORMAT_R8G8B8A8_SRGB,
                            VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
                            VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL );
 
-    vkDestroyBuffer( m_device->getDevice(), staging_buffer, nullptr );
-    vkFreeMemory( m_device->getDevice(), staging_buffer_memory, nullptr );
+    staging_buffer.destory();
   }
 
 

@@ -23,6 +23,9 @@ namespace nile {
   }
 
   VulkanDevice::~VulkanDevice() noexcept {
+    if ( m_commandPool ) {
+      vkDestroyCommandPool(m_logicalDevice, m_commandPool, nullptr);
+    }
     if ( m_logicalDevice ) {
       vkDestroyDevice( m_logicalDevice, nullptr );
     }
@@ -32,9 +35,10 @@ namespace nile {
     return m_logicalDevice;
   }
 
-  void VulkanDevice::createLogicalDevice( VkPhysicalDeviceFeatures enabledFeatures,
-                                          std::vector<const char *> enabledExtensions,
-                                          bool useSwapChain, VkQueueFlags queueFlagBits ) noexcept {
+  VkResult VulkanDevice::createLogicalDevice( VkPhysicalDeviceFeatures enabledFeatures,
+                                              std::vector<const char *> enabledExtensions,
+                                              bool useSwapChain,
+                                              VkQueueFlags queueFlagBits ) noexcept {
 
     std::vector<VkDeviceQueueCreateInfo> queueCreateInfos {};
 
@@ -128,8 +132,16 @@ namespace nile {
       device_create_info.enabledLayerCount = 0;
     }
 
-    VK_CHECK_RESULT(
-        vkCreateDevice( m_physicalDevice, &device_create_info, nullptr, &m_logicalDevice ) );
+
+    auto result =
+        vkCreateDevice( m_physicalDevice, &device_create_info, nullptr, &m_logicalDevice );
+
+    if ( result == VK_SUCCESS ) {
+      // Create deafult command pool for graphics command buffers
+      m_commandPool = createCommandPool( m_queueFamilyIndices.graphics );
+    }
+
+    return result;
   }
 
   [[nodiscard]] u32 VulkanDevice::getQueueFamilyIndex( VkQueueFlagBits queueFlag ) const noexcept {
@@ -222,6 +234,25 @@ namespace nile {
     return buffer->bind();
   }
 
+  void VulkanDevice::copyBuffer( VulkanBuffer *dest, VulkanBuffer *src, VkQueue queue,
+                                 VkBufferCopy *copyRegion ) const noexcept {
+
+    ASSERT( dest->size <= src->size );
+    ASSERT( src->buffer );
+
+    auto copyCmd = createCommandBuffer( VK_COMMAND_BUFFER_LEVEL_PRIMARY, true );
+    VkBufferCopy bufferCopy {};
+    if ( copyRegion == nullptr ) {
+      bufferCopy.size = src->size;
+    } else {
+      bufferCopy = *copyRegion;
+    }
+
+    vkCmdCopyBuffer( copyCmd, src->buffer, dest->buffer, 1, &bufferCopy );
+    flushCommandBuffer( copyCmd, queue );
+  }
+
+
   u32 VulkanDevice::getMemoryType( u32 typeFilter, VkMemoryPropertyFlags memoryPropertyFlags ) const
       noexcept {
 
@@ -237,6 +268,90 @@ namespace nile {
 
     ASSERT_M( false, "Failed to find suitable memory type!" );
     return 0;
+  }
+
+  VkCommandPool VulkanDevice::createCommandPool( u32 queueFamilyIndex,
+                                                 VkCommandPoolCreateFlags createFlags ) noexcept {
+
+    VkCommandPoolCreateInfo poolInfo {};
+    poolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
+    poolInfo.queueFamilyIndex = queueFamilyIndex;
+    poolInfo.flags = createFlags;
+
+    VkCommandPool cmdPool;
+    VK_CHECK_RESULT( vkCreateCommandPool( m_logicalDevice, &poolInfo, nullptr, &cmdPool ) );
+
+    return cmdPool;
+  }
+
+  [[nodiscard]] VkCommandBuffer VulkanDevice::createCommandBuffer( VkCommandBufferLevel level,
+                                                                   VkCommandPool pool,
+                                                                   bool begin ) const noexcept {
+
+    VkCommandBufferAllocateInfo alloc_info = {};
+    alloc_info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+    alloc_info.commandPool = pool;
+    alloc_info.level = level;
+    alloc_info.commandBufferCount = 1;
+
+    VkCommandBuffer cmdBuffer;
+
+    VK_CHECK_RESULT( vkAllocateCommandBuffers( m_logicalDevice, &alloc_info, &cmdBuffer ) );
+
+    // If requested, start also recording for the new command buffer
+    if ( begin ) {
+      VkCommandBufferBeginInfo begin_info = {};
+      begin_info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+      begin_info.flags = 0;
+      begin_info.pInheritanceInfo = nullptr;
+
+      VK_CHECK_RESULT( vkBeginCommandBuffer( cmdBuffer, &begin_info ) );
+    }
+
+    return cmdBuffer;
+  }
+
+  [[nodiscard]] VkCommandBuffer VulkanDevice::createCommandBuffer( VkCommandBufferLevel level,
+                                                                   bool begin ) const noexcept {
+    return this->createCommandBuffer( level, m_commandPool, begin );
+  }
+
+  void VulkanDevice::flushCommandBuffer( VkCommandBuffer buffer, VkQueue queue, VkCommandPool pool,
+                                         bool free ) const noexcept {
+
+    if ( buffer == VK_NULL_HANDLE ) {
+      return;
+    }
+
+    // Finish the recording
+    VK_CHECK_RESULT( vkEndCommandBuffer( buffer ) );
+
+    VkSubmitInfo submit_info = {};
+    submit_info.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+    submit_info.commandBufferCount = 1;
+    submit_info.pCommandBuffers = &buffer;
+
+    // Create fence to ensure that the command buffer has finished executing
+    VkFenceCreateInfo fence_info = {};
+    fence_info.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
+    fence_info.flags = VK_FENCE_CREATE_SIGNALED_BIT;
+
+    VkFence fence;
+    VK_CHECK_RESULT( vkCreateFence( m_logicalDevice, &fence_info, nullptr, &fence ) );
+    // Submit to the queue
+    VK_CHECK_RESULT( vkQueueSubmit( queue, 1, &submit_info, fence ) );
+    // Wait for the fence to signal that command buffer has finshed executing
+    VK_CHECK_RESULT( vkWaitForFences( m_logicalDevice, 1, &fence, VK_TRUE, UINT64_MAX ) );
+    vkDestroyFence( m_logicalDevice, fence, nullptr );
+
+    if ( free ) {
+      vkFreeCommandBuffers( m_logicalDevice, pool, 1, &buffer );
+    }
+  }
+
+  void VulkanDevice::flushCommandBuffer( VkCommandBuffer buffer, VkQueue queue, bool free ) const
+      noexcept {
+    return this->flushCommandBuffer( buffer, queue, m_commandPool, free );
   }
 
 
