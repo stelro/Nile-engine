@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Nile/drivers/vulkan/vulkan_buffer.hh"
+#include "Nile/drivers/vulkan/vulkan_vertex.hh"
 #include "Nile/graphics/rendering_device.hh"
 
 #include <SDL2/SDL.h>
@@ -22,7 +23,8 @@ namespace nile {
 
   class VulkanDevice;
 
-
+  // @brief:
+  // MAX_FRAMES_IN_FLIGHT - How many frames can should be processed concurrently
   constexpr static const i32 MAX_FRAMES_IN_FLIGHT = 2;
 
   VkResult CreateDebugUtilsMessengerEXT( VkInstance instance,
@@ -49,45 +51,6 @@ namespace nile {
   private:
     std::shared_ptr<AssetManager> m_assetManager;
 
-    // @temporary: this struct used for debug purpouses here.
-    // we will be using the defualt vertex object provided by the engine
-    struct Vertex {
-      glm::vec3 position;
-      glm::vec3 color;
-      glm::vec2 texCoord;
-
-      static VkVertexInputBindingDescription getBindingDescription() {
-        VkVertexInputBindingDescription binding_description = {};
-        binding_description.binding = 0;
-        binding_description.stride = sizeof( Vertex );
-        // VK_VERTEX_INPUT_RATE_VERTEX -> move to the next data entry after each vertex
-        // VK_VERTEX_INPUT_RATE_INTANCE -> move the the next data entry after each instance
-        // used for instanced rendering
-        binding_description.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
-        return binding_description;
-      }
-
-      static std::array<VkVertexInputAttributeDescription, 3> getAttributeDescriptions() {
-        std::array<VkVertexInputAttributeDescription, 3> attribute_descriptions = {};
-
-        attribute_descriptions[ 0 ].binding = 0;
-        attribute_descriptions[ 0 ].location = 0;
-        attribute_descriptions[ 0 ].format = VK_FORMAT_R32G32B32_SFLOAT;
-        attribute_descriptions[ 0 ].offset = offsetof( Vertex, position );
-
-        attribute_descriptions[ 1 ].binding = 0;
-        attribute_descriptions[ 1 ].location = 1;
-        attribute_descriptions[ 1 ].format = VK_FORMAT_R32G32B32_SFLOAT;
-        attribute_descriptions[ 1 ].offset = offsetof( Vertex, color );
-
-        attribute_descriptions[ 2 ].binding = 0;
-        attribute_descriptions[ 2 ].location = 2;
-        attribute_descriptions[ 2 ].format = VK_FORMAT_R32G32_SFLOAT;
-        attribute_descriptions[ 2 ].offset = offsetof( Vertex, texCoord );
-
-        return attribute_descriptions;
-      }
-    };
 
     struct UniformBufferObject {
       alignas( 16 ) glm::mat4 model;
@@ -197,7 +160,6 @@ namespace nile {
     // Check if the GPU is suitable for this engine
     bool isDeviceSuitable( VkPhysicalDevice device ) const noexcept;
     bool checkDeviceExtensionSuport( VkPhysicalDevice device ) const noexcept;
-    u32 findMemoryType( u32 typeFilter, VkMemoryPropertyFlags properties ) noexcept;
 
     VkImageView createImageView( VkImage image, VkFormat format,
                                  VkImageAspectFlags aspectFlags ) noexcept;
@@ -276,25 +238,23 @@ namespace nile {
 
     std::vector<VulkanBuffer> m_uniformBuffers;
 
-    std::vector<Vertex> m_vertices = {{{-0.5f, -0.5f, 0.0f}, {1.0f, 0.0f, 0.0f}, {1.0f, 0.0f}},
-                                      {{0.5f, -0.5f, 0.0f}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f}},
-                                      {{0.5f, 0.5f, 0.0f}, {0.0f, 0.0f, 1.0f}, {0.0f, 1.0f}},
-                                      {{-0.5f, 0.5f, 0.0f}, {1.0f, 1.0f, 1.0f}, {1.0f, 1.0f}},
+    std::vector<VulkanVertex> m_vertices = {
+        {{-0.5f, -0.5f, 0.0f}, {1.0f, 0.0f, 0.0f}, {1.0f, 0.0f, 0.0}, {1.0f, 0.0f}},
+        {{0.5f, -0.5f, 0.0f}, {0.0f, 1.0f, 0.0f}, {1.0f, 0.0f, 0.0}, {0.0f, 0.0f}},
+        {{0.5f, 0.5f, 0.0f}, {0.0f, 0.0f, 1.0f}, {1.0f, 0.0f, 0.0}, {0.0f, 1.0f}},
+        {{-0.5f, 0.5f, 0.0f}, {1.0f, 1.0f, 1.0f}, {1.0f, 0.0f, 0.0}, {1.0f, 1.0f}},
 
-                                      {{-0.5f, -0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}, {1.0f, 0.0f}},
-                                      {{0.5f, -0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f}},
-                                      {{0.5f, 0.5f, -0.5f}, {0.0f, 0.0f, 1.0f}, {0.0f, 1.0f}},
-                                      {{-0.5f, 0.5f, -0.5f}, {1.0f, 1.0f, 1.0f}, {1.0f, 1.0f}}
+        {{-0.5f, -0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}, {1.0f, 0.0f, 0.0}, {1.0f, 0.0f}},
+        {{0.5f, -0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}, {1.0f, 0.0f, 0.0}, {0.0f, 0.0f}},
+        {{0.5f, 0.5f, -0.5f}, {0.0f, 0.0f, 1.0f}, {1.0f, 0.0f, 0.0}, {0.0f, 1.0f}},
+        {{-0.5f, 0.5f, -0.5f}, {1.0f, 1.0f, 1.0f}, {1.0f, 0.0f, 0.0}, {1.0f, 1.0f}}};
 
-
-    };
-
-   std::vector<u16> m_indices = {0, 1, 2, 2, 3, 0, 4, 5, 6, 6, 7, 4};
+    std::vector<u16> m_indices = {0, 1, 2, 2, 3, 0, 4, 5, 6, 6, 7, 4};
 
 
     // Sempahores are used for GPU-GPU synchronazation
     struct {
-      std::vector<VkSemaphore> iamgeIsAvailable;
+      std::vector<VkSemaphore> imageIsAvailable;
       std::vector<VkSemaphore> renderingHasFinished;
     } m_semaphores;
 
@@ -306,6 +266,8 @@ namespace nile {
     // of sempahores every frame
     u32 m_currentFrame = 0;
 
+    size_t m_indicesSize = 0;
+
     bool m_frambufferResized = false;
 
     std::vector<VkImageView> m_sawapChainImageViews;
@@ -314,6 +276,9 @@ namespace nile {
 
     std::vector<const char *> m_validationLayers = {"VK_LAYER_KHRONOS_validation"};
     std::vector<const char *> m_deviceExtensions = {VK_KHR_SWAPCHAIN_EXTENSION_NAME};
+
+    u32 m_imageIndex = 0;
+    VkSubmitInfo m_submit_info {};
 
   public:
     VulkanRenderingDevice( const std::shared_ptr<Settings> &settings,
@@ -326,9 +291,14 @@ namespace nile {
     void submitFrame() noexcept override;
     void endFrame() noexcept override;
     // this method is caled after the main loop
-    void waitIdel() noexcept;
+    void waitIdle() noexcept;
+
+    void draw() noexcept;
+
+    void setVertexBuffer( std::vector<VulkanVertex> vertices ) noexcept;
+    void setIndexBuffer( std::vector<u32> indices ) noexcept;
 
     void setFrameBufferResized( bool value ) noexcept;
-  };
+  };    // namespace nile
 
 }    // namespace nile

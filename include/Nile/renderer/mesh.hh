@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Nile/core/types.hh"
-#include "Nile/utils/vertex.hh"
+#include "Nile/drivers/vulkan/vulkan_vertex.hh"
 
 #include <memory>
 #include <vector>
@@ -12,7 +12,7 @@ namespace nile {
 
   struct Mesh {
 
-    Mesh( std::vector<Vertex> t_vertices, std::vector<u32> t_indices,
+    Mesh( std::vector<VulkanVertex> t_vertices, std::vector<u32> t_indices,
           std::vector<std::shared_ptr<Texture2D>> t_textures ) noexcept
         : verticies( std::move( t_vertices ) )
         , indices( std::move( t_indices ) )
@@ -22,7 +22,7 @@ namespace nile {
     u32 vbo;
     u32 ebo;
 
-    std::vector<Vertex> verticies;
+    std::vector<VulkanVertex> verticies;
     std::vector<u32> indices;
     std::vector<std::shared_ptr<Texture2D>> textures;
   };

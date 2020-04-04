@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Nile/core/types.hh"
-#include "Nile/utils/vertex.hh"
+#include "Nile/drivers/vulkan/vulkan_vertex.hh"
 
 #include <memory>
 #include <vector>
@@ -11,7 +11,7 @@ namespace nile {
   class Texture2D;
 
   struct MeshComponent {
-    std::vector<Vertex> vertices;
+    std::vector<VulkanVertex> vertices;
     std::vector<u32> indices;
     std::vector<std::shared_ptr<Texture2D>> textures;
     u32 vbo;

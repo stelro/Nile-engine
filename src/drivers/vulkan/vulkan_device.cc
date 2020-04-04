@@ -24,7 +24,7 @@ namespace nile {
 
   VulkanDevice::~VulkanDevice() noexcept {
     if ( m_commandPool ) {
-      vkDestroyCommandPool(m_logicalDevice, m_commandPool, nullptr);
+      vkDestroyCommandPool( m_logicalDevice, m_commandPool, nullptr );
     }
     if ( m_logicalDevice ) {
       vkDestroyDevice( m_logicalDevice, nullptr );
@@ -249,6 +249,7 @@ namespace nile {
     }
 
     vkCmdCopyBuffer( copyCmd, src->buffer, dest->buffer, 1, &bufferCopy );
+    // endSingleTimeCommand
     flushCommandBuffer( copyCmd, queue );
   }
 
@@ -316,6 +317,7 @@ namespace nile {
     return this->createCommandBuffer( level, m_commandPool, begin );
   }
 
+  //@brief: Finish command buffer recording and submit it to a queue
   void VulkanDevice::flushCommandBuffer( VkCommandBuffer buffer, VkQueue queue, VkCommandPool pool,
                                          bool free ) const noexcept {
 
@@ -330,19 +332,9 @@ namespace nile {
     submit_info.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
     submit_info.commandBufferCount = 1;
     submit_info.pCommandBuffers = &buffer;
-
-    // Create fence to ensure that the command buffer has finished executing
-    VkFenceCreateInfo fence_info = {};
-    fence_info.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
-    fence_info.flags = VK_FENCE_CREATE_SIGNALED_BIT;
-
-    VkFence fence;
-    VK_CHECK_RESULT( vkCreateFence( m_logicalDevice, &fence_info, nullptr, &fence ) );
-    // Submit to the queue
-    VK_CHECK_RESULT( vkQueueSubmit( queue, 1, &submit_info, fence ) );
-    // Wait for the fence to signal that command buffer has finshed executing
-    VK_CHECK_RESULT( vkWaitForFences( m_logicalDevice, 1, &fence, VK_TRUE, UINT64_MAX ) );
-    vkDestroyFence( m_logicalDevice, fence, nullptr );
+   
+    VK_CHECK_RESULT( vkQueueSubmit( queue, 1, &submit_info, VK_NULL_HANDLE ) );
+    vkQueueWaitIdle(queue);
 
     if ( free ) {
       vkFreeCommandBuffers( m_logicalDevice, pool, 1, &buffer );
@@ -353,6 +345,5 @@ namespace nile {
       noexcept {
     return this->flushCommandBuffer( buffer, queue, m_commandPool, free );
   }
-
 
 }    // namespace nile

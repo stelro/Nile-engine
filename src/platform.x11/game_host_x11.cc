@@ -126,7 +126,7 @@ namespace nile::X11 {
 
     // Create and initialize Entity Component System coordinator
     ecsCoordinator = std::make_shared<Coordinator>();
-    // ecsCoordinator->init();
+    ecsCoordinator->init();
     ( ecsCoordinator ) ? log::notice( "ECS Coordinator have been created!\n" )
                        : log::fatal( "Engine has failed to create ECS Coordinator!\n" );
 
@@ -173,7 +173,7 @@ namespace nile::X11 {
     //                             .build() );
     //
     //
-    // this->registerEcs();
+    this->registerEcs();
   }
 
   void GameHostX11::Impl::registerEcs() noexcept {
@@ -201,42 +201,39 @@ namespace nile::X11 {
                  "\t FontComponent\n"
                  "\t Relationship\n" );
 
-    renderingSystem = ecsCoordinator->registerSystem<RenderingSystem>(
-        ecsCoordinator, assetManager->getAsset<ShaderSet>( "model_shader" ) );
+    renderingSystem =
+        ecsCoordinator->registerSystem<RenderingSystem>( ecsCoordinator, vulkan_renderer );
 
-    spriteRenderingSystem = ecsCoordinator->registerSystem<SpriteRenderingSystem>(
-        ecsCoordinator, assetManager->getAsset<ShaderSet>( "model_shader" ) );
-
-    renderPrimitiveSystem = ecsCoordinator->registerSystem<RenderPrimitiveSystem>(
-        ecsCoordinator, assetManager->getAsset<ShaderSet>( "line_shader" ) );
-
-    fontRenderingSystem = ecsCoordinator->registerSystem<FontRenderingSystem>(
-        ecsCoordinator, settings, assetManager->getAsset<ShaderSet>( "font_shader" ) );
-
-    auto cameraSystem = ecsCoordinator->registerSystem<CameraSystem>( ecsCoordinator, settings );
+    // spriteRenderingSystem = ecsCoordinator->registerSystem<SpriteRenderingSystem>(
+    //     ecsCoordinator, assetManager->getAsset<ShaderSet>( "model_shader" ) );
+    //
+    // renderPrimitiveSystem = ecsCoordinator->registerSystem<RenderPrimitiveSystem>(
+    //     ecsCoordinator, assetManager->getAsset<ShaderSet>( "line_shader" ) );
+    //
+    // fontRenderingSystem = ecsCoordinator->registerSystem<FontRenderingSystem>(
+    //     ecsCoordinator, settings, assetManager->getAsset<ShaderSet>( "font_shader" ) );
+    //
+    // auto cameraSystem = ecsCoordinator->registerSystem<CameraSystem>( ecsCoordinator, settings );
 
     log::notice( "Registered ECS systems by the engine: \n"
-                 "\t SpriteRenderingSystem\n"
-                 "\t RenderPrimitiveSystem\n"
-                 "\t RenderingSystem\n"
-                 "\t CameraSystem\n" );
+                 "\t RenderingSystem\n" );
 
-    Signature signature;
-    signature.set( ecsCoordinator->getComponentType<Transform>() );
-    signature.set( ecsCoordinator->getComponentType<Renderable>() );
-    signature.set( ecsCoordinator->getComponentType<SpriteComponent>() );
-    ecsCoordinator->setSystemSignature<SpriteRenderingSystem>( signature );
+    // Signature signature;
+    // signature.set( ecsCoordinator->getComponentType<Transform>() );
+    // signature.set( ecsCoordinator->getComponentType<Renderable>() );
+    // signature.set( ecsCoordinator->getComponentType<SpriteComponent>() );
+    // ecsCoordinator->setSystemSignature<SpriteRenderingSystem>( signature );
 
-    Signature cameraSignature;
-    cameraSignature.set( ecsCoordinator->getComponentType<Transform>() );
-    cameraSignature.set( ecsCoordinator->getComponentType<CameraComponent>() );
-    ecsCoordinator->setSystemSignature<CameraSystem>( cameraSignature );
+    // Signature cameraSignature;
+    // cameraSignature.set( ecsCoordinator->getComponentType<Transform>() );
+    // cameraSignature.set( ecsCoordinator->getComponentType<CameraComponent>() );
+    // ecsCoordinator->setSystemSignature<CameraSystem>( cameraSignature );
 
-    Signature primSignature;
-    primSignature.set( ecsCoordinator->getComponentType<Transform>() );
-    primSignature.set( ecsCoordinator->getComponentType<Renderable>() );
-    primSignature.set( ecsCoordinator->getComponentType<Primitive>() );
-    ecsCoordinator->setSystemSignature<RenderPrimitiveSystem>( primSignature );
+    // Signature primSignature;
+    // primSignature.set( ecsCoordinator->getComponentType<Transform>() );
+    // primSignature.set( ecsCoordinator->getComponentType<Renderable>() );
+    // primSignature.set( ecsCoordinator->getComponentType<Primitive>() );
+    // ecsCoordinator->setSystemSignature<RenderPrimitiveSystem>( primSignature );
 
     Signature renderingSignature;
     renderingSignature.set( ecsCoordinator->getComponentType<Transform>() );
@@ -244,11 +241,11 @@ namespace nile::X11 {
     renderingSignature.set( ecsCoordinator->getComponentType<MeshComponent>() );
     ecsCoordinator->setSystemSignature<RenderingSystem>( renderingSignature );
 
-    Signature fontSignature;
-    fontSignature.set( ecsCoordinator->getComponentType<Transform>() );
-    fontSignature.set( ecsCoordinator->getComponentType<Renderable>() );
-    fontSignature.set( ecsCoordinator->getComponentType<FontComponent>() );
-    ecsCoordinator->setSystemSignature<FontRenderingSystem>( fontSignature );
+    // Signature fontSignature;
+    // fontSignature.set( ecsCoordinator->getComponentType<Transform>() );
+    // fontSignature.set( ecsCoordinator->getComponentType<Renderable>() );
+    // fontSignature.set( ecsCoordinator->getComponentType<FontComponent>() );
+    // ecsCoordinator->setSystemSignature<FontRenderingSystem>( fontSignature );
   }
 
   GameHostX11::Impl::~Impl() noexcept {
@@ -257,8 +254,8 @@ namespace nile::X11 {
 
   void GameHostX11::Impl::run( Game &game ) noexcept {
 
-    // game.initialize();
-    // ecsCoordinator->createSystems();
+    game.initialize();
+    ecsCoordinator->createSystems();
     f64 lastStep = SDL_GetTicks();
 
     // @performance: should be fixed
@@ -268,18 +265,13 @@ namespace nile::X11 {
     // draw wireframe
     // glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
 
-    //    u32 frame = 0;
-
     while ( !inputManager->shouldClose() ) {
-
-      //      log::print( "[%d]\n", frame++ );
 
 
       f64 currentStep = SDL_GetTicks();
       f64 delta = currentStep - lastStep;    // elapsed time
 
       inputManager->update( delta );
-
       if ( inputManager->isKeyPressed( SDLK_r ) ) {
         m_assetManagerHelper->reloadShaders();
       }
@@ -294,8 +286,8 @@ namespace nile::X11 {
       // glClearColor( 0.1f, 0.1f, 0.1f, 1.0f );
       // glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
       //
-      // ecsCoordinator->update( delta );
-      // ecsCoordinator->render( delta );
+      ecsCoordinator->update( delta );
+      ecsCoordinator->render( delta );
       //
       // game.update( delta );
       //
@@ -313,7 +305,7 @@ namespace nile::X11 {
       lastStep = currentStep;
     }
 
-    vulkan_renderer->waitIdel();
+    vulkan_renderer->waitIdle();
   }
 
   GameHostX11::GameHostX11( const std::shared_ptr<Settings> &settings ) noexcept

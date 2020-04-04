@@ -90,7 +90,7 @@ namespace nile {
 
     for ( size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++ ) {
       vkDestroySemaphore( m_device->getDevice(), m_semaphores.renderingHasFinished[ i ], nullptr );
-      vkDestroySemaphore( m_device->getDevice(), m_semaphores.iamgeIsAvailable[ i ], nullptr );
+      vkDestroySemaphore( m_device->getDevice(), m_semaphores.imageIsAvailable[ i ], nullptr );
       vkDestroyFence( m_device->getDevice(), m_inFlightFences[ i ], nullptr );
     }
 
@@ -176,64 +176,60 @@ namespace nile {
     // - aquire an image from the swap chain
     // - execute the command buffer with that image as attachment in the framebuffer
     // - return the image to the swap chain for presentation
-    //
 
     //@deprecated
     //@deprecated
     //@deprecated
     //@deprecated
+    
     vkWaitForFences( m_device->getDevice(), 1, &m_inFlightFences[ m_currentFrame ], VK_TRUE,
                      UINT64_MAX );
 
-    u32 image_index;
-
 
     auto result = vkAcquireNextImageKHR( m_device->getDevice(), m_swapChain, UINT64_MAX,
-                                         m_semaphores.iamgeIsAvailable[ m_currentFrame ],
-                                         VK_NULL_HANDLE, &image_index );
+                                         m_semaphores.imageIsAvailable[ m_currentFrame ],
+                                         VK_NULL_HANDLE, &m_imageIndex );
 
     if ( result == VK_ERROR_OUT_OF_DATE_KHR ) {
       this->recreateSwapChain();
       return;
     }
 
-    this->updateUniformBuffer( image_index );
+    this->updateUniformBuffer( m_imageIndex );
 
     ASSERT_M( result == VK_SUCCESS || result == VK_SUBOPTIMAL_KHR,
               "Failed to acquire swap chain image" );
 
     // Check if previous frame is using this image ( i.e. there is its fence to wait on)
-    if ( m_imagesInFlight[ image_index ] != VK_NULL_HANDLE ) {
-      vkWaitForFences( m_device->getDevice(), 1, &m_imagesInFlight[ image_index ], VK_TRUE,
+    if ( m_imagesInFlight[ m_imageIndex ] != VK_NULL_HANDLE ) {
+      vkWaitForFences( m_device->getDevice(), 1, &m_imagesInFlight[ m_imageIndex ], VK_TRUE,
                        UINT64_MAX );
     }
 
     // mark the image as now being in use by this frame
-    m_imagesInFlight[ image_index ] = m_inFlightFences[ m_currentFrame ];
+    m_imagesInFlight[ m_imageIndex ] = m_inFlightFences[ m_currentFrame ];
 
     // submitting the command buffer
-    VkSubmitInfo submit_info = {};
-    submit_info.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+    m_submit_info.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
 
-    VkSemaphore wait_semaphores[] = {m_semaphores.iamgeIsAvailable[ m_currentFrame ]};
+    VkSemaphore wait_semaphores[] = {m_semaphores.imageIsAvailable[ m_currentFrame ]};
     VkPipelineStageFlags wait_stages[] = {VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};
-    submit_info.waitSemaphoreCount = 1;
-    submit_info.pWaitSemaphores = wait_semaphores;
-    submit_info.pWaitDstStageMask = wait_stages;
-    submit_info.commandBufferCount = 1;
-    submit_info.pCommandBuffers = &m_commandBuffers[ image_index ];
+    m_submit_info.waitSemaphoreCount = 1;
+    m_submit_info.pWaitSemaphores = wait_semaphores;
+    m_submit_info.pWaitDstStageMask = wait_stages;
+    m_submit_info.commandBufferCount = 1;
+    m_submit_info.pCommandBuffers = &m_commandBuffers[ m_imageIndex ];
 
     VkSemaphore signal_semaphores[] = {m_semaphores.renderingHasFinished[ m_currentFrame ]};
-    submit_info.signalSemaphoreCount = 1;
-    submit_info.pSignalSemaphores = signal_semaphores;
+    m_submit_info.signalSemaphoreCount = 1;
+    m_submit_info.pSignalSemaphores = signal_semaphores;
 
     vkResetFences( m_device->getDevice(), 1, &m_inFlightFences[ m_currentFrame ] );
 
-    // @Deprecated ( replace with flushCommandBuffer )
-    // @Deprecated ( replace with flushCommandBuffer )
-    // @Deprecated ( replace with flushCommandBuffer )
+    
+    // @note: m_inFlightFences[m_currentFrame] -> signal that the frame has finished
     VK_CHECK_RESULT(
-        vkQueueSubmit( m_graphicsQueue, 1, &submit_info, m_inFlightFences[ m_currentFrame ] ) );
+        vkQueueSubmit( m_graphicsQueue, 1, &m_submit_info, m_inFlightFences[ m_currentFrame ] ) );
 
     VkPresentInfoKHR present_info = {};
     present_info.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
@@ -243,7 +239,7 @@ namespace nile {
     VkSwapchainKHR swap_chains[] = {m_swapChain};
     present_info.swapchainCount = 1;
     present_info.pSwapchains = swap_chains;
-    present_info.pImageIndices = &image_index;
+    present_info.pImageIndices = &m_imageIndex;
     present_info.pResults = nullptr;
 
     result = vkQueuePresentKHR( m_presentQueue, &present_info );
@@ -694,8 +690,8 @@ namespace nile {
     VkPipelineShaderStageCreateInfo shader_stages[] = {vert_shader_stage_create_info,
                                                        frag_shader_stage_create_info};
 
-    auto binding_description = Vertex::getBindingDescription();
-    auto attribute_descriptions = Vertex::getAttributeDescriptions();
+    auto binding_description = VulkanVertex::getBindingDescription();
+    auto attribute_descriptions = VulkanVertex::getAttributeDescriptions();
 
     VkPipelineVertexInputStateCreateInfo vertex_input_info = {};
     vertex_input_info.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
@@ -890,9 +886,7 @@ namespace nile {
   }
 
 
-  //@deprecated??
-  //@deprecated??
-  //@deprecated??
+  // @this will be moved inside swapchain class
   void VulkanRenderingDevice::createCommandBuffers() noexcept {
 
     m_commandBuffers.resize( m_swapChainFrameBuffers.size() );
@@ -949,7 +943,7 @@ namespace nile {
 
       // Draw a triangle
       // vkCmdDraw( m_commandBuffers[ i ], static_cast<u32>( m_vertices.size() ), 1, 0, 0 );
-      vkCmdDrawIndexed( m_commandBuffers[ i ], static_cast<u32>( m_indices.size() ), 1, 0, 0, 0 );
+      vkCmdDrawIndexed( m_commandBuffers[ i ], static_cast<u32>( m_indicesSize ), 1, 0, 0, 0 );
 
       vkCmdEndRenderPass( m_commandBuffers[ i ] );
 
@@ -960,7 +954,7 @@ namespace nile {
 
   void VulkanRenderingDevice::createSyncObjects() noexcept {
 
-    m_semaphores.iamgeIsAvailable.resize( MAX_FRAMES_IN_FLIGHT );
+    m_semaphores.imageIsAvailable.resize( MAX_FRAMES_IN_FLIGHT );
     m_semaphores.renderingHasFinished.resize( MAX_FRAMES_IN_FLIGHT );
     m_inFlightFences.resize( MAX_FRAMES_IN_FLIGHT );
     m_imagesInFlight.resize( m_swapChainImages.size(), VK_NULL_HANDLE );
@@ -973,7 +967,7 @@ namespace nile {
 
     for ( size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++ ) {
       VK_CHECK_RESULT( vkCreateSemaphore( m_device->getDevice(), &semaphore_info, nullptr,
-                                          &m_semaphores.iamgeIsAvailable[ i ] ) );
+                                          &m_semaphores.imageIsAvailable[ i ] ) );
 
       VK_CHECK_RESULT( vkCreateSemaphore( m_device->getDevice(), &semaphore_info, nullptr,
                                           &m_semaphores.renderingHasFinished[ i ] ) );
@@ -986,7 +980,7 @@ namespace nile {
     }
   }
 
-  void VulkanRenderingDevice::waitIdel() noexcept {
+  void VulkanRenderingDevice::waitIdle() noexcept {
     vkDeviceWaitIdle( m_device->getDevice() );
   }
 
@@ -1063,20 +1057,27 @@ namespace nile {
     staging_buffer.destory();
   }
 
-  u32 VulkanRenderingDevice::findMemoryType( u32 typeFilter,
-                                             VkMemoryPropertyFlags properties ) noexcept {
+  void VulkanRenderingDevice::setVertexBuffer( std::vector<VulkanVertex> vertices ) noexcept {
 
-    VkPhysicalDeviceMemoryProperties mem_properties;
-    vkGetPhysicalDeviceMemoryProperties( m_physicalDevice, &mem_properties );
+    ASSERT_M( !vertices.empty(), "Verticies buffer cannot be empyt" );
 
-    for ( u32 i = 0; i < mem_properties.memoryTypeCount; i++ ) {
-      if ( ( typeFilter & ( 1 << i ) ) &&
-           ( mem_properties.memoryTypes[ i ].propertyFlags & properties ) == properties ) {
-        return i;
-      }
-    }
-    ASSERT_M( false, "Failed to find suitable memory type!" );
-    return 0;
+    VkDeviceSize buffer_size = sizeof( vertices[ 0 ] ) * vertices.size();
+
+    VulkanBuffer staging_buffer;
+
+    m_device->createBuffer( VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+                            VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
+                                VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+                            &staging_buffer, buffer_size, vertices.data() );
+
+
+    m_device->createBuffer( VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
+                            VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, &m_vertexBuffer, buffer_size );
+
+
+    m_device->copyBuffer( &m_vertexBuffer, &staging_buffer, m_graphicsQueue );
+
+    staging_buffer.destory();
   }
 
 
@@ -1105,9 +1106,9 @@ namespace nile {
     return command_buffer;
   }
 
-  // @deprecated ( logic moved to VulkanDevice::flushCommandBuffer )
-  // @deprecated ( logic moved to VulkanDevice::flushCommandBuffer )
-  // @deprecated ( logic moved to VulkanDevice::flushCommandBuffer )
+  // @fix ( logic moved to VulkanDevice::flushCommandBuffer )
+  // @fix ( logic moved to VulkanDevice::flushCommandBuffer )
+  // @fix ( logic moved to VulkanDevice::flushCommandBuffer )
   void VulkanRenderingDevice::endSingleTimeCommands( VkCommandBuffer commandBuffer ) noexcept {
 
     vkEndCommandBuffer( commandBuffer );
@@ -1124,10 +1125,19 @@ namespace nile {
     vkFreeCommandBuffers( m_device->getDevice(), m_commandPool, 1, &commandBuffer );
   }
 
+  void VulkanRenderingDevice::draw() noexcept {
+
+    // m_submit_info.commandBufferCount = 1;
+    // m_submit_info.pCommandBuffers = &m_commandBuffers[ m_imageIndex ];
+    //
+    // vkQueueSubmit( m_graphicsQueue, 1, &m_submit_info, VK_NULL_HANDLE );
+  }
+
 
   void VulkanRenderingDevice::createIndexBuffer() noexcept {
 
     VkDeviceSize buffer_size = sizeof( m_indices[ 0 ] ) * m_indices.size();
+    m_indicesSize = m_indices.size();
 
     VulkanBuffer staging_buffer;
 
@@ -1144,6 +1154,30 @@ namespace nile {
 
     staging_buffer.destory();
   }
+
+  void VulkanRenderingDevice::setIndexBuffer( std::vector<u32> indices ) noexcept {
+
+    ASSERT_M( !indices.empty(), "Indices buffer cannot be empty" );
+
+    m_indicesSize = indices.size();
+    VkDeviceSize buffer_size = sizeof( indices[ 0 ] ) * indices.size();
+
+    VulkanBuffer staging_buffer;
+
+    m_device->createBuffer( VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+                            VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
+                                VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+                            &staging_buffer, buffer_size, indices.data() );
+
+
+    m_device->createBuffer( VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT,
+                            VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, &m_indexBuffer, buffer_size );
+
+    m_device->copyBuffer( &m_indexBuffer, &staging_buffer, m_graphicsQueue );
+
+    staging_buffer.destory();
+  }
+
 
   void VulkanRenderingDevice::createDescriptorSetLayout() noexcept {
 
@@ -1351,8 +1385,8 @@ namespace nile {
     VkMemoryAllocateInfo alloc_info = {};
     alloc_info.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
     alloc_info.allocationSize = mem_requirements.size;
-    alloc_info.memoryTypeIndex =
-        findMemoryType( mem_requirements.memoryTypeBits, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT );
+    alloc_info.memoryTypeIndex = m_device->getMemoryType( mem_requirements.memoryTypeBits,
+                                                          VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT );
 
     VK_CHECK_RESULT(
         vkAllocateMemory( m_device->getDevice(), &alloc_info, nullptr, &imageMemory ) );

@@ -57,13 +57,13 @@ namespace nile::AssetBuilder {
 
   Mesh Builder<Model>::processMesh( aiMesh *mesh, const aiScene *scene ) noexcept {
 
-    std::vector<Vertex> vertices;
+    std::vector<VulkanVertex> vertices;
     std::vector<u32> indices;
     std::vector<std::shared_ptr<Texture2D>> textures;
 
 
     for ( u32 i = 0; i < mesh->mNumVertices; i++ ) {
-      Vertex vertex;
+      VulkanVertex vertex;
 
       // Retrieve positions
       vertex.position.x = mesh->mVertices[ i ].x;

@@ -41,6 +41,8 @@ namespace platformer {
 
   void Platformer::initialize() noexcept {
 
+    log::notice( "Platformer::initialize()\n" );
+
     // auto modelShader =
     //     m_assetManager->createBuilder<ShaderSet>()
     //         .setVertexPath( FileSystem::getPath( "assets/shaders/model.vert.glsl" ) )
@@ -49,44 +51,45 @@ namespace platformer {
     //
     //    m_assetManager->storeAsset<ShaderSet>( "model_shader", modelShader );
 
-    auto lampShader =
-        m_assetManager->createBuilder<ShaderSet>()
-            .setVertexPath( FileSystem::getPath( "assets/shaders/lamp_vertex.glsl" ) )
-            .setFragmentPath( FileSystem::getPath( "assets/shaders/lamp_fragment.glsl" ) )
-            .build();
-
-    m_assetManager->storeAsset<ShaderSet>( "lamp_shader", lampShader );
+    // auto lampShader =
+    //     m_assetManager->createBuilder<ShaderSet>()
+    //         .setVertexPath( FileSystem::getPath( "assets/shaders/lamp_vertex.glsl" ) )
+    //         .setFragmentPath( FileSystem::getPath( "assets/shaders/lamp_fragment.glsl" ) )
+    //         .build();
+    //
+    //  m_assetManager->storeAsset<ShaderSet>( "lamp_shader", lampShader );
 
     // Load some shaders
-    m_lampShader = m_assetManager->getAsset<ShaderSet>( "lamp_shader" );
-    m_modelShader = m_assetManager->getAsset<ShaderSet>( "model_shader" );
-    m_lineShader = m_assetManager->getAsset<ShaderSet>( "line_shader" );
-
-    ASSERT_M( m_lampShader, "lamp shader is null\n" );
-    ASSERT_M( m_modelShader, "model shader is null\n" );
-    ASSERT_M( m_lineShader, "line shader is null\n" );
-
-    m_cameraEntity = m_ecsCoordinator->createEntity();
-
-    Transform camera_transform;
-    camera_transform.position = glm::vec3( -12.0f, 20.0f, 70.0f );
-    m_ecsCoordinator->addComponent<Transform>( m_cameraEntity, camera_transform );
-
-    CameraComponent cameraComponent( 0.1f, 200.0f, 45.0f, ProjectionType::PERSPECTIVE );
-    m_ecsCoordinator->addComponent<CameraComponent>( m_cameraEntity, cameraComponent );
-
+    // m_lampShader = m_assetManager->getAsset<ShaderSet>( "lamp_shader" );
+    // m_modelShader = m_assetManager->getAsset<ShaderSet>( "model_shader" );
+    // m_lineShader = m_assetManager->getAsset<ShaderSet>( "line_shader" );
+    //
+    // ASSERT_M( m_lampShader, "lamp shader is null\n" );
+    // ASSERT_M( m_modelShader, "model shader is null\n" );
+    // ASSERT_M( m_lineShader, "line shader is null\n" );
+    //
+    // m_cameraEntity = m_ecsCoordinator->createEntity();
+    //
+    // Transform camera_transform;
+    // camera_transform.position = glm::vec3( -12.0f, 20.0f, 70.0f );
+    // m_ecsCoordinator->addComponent<Transform>( m_cameraEntity, camera_transform );
+    //
+    // CameraComponent cameraComponent( 0.1f, 200.0f, 45.0f, ProjectionType::PERSPECTIVE );
+    // m_ecsCoordinator->addComponent<CameraComponent>( m_cameraEntity, cameraComponent );
+    //
     // m_assetManagerHelper = std::make_shared<AssetManagerHelper>( m_assetManager );
 
-    m_textBuffer = std::make_unique<TextBuffer>( m_settings, m_ecsCoordinator, m_assetManager );
+    //    m_textBuffer = std::make_unique<TextBuffer>( m_settings, m_ecsCoordinator, m_assetManager
+    //    );
 
     //    this->drawTextureFloor();
     this->drawStoneTiles();
     //  this->drawContainers();
     //    this->drawNanoModel();
     //   this->drawGrass();
-    this->drawWindows();
+    //   this->drawWindows();
     // this->drawFont();
-    this->drawLigths();
+    //    this->drawLigths();
 
     // m_textBuffer->append( "this is text 1", glm::vec2( 40, 20 ) );
     // m_textBuffer->append( "this is text 2", glm::vec2( 40, 60 ) );
@@ -151,7 +154,7 @@ namespace platformer {
     //
     // m_screenText->print( buffer, TextPosition::LEFT_UP );
     //
-    //glCheckError();
+    // glCheckError();
   }
 
 
@@ -191,7 +194,6 @@ namespace platformer {
     if ( m_inputManager->isKeyPressed( SDLK_ESCAPE ) ) {
       m_inputManager->terminateEngine();
     }
-
   }
 
   void Platformer::processMouseEvents( f32 dt ) noexcept {
@@ -245,6 +247,8 @@ namespace platformer {
 
   void Platformer::drawStoneTiles() noexcept {
 
+    log::notice( "Platformer::drawStoneTiles()\n" );
+
     auto model = m_assetManager->storeAsset<Model>(
         "stonetile_model",
         m_assetManager->createBuilder<Model>( m_assetManager )
@@ -256,8 +260,8 @@ namespace platformer {
     const f32 x_model_offset = 11.333f;
     const f32 z_model_offset = 11.333f;
 
-    for ( u32 row = 0; row < 8; row++ ) {
-      for ( u32 col = 0; col < 8; col++ ) {
+    for ( u32 row = 0; row < 1; row++ ) {
+      for ( u32 col = 0; col < 1; col++ ) {
 
         u32 x = static_cast<f32>( row * x_model_offset );
         u32 z = static_cast<f32>( col * z_model_offset );
