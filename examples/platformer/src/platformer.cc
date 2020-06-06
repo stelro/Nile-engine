@@ -83,10 +83,10 @@ namespace platformer {
     //    );
 
     //    this->drawTextureFloor();
-    this->drawStoneTiles();
+//     this->drawStoneTiles();
+    // this->drawChalet();
     //  this->drawContainers();
     //    this->drawNanoModel();
-    //   this->drawGrass();
     //   this->drawWindows();
     // this->drawFont();
     //    this->drawLigths();
@@ -244,6 +244,39 @@ namespace platformer {
       c_camera.fieldOfView = 45.0f;
     }
   }
+
+  void Platformer::drawChalet() noexcept {
+
+    log::warning( "Platformer::drawChalet()\n" );
+
+    auto model = m_assetManager->storeAsset<Model>(
+        "stonetile_model", m_assetManager->createBuilder<Model>( m_assetManager )
+                               .setModelPath( FileSystem::getPath( "assets/models/chalet.obj" ) )
+                               .build() );
+
+
+    for ( const auto &i : model->meshes ) {
+
+      auto entity = m_ecsCoordinator->createEntity();
+
+      Transform transform;
+      transform.position = glm::vec3( 0.0f, 0.0f, 0.0f );
+      transform.scale = glm::vec3( 3.0f );
+
+      MeshComponent mesh;
+      mesh.vertices = i.verticies;
+      mesh.textures = i.textures;
+      mesh.indices = i.indices;
+
+      Renderable renderable;
+      renderable.color = glm::vec3( 1.0f, 1.0f, 1.0f );
+
+      m_ecsCoordinator->addComponent<Transform>( entity, transform );
+      m_ecsCoordinator->addComponent<Renderable>( entity, renderable );
+      m_ecsCoordinator->addComponent<MeshComponent>( entity, mesh );
+    }
+  }
+
 
   void Platformer::drawStoneTiles() noexcept {
 

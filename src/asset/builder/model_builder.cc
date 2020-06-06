@@ -3,6 +3,7 @@
 #include "Nile/debug/benchmark_timer.hh"
 #include "Nile/log/log.hh"
 
+#include <glm/gtc/type_ptr.hpp>
 
 namespace nile::AssetBuilder {
 
@@ -63,7 +64,9 @@ namespace nile::AssetBuilder {
 
 
     for ( u32 i = 0; i < mesh->mNumVertices; i++ ) {
+
       VulkanVertex vertex;
+
 
       // Retrieve positions
       vertex.position.x = mesh->mVertices[ i ].x;
@@ -82,6 +85,9 @@ namespace nile::AssetBuilder {
         vertex.uv = glm::vec2( 0.0f, 0.0f );
       }
 
+      // Vulkan uses a right-handed NDC ( contrary to OpenGL), so simply flip Y-Axis
+      vertex.position.y *= -1.0f;
+      
       vertices.push_back( vertex );
     }
 

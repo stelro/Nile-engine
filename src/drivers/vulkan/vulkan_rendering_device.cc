@@ -9,6 +9,9 @@
 #include "Nile/log/log.hh"
 #include "stb_image.h"
 
+#define TINYOBJLOADER_IMPLEMENTATION
+#include "../../external/tiny_obj_loader.h"
+
 
 #include <SDL2/SDL_vulkan.h>
 
@@ -65,12 +68,14 @@ namespace nile {
     this->createCommandPool();
     this->createTextureImage();
     this->createTextureImageView();
+    this->loadModel();
     this->createVertexBuffer();
     this->createIndexBuffer();
     this->createUniformBuffers();
     this->createDescriptorPool();
     this->createDescriptorSets();
     this->createCommandBuffers();
+
     this->createSyncObjects();
   }
 
@@ -181,7 +186,7 @@ namespace nile {
     //@deprecated
     //@deprecated
     //@deprecated
-    
+
     vkWaitForFences( m_device->getDevice(), 1, &m_inFlightFences[ m_currentFrame ], VK_TRUE,
                      UINT64_MAX );
 
@@ -226,7 +231,7 @@ namespace nile {
 
     vkResetFences( m_device->getDevice(), 1, &m_inFlightFences[ m_currentFrame ] );
 
-    
+
     // @note: m_inFlightFences[m_currentFrame] -> signal that the frame has finished
     VK_CHECK_RESULT(
         vkQueueSubmit( m_graphicsQueue, 1, &m_submit_info, m_inFlightFences[ m_currentFrame ] ) );
@@ -370,7 +375,8 @@ namespace nile {
           !swap_chain_support.formats.empty() && !swap_chain_support.presentModes.empty();
     }
 
-    return extension_is_supported && swap_chain_adequate && supported_features.samplerAnisotropy;
+    return extension_is_supported && swap_chain_adequate && supported_features.samplerAnisotropy &&
+           supported_features.fillModeNonSolid;
   }
 
   bool VulkanRenderingDevice::checkDeviceExtensionSuport( VkPhysicalDevice device ) const noexcept {
@@ -532,6 +538,7 @@ namespace nile {
          image_count > swap_chain_support.capabilities.maxImageCount ) {
       image_count = swap_chain_support.capabilities.maxImageCount;
     }
+
 
     VkSwapchainCreateInfoKHR create_info = {};
     create_info.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
@@ -824,6 +831,13 @@ namespace nile {
     VK_CHECK_RESULT( vkCreateGraphicsPipelines( m_device->getDevice(), VK_NULL_HANDLE, 1,
                                                 &pipeline_info, nullptr, &m_graphicsPipeline ) );
 
+    if ( m_wireframe ) {
+      rasterizer.polygonMode = VK_POLYGON_MODE_LINE;
+      rasterizer.lineWidth = 1.0f;
+      VK_CHECK_RESULT( vkCreateGraphicsPipelines( m_device->getDevice(), VK_NULL_HANDLE, 1,
+                                                  &pipeline_info, nullptr, &m_wireFramePipeline ) );
+    }
+
 
     vkDestroyShaderModule( m_device->getDevice(), vertex_shader_module, nullptr );
     vkDestroyShaderModule( m_device->getDevice(), fragment_shader_module, nullptr );
@@ -889,6 +903,8 @@ namespace nile {
   // @this will be moved inside swapchain class
   void VulkanRenderingDevice::createCommandBuffers() noexcept {
 
+    log::warning( "VulkanRenderingDevice::createCommandBuffers()\n" );
+
     m_commandBuffers.resize( m_swapChainFrameBuffers.size() );
 
     VkCommandBufferAllocateInfo alloc_info = {};
@@ -903,6 +919,7 @@ namespace nile {
 
     VK_CHECK_RESULT(
         vkAllocateCommandBuffers( m_device->getDevice(), &alloc_info, m_commandBuffers.data() ) );
+
 
     // @ start the recording of the command buffers
     for ( size_t i = 0; i < m_commandBuffers.size(); i++ ) {
@@ -931,24 +948,27 @@ namespace nile {
       vkCmdBeginRenderPass( m_commandBuffers[ i ], &render_pass_info, VK_SUBPASS_CONTENTS_INLINE );
 
       vkCmdBindPipeline( m_commandBuffers[ i ], VK_PIPELINE_BIND_POINT_GRAPHICS,
-                         m_graphicsPipeline );
+                         m_wireframe ? m_wireFramePipeline : m_graphicsPipeline );
 
       VkBuffer vertexBuffers[] = {m_vertexBuffer.buffer};
       VkDeviceSize offsets[] = {0};
+
       vkCmdBindVertexBuffers( m_commandBuffers[ i ], 0, 1, vertexBuffers, offsets );
-      vkCmdBindIndexBuffer( m_commandBuffers[ i ], m_indexBuffer.buffer, 0, VK_INDEX_TYPE_UINT16 );
+      vkCmdBindIndexBuffer( m_commandBuffers[ i ], m_indexBuffer.buffer, 0, VK_INDEX_TYPE_UINT32 );
 
       vkCmdBindDescriptorSets( m_commandBuffers[ i ], VK_PIPELINE_BIND_POINT_GRAPHICS,
                                m_pipelineLayout, 0, 1, &m_descriptorSets[ i ], 0, nullptr );
 
       // Draw a triangle
       // vkCmdDraw( m_commandBuffers[ i ], static_cast<u32>( m_vertices.size() ), 1, 0, 0 );
-      vkCmdDrawIndexed( m_commandBuffers[ i ], static_cast<u32>( m_indicesSize ), 1, 0, 0, 0 );
+      vkCmdDrawIndexed( m_commandBuffers[ i ], static_cast<u32>( m_indices.size() ), 1, 0, 0, 0 );
 
       vkCmdEndRenderPass( m_commandBuffers[ i ] );
 
       // Finish the recording
       VK_CHECK_RESULT( vkEndCommandBuffer( m_commandBuffers[ i ] ) );
+
+      m_is_prepared = true;
     }
   }
 
@@ -1019,6 +1039,10 @@ namespace nile {
 
     vkFreeCommandBuffers( m_device->getDevice(), m_commandPool,
                           static_cast<u32>( m_commandBuffers.size() ), m_commandBuffers.data() );
+
+    if ( m_wireFramePipeline != VK_NULL_HANDLE ) {
+      vkDestroyPipeline( m_device->getDevice(), m_wireFramePipeline, nullptr );
+    }
 
     vkDestroyPipeline( m_device->getDevice(), m_graphicsPipeline, nullptr );
     vkDestroyPipelineLayout( m_device->getDevice(), m_pipelineLayout, nullptr );
@@ -1108,7 +1132,7 @@ namespace nile {
 
   // @fix ( logic moved to VulkanDevice::flushCommandBuffer )
   // @fix ( logic moved to VulkanDevice::flushCommandBuffer )
-  // @fix ( logic moved to VulkanDevice::flushCommandBuffer )
+  // @ ( logic moved to VulkanDevice::flushCommandBuffer )
   void VulkanRenderingDevice::endSingleTimeCommands( VkCommandBuffer commandBuffer ) noexcept {
 
     vkEndCommandBuffer( commandBuffer );
@@ -1227,7 +1251,7 @@ namespace nile {
 
     static auto start_time = std::chrono::high_resolution_clock::now();
 
-    auto current_time = std::chrono::high_resolution_clock::now();
+    [[maybe_unused]] auto current_time = std::chrono::high_resolution_clock::now();
     f32 time = std::chrono::duration<f32, std::chrono::seconds::period>( current_time - start_time )
                    .count();
 
@@ -1321,15 +1345,22 @@ namespace nile {
   void VulkanRenderingDevice::createTextureImage() noexcept {
 
     // @fixit: do we know that texture has loaded? should we handle somehow the error?
+    // @fixit: do we know that texture has loaded? should we handle somehow the error?
+    // @fixit: do we know that texture has loaded? should we handle somehow the error?
     auto texture = m_assetManager->loadAsset<Texture2D>(
-        "vulkan_texture", FileSystem::getPath( "assets/textures/statue.jpg" ) );
+        "vulkan_texture", FileSystem::getPath( "assets/textures/chalet.jpg" ) );
+
 
     const auto tex_width = texture->getWidth();
     const auto tex_height = texture->getHeight();
 
+    log::print("image width: %u\n", tex_width);
+    log::print("image height: %u\n", tex_height);
+
     VkDeviceSize image_size = tex_width * tex_height * 4;
 
     VulkanBuffer staging_buffer;
+
 
     m_device->createBuffer( VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
                             VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
@@ -1341,6 +1372,7 @@ namespace nile {
                  VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT,
                  VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, m_textureImage, m_textureImageMemory );
 
+
     transitionImageLayout( m_textureImage, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_UNDEFINED,
                            VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL );
 
@@ -1349,6 +1381,7 @@ namespace nile {
     transitionImageLayout( m_textureImage, VK_FORMAT_R8G8B8A8_SRGB,
                            VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
                            VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL );
+
 
     staging_buffer.destory();
   }
@@ -1576,6 +1609,45 @@ namespace nile {
     return image_view;
   }
 
+  void VulkanRenderingDevice::loadModel() noexcept {
+
+    tinyobj::attrib_t attrib;
+    std::vector<tinyobj::shape_t> shapes;
+    std::vector<tinyobj::material_t> materials;
+    std::string warn, err;
+
+    if ( !tinyobj::LoadObj( &attrib, &shapes, &materials, &warn, &err,
+                            FileSystem::getPath( "assets/models/chalet.obj" ).c_str() ) ) {
+      log::fatal( "Failed to load model\nwarn: %s\nerror:%s\n", warn.c_str(), err.c_str() );
+    }
+
+    log::notice( "mpike\n" );
+
+    std::unordered_map<VulkanVertex, u32> uniqueVertices {};
+
+    for ( const auto &shape : shapes ) {
+      for ( const auto &index : shape.mesh.indices ) {
+        VulkanVertex vertex;
+
+        vertex.position = {attrib.vertices[ 3 * index.vertex_index + 0 ],
+                           attrib.vertices[ 3 * index.vertex_index + 1 ],
+                           attrib.vertices[ 3 * index.vertex_index + 2 ]};
+
+        vertex.uv = {attrib.texcoords[ 2 * index.texcoord_index + 0 ],
+                     attrib.texcoords[ 2 * index.texcoord_index + 1 ]};
+
+        vertex.color = {1.0f, 1.0f, 1.0f};
+
+        if ( uniqueVertices.count( vertex ) == 0 ) {
+          uniqueVertices[ vertex ] = static_cast<uint32_t>( m_vertices.size() );
+          m_vertices.push_back( vertex );
+        }
+
+        m_vertices.push_back( vertex );
+        m_indices.push_back( uniqueVertices[ vertex ] );
+      }
+    }
+  }
 
 }    // namespace nile
 

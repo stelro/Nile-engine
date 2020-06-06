@@ -1,0 +1,24 @@
+= refactor = 
+  - [ ] add VulkanBuffers to model itself ( one for vertex data and one for index data )
+  - [ ] we need to seperate the vulnkan_rendering_device logic from graphics_device logic
+        * more specifically, vulkan_rendering_device has to do with the vulkan engine
+          creation and initialization, and the graphics_device has to do with the rendering
+          and presentions ( everything that involes from vertexbuffers creations to descriptors)
+
+=vulkan notes=
+  
+  Semaphores-> are used for GPU-GPU synchronazation
+  Fences-> are used for CPU-GPU synchronazation
+
+  vkQueueSubmit(..) -> submit command buffer to a queue
+      if fence is set, will signal the fence once all submited command buffers h ave completed the 
+      operations.
+
+  vkWaitForFences(..) -> wait for the fence/fences to signal that command buffer has finished
+  executing.
+
+=renderer notes=
+  
+  MAX_FRAMES_IN_FLIGHT -> how many frames should be processed concurently?
+    -each frame should have its own set of semaphores.
+    -we keep track of the frame with the variable [ m_currentFrame ].

@@ -42,6 +42,7 @@ namespace platformer {
 
     nile::Entity m_testEntity;
 
+    void drawChalet() noexcept;
     void drawStoneTiles() noexcept;
     void drawNanoModel() noexcept;
     void drawTextureFloor() noexcept;

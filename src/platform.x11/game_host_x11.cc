@@ -111,7 +111,7 @@ namespace nile::X11 {
     //
     vulkan_renderer = std::make_shared<VulkanRenderingDevice>( settings, assetManager );
     vulkan_renderer->initialize();
-    ( vulkan_renderer ) ? log::notice( "Vulkan Renderer have been created and initialized!\n" )
+   ( vulkan_renderer ) ? log::notice( "Vulkan Renderer have been created and initialized!\n" )
                         : log::fatal( "Engine has failed to create vulkan Renderer!\n" );
 
     inputManager->onWindowResized.connect( vulkan_renderer.get(),
@@ -174,6 +174,7 @@ namespace nile::X11 {
     //
     //
     this->registerEcs();
+
   }
 
   void GameHostX11::Impl::registerEcs() noexcept {
@@ -265,7 +266,7 @@ namespace nile::X11 {
     // draw wireframe
     // glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
 
-    while ( !inputManager->shouldClose() ) {
+    while ( !inputManager->shouldClose() && vulkan_renderer->isPrepared() ) {
 
 
       f64 currentStep = SDL_GetTicks();

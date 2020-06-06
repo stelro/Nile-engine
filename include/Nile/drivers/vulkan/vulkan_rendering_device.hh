@@ -100,10 +100,6 @@ namespace nile {
     void createFrameBuffers() noexcept;
     // Command pools are memory pools for command bufrer objects
     void createCommandPool() noexcept;
-    // Command in Vulkan, like drawing operations and memory transfers are not
-    // executed directly using funcitons class, thus we have to record all of the
-    // operations we want to perform in a command buffer object.
-    void createCommandBuffers() noexcept;
     // Create synchronization primitievs that are used to synchornize operations
     // between GPU-GPU ( semaphores ) and CPU-GPU ( fences )
     void createSyncObjects() noexcept;
@@ -177,6 +173,8 @@ namespace nile {
 
     void copyBufferToImage( VkBuffer buffer, VkImage image, u32 width, u32 height ) noexcept;
 
+    void loadModel() noexcept;
+
     SDL_Window *m_window = nullptr;
     VkInstance m_vulkanInstance;
     VkDebugUtilsMessengerEXT m_debugMessenger;
@@ -218,6 +216,7 @@ namespace nile {
     VkPipelineLayout m_pipelineLayout;
 
     VkPipeline m_graphicsPipeline;
+    VkPipeline m_wireFramePipeline;
 
     VkCommandPool m_commandPool;
 
@@ -237,20 +236,8 @@ namespace nile {
     VkImageView m_depthImageView;
 
     std::vector<VulkanBuffer> m_uniformBuffers;
-
-    std::vector<VulkanVertex> m_vertices = {
-        {{-0.5f, -0.5f, 0.0f}, {1.0f, 0.0f, 0.0f}, {1.0f, 0.0f, 0.0}, {1.0f, 0.0f}},
-        {{0.5f, -0.5f, 0.0f}, {0.0f, 1.0f, 0.0f}, {1.0f, 0.0f, 0.0}, {0.0f, 0.0f}},
-        {{0.5f, 0.5f, 0.0f}, {0.0f, 0.0f, 1.0f}, {1.0f, 0.0f, 0.0}, {0.0f, 1.0f}},
-        {{-0.5f, 0.5f, 0.0f}, {1.0f, 1.0f, 1.0f}, {1.0f, 0.0f, 0.0}, {1.0f, 1.0f}},
-
-        {{-0.5f, -0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}, {1.0f, 0.0f, 0.0}, {1.0f, 0.0f}},
-        {{0.5f, -0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}, {1.0f, 0.0f, 0.0}, {0.0f, 0.0f}},
-        {{0.5f, 0.5f, -0.5f}, {0.0f, 0.0f, 1.0f}, {1.0f, 0.0f, 0.0}, {0.0f, 1.0f}},
-        {{-0.5f, 0.5f, -0.5f}, {1.0f, 1.0f, 1.0f}, {1.0f, 0.0f, 0.0}, {1.0f, 1.0f}}};
-
-    std::vector<u16> m_indices = {0, 1, 2, 2, 3, 0, 4, 5, 6, 6, 7, 4};
-
+    std::vector<VulkanVertex> m_vertices;
+    std::vector<u32> m_indices;
 
     // Sempahores are used for GPU-GPU synchronazation
     struct {
@@ -280,6 +267,9 @@ namespace nile {
     u32 m_imageIndex = 0;
     VkSubmitInfo m_submit_info {};
 
+    bool m_is_prepared = false;
+    bool m_wireframe = false;
+
   public:
     VulkanRenderingDevice( const std::shared_ptr<Settings> &settings,
                            const std::shared_ptr<AssetManager> &assetManager ) noexcept;
@@ -299,6 +289,15 @@ namespace nile {
     void setIndexBuffer( std::vector<u32> indices ) noexcept;
 
     void setFrameBufferResized( bool value ) noexcept;
+    // Command in Vulkan, like drawing operations and memory transfers are not
+    // executed directly using funcitons class, thus we have to record all of the
+    // operations we want to perform in a command buffer object.
+    void createCommandBuffers() noexcept;
+
+    bool isPrepared() const noexcept {
+      return m_is_prepared;
+    }
+
   };    // namespace nile
 
 }    // namespace nile

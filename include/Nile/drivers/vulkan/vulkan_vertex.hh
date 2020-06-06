@@ -1,9 +1,13 @@
 #pragma once
 
 #include <glm/glm.hpp>
+#include <unordered_map>
 #include <vulkan/vulkan.h>
+#include <glm/glm.hpp>
+#include <glm/gtx/hash.hpp>
 
 #include <array>
+#include <functional>
 
 namespace nile {
 
@@ -49,5 +53,22 @@ namespace nile {
 
       return attribute_descriptions;
     }
+
+    bool operator==( const VulkanVertex &other ) const {
+      return position == other.position && color == other.color && uv == other.uv;
+    }
   };
+
 }    // namespace nile
+
+namespace std {
+  template <>
+  struct hash<nile::VulkanVertex> {
+    size_t operator()( nile::VulkanVertex const &vertex ) const {
+      return ( ( std::hash<glm::vec3>()( vertex.position ) ^ ( std::hash<glm::vec3>()( vertex.color ) << 1 ) ) >>
+               1 ) ^
+             ( std::hash<glm::vec2>()( vertex.uv ) << 1 );
+    }
+  };
+}    // namespace std
+

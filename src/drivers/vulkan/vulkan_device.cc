@@ -185,6 +185,7 @@ namespace nile {
                                        void *data ) noexcept {
 
     buffer->device = m_logicalDevice;
+    
 
     VkBufferCreateInfo buffer_info = {};
     buffer_info.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
@@ -200,6 +201,7 @@ namespace nile {
     VkMemoryAllocateInfo alloc_info = {};
     alloc_info.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
     alloc_info.allocationSize = mem_requirements.size;
+    log::print("mem requiriements size: %lu\n", mem_requirements.size);
     alloc_info.memoryTypeIndex =
         getMemoryType( mem_requirements.memoryTypeBits, memoryPropertyFlags );
 
@@ -212,21 +214,30 @@ namespace nile {
     VK_CHECK_RESULT( vkAllocateMemory( m_logicalDevice, &alloc_info, nullptr, &buffer->memory ) );
 
     buffer->alignment = mem_requirements.alignment;
-    buffer->size = size;
+    buffer->size = mem_requirements.size;
     buffer->usageFlags = usageFlags;
     buffer->memoryPropertyFlags = memoryPropertyFlags;
 
     // If a pointer to the buffer data has been passed, map the buffer and copy over the data
     if ( data != nullptr ) {
 
-      VK_CHECK_RESULT( buffer->map() );
-      memcpy( buffer->data, data, size );
+
+      VK_CHECK_RESULT( buffer->map(size, 0) );
+
+      // @ FAILING HERE: cannot allocate the whole vulkan buffer for some reason
+      // @ FAILING HERE: cannot allocate the whole vulkan buffer for some reason
+      // @ FAILING HERE: cannot allocate the whole vulkan buffer for some reason
+      log::print("before mmemcpy\n");
+      memcpy( buffer->data, data, static_cast<size_t>( size ) );
+      log::print("after memcpy\n");
+
       if ( ( memoryPropertyFlags & VK_MEMORY_PROPERTY_HOST_COHERENT_BIT ) == 0 ) {
         buffer->flush();
       }
 
       buffer->unmap();
     }
+
 
     buffer->setupDescriptor();
 
@@ -332,9 +343,9 @@ namespace nile {
     submit_info.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
     submit_info.commandBufferCount = 1;
     submit_info.pCommandBuffers = &buffer;
-   
+
     VK_CHECK_RESULT( vkQueueSubmit( queue, 1, &submit_info, VK_NULL_HANDLE ) );
-    vkQueueWaitIdle(queue);
+    vkQueueWaitIdle( queue );
 
     if ( free ) {
       vkFreeCommandBuffers( m_logicalDevice, pool, 1, &buffer );

@@ -36,13 +36,13 @@ namespace nile {
 
     // Load image
     int width, height, nrChannels;
-    unsigned char *image = nullptr;
+    stbi_uc *image = nullptr;
     image = stbi_load( filePath.data(), &width, &height, &nrChannels, STBI_rgb_alpha );
 
     // We flip the y-axis coordinate, because open-gl expects the 0.0 coordinate to
     // be on the bottom side of the image, but usually images have 0.0 at the top of
     // the y-axis
-    stbi_set_flip_vertically_on_load( true );
+    //stbi_set_flip_vertically_on_load( true );
 
     if ( !image ) {
       log::error( "Failed to load texture { %s }\n", filePath.data() );
