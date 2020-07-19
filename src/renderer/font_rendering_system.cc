@@ -12,32 +12,33 @@
 
 #include <GL/glew.h>
 #include <glm/gtc/matrix_transform.hpp>
+#include <spdlog/spdlog.h>
 
 namespace nile {
 
   FontRenderingSystem::FontRenderingSystem( const std::shared_ptr<Coordinator> &coordinator,
                                             const std::shared_ptr<Settings> &settings,
                                             const std::shared_ptr<ShaderSet> &shader ) noexcept
-      : m_ecsCoordinator( coordinator )
-      , m_settings( settings )
-      , m_fontShader( shader ) {}
+      : ecs_coordinator_( coordinator )
+      , settings_( settings )
+      , font_shader_( shader ) {}
 
-  void FontRenderingSystem::initRenderData() noexcept {
+  void FontRenderingSystem::init_rendering_data() noexcept {
 
-    for ( const auto &entity : m_entities ) {
+    for ( const auto &entity : entities_ ) {
 
-      auto &font = m_ecsCoordinator->getComponent<FontComponent>( entity );
+      auto &font = ecs_coordinator_->getComponent<FontComponent>( entity );
 
       ASSERT_M( font.font, "Font field in FontComponent is not initialized or it's empty!" );
 
       FT_Set_Pixel_Sizes( font.font->fontFace, 0, font.fontSize );
 
-      m_fontShader->SetMatrix4( "projection",
-                                glm::ortho( 0.0f, static_cast<f32>( m_settings->getWidth() ),
-                                            static_cast<f32>( m_settings->getHeight() ), 0.0f ),
+      font_shader_->SetMatrix4( "projection",
+                                glm::ortho( 0.0f, static_cast<f32>( settings_->getWidth() ),
+                                            static_cast<f32>( settings_->getHeight() ), 0.0f ),
                                 GL_TRUE );
 
-      m_fontShader->SetInteger( "text", 0 );
+      font_shader_->SetInteger( "text", 0 );
 
       // Initialize the vertex array object
       glGenVertexArrays( 1, &font.vao );
@@ -75,12 +76,12 @@ namespace nile {
         glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
 
         // Store the character of later use
-        FontCharacter character = {texture,
-                                   glm::ivec2( font.font->fontFace->glyph->bitmap.width,
-                                               font.font->fontFace->glyph->bitmap.rows ),
-                                   glm::ivec2( font.font->fontFace->glyph->bitmap_left,
-                                               font.font->fontFace->glyph->bitmap_top ),
-                                   static_cast<u32>( font.font->fontFace->glyph->advance.x )};
+        FontCharacter character = { texture,
+                                    glm::ivec2( font.font->fontFace->glyph->bitmap.width,
+                                                font.font->fontFace->glyph->bitmap.rows ),
+                                    glm::ivec2( font.font->fontFace->glyph->bitmap_left,
+                                                font.font->fontFace->glyph->bitmap_top ),
+                                    static_cast<u32>( font.font->fontFace->glyph->advance.x ) };
 
         font.characters.insert( std::pair<char, FontCharacter>( c, character ) );
       }
@@ -88,22 +89,23 @@ namespace nile {
   }
 
   void FontRenderingSystem::create() noexcept {
-    this->initRenderData();
+    this->init_rendering_data();
+    spdlog::info(
+        "ECS FontRenderingSystem has been registered to ECS manager and created successfully." );
   }
 
   void FontRenderingSystem::destroy() noexcept {}
   void FontRenderingSystem::update( float dt ) noexcept {}
   void FontRenderingSystem::render( float dt ) noexcept {
 
-    for ( const auto &entity : m_entities ) {
+    for ( const auto &entity : entities_ ) {
 
+      auto &font = ecs_coordinator_->getComponent<FontComponent>( entity );
+      auto renderable = ecs_coordinator_->getComponent<Renderable>( entity );
+      auto transform = ecs_coordinator_->getComponent<Transform>( entity );
 
-      auto &font = m_ecsCoordinator->getComponent<FontComponent>( entity );
-      auto renderable = m_ecsCoordinator->getComponent<Renderable>( entity );
-      auto transform = m_ecsCoordinator->getComponent<Transform>( entity );
-
-      m_fontShader->use();
-      m_fontShader->SetVector3f( "textColor", renderable.color );
+      font_shader_->use();
+      font_shader_->SetVector3f( "textColor", renderable.color );
       glActiveTexture( GL_TEXTURE0 );
       glBindVertexArray( font.vao );
 
@@ -126,11 +128,11 @@ namespace nile {
         // Update vbo for each character
         f32 vertices[ 6 ][ 4 ] = {
 
-            {xpos, ypos + h, 0.0f, 1.0f}, {xpos + w, ypos, 1.0f, 0.0f},
-            {xpos, ypos, 0.0f, 0.0f},
+            { xpos, ypos + h, 0.0f, 1.0f }, { xpos + w, ypos, 1.0f, 0.0f },
+            { xpos, ypos, 0.0f, 0.0f },
 
-            {xpos, ypos + h, 0.0f, 1.0f}, {xpos + w, ypos + h, 1.0f, 1.0f},
-            {xpos + w, ypos, 1.0f, 0.0f}};
+            { xpos, ypos + h, 0.0f, 1.0f }, { xpos + w, ypos + h, 1.0f, 1.0f },
+            { xpos + w, ypos, 1.0f, 0.0f } };
 
         glBindTexture( GL_TEXTURE_2D, ch.textureID );
         glBindBuffer( GL_ARRAY_BUFFER, font.vbo );

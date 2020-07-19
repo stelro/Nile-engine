@@ -7,28 +7,31 @@
 
 #include <GL/glew.h>
 #include <glm/gtc/matrix_transform.hpp>
+#include <spdlog/spdlog.h>
 
 namespace nile {
 
   RenderPrimitiveSystem::RenderPrimitiveSystem( const std::shared_ptr<Coordinator> &coordinator,
                                                 const std::shared_ptr<ShaderSet> &shader ) noexcept
-      : m_ecsCoordinator( coordinator )
-      , m_primShader( shader ) {}
+      : ecs_coordinator_( coordinator )
+      , primitive_shader_( shader ) {}
 
   void RenderPrimitiveSystem::create() noexcept {
-    this->initRenderData();
+    this->init_rendering_data();
+    spdlog::info(
+        "ECS RenderPrimitiveSystem has been registered to ECS manager and created successfully." );
   }
 
   void RenderPrimitiveSystem::destroy() noexcept {}
 
   void RenderPrimitiveSystem::render( float dt ) noexcept {
 
-    for ( const auto &entity : m_entities ) {
-      auto &transform = m_ecsCoordinator->getComponent<Transform>( entity );
-      auto &renderable = m_ecsCoordinator->getComponent<Renderable>( entity );
-      auto &primitive = m_ecsCoordinator->getComponent<Primitive>( entity );
+    for ( const auto &entity : entities_ ) {
+      auto &transform = ecs_coordinator_->getComponent<Transform>( entity );
+      auto &renderable = ecs_coordinator_->getComponent<Renderable>( entity );
+      auto &primitive = ecs_coordinator_->getComponent<Primitive>( entity );
 
-      this->m_primShader->use();
+      this->primitive_shader_->use();
 
       // f32 vertices[] = {primitive.begin.x, primitive.begin.y, primitive.end.x, primitive.end.y};
       //
@@ -36,7 +39,7 @@ namespace nile {
       // glBufferSubData( GL_ARRAY_BUFFER, 0, sizeof( vertices ), vertices );
       // glBindBuffer( GL_ARRAY_BUFFER, 0 );
       //
-      glm::mat4 model = glm::mat4 {1.0f};
+      glm::mat4 model = glm::mat4 { 1.0f };
       model = glm::translate( model, transform.position );
       model =
           glm::rotate( model, glm::radians( transform.xRotation ), glm::vec3( 1.0f, 0.0f, 0.0f ) );
@@ -46,8 +49,8 @@ namespace nile {
           glm::rotate( model, glm::radians( transform.zRotation ), glm::vec3( 0.0f, 0.0f, 1.0f ) );
 
 
-      this->m_primShader->SetMatrix4( "model", model );
-      this->m_primShader->SetVector3f( "primitive_color", renderable.color );
+      this->primitive_shader_->SetMatrix4( "model", model );
+      this->primitive_shader_->SetVector3f( "primitive_color", renderable.color );
 
       glLineWidth( primitive.lineWidth );
       glBindVertexArray( primitive.vao );
@@ -56,14 +59,13 @@ namespace nile {
     }
   }
 
-  void RenderPrimitiveSystem::initRenderData() noexcept {
+  void RenderPrimitiveSystem::init_rendering_data() noexcept {
 
-
-    for ( const auto &entity : m_entities ) {
-      auto &primitive = m_ecsCoordinator->getComponent<Primitive>( entity );
+    for ( const auto &entity : entities_ ) {
+      auto &primitive = ecs_coordinator_->getComponent<Primitive>( entity );
       // Set the begin and end from our primitive component
-      const f32 vertices[] = {primitive.begin.x, primitive.begin.y, primitive.end.x,
-                              primitive.end.y};
+      const f32 vertices[] = { primitive.begin.x, primitive.begin.y, primitive.end.x,
+                               primitive.end.y };
       glGenVertexArrays( 1, &primitive.vao );
       glGenBuffers( 1, &primitive.vbo );
       glBindBuffer( GL_ARRAY_BUFFER, primitive.vbo );

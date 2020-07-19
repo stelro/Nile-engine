@@ -16,32 +16,35 @@ $Notice: $
 #include <GL/glew.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include <spdlog/spdlog.h>
 
 namespace nile {
 
   SpriteRenderingSystem::SpriteRenderingSystem( const std::shared_ptr<Coordinator> &coordinator,
                                                 const std::shared_ptr<ShaderSet> &shader ) noexcept
-      : m_ecsCoordinator( coordinator )
-      , m_spriteShader( shader ) {}
+      : ecs_coordinator_( coordinator )
+      , sprite_shader_( shader ) {}
 
   void SpriteRenderingSystem::create() noexcept {
-    this->initRenderData();
+    this->init_rendering_data();
+    spdlog::info(
+        "ECS SpriteRenderingSystem has been registered to ECS manager and created successfully." );
   }
 
   void SpriteRenderingSystem::destroy() noexcept {
-    glDeleteVertexArrays( 1, &this->m_quadVAO );
+    glDeleteVertexArrays( 1, &this->quad_vao_ );
   }
 
   void SpriteRenderingSystem::update( float dt ) noexcept {}
 
   void SpriteRenderingSystem::render( float dt ) noexcept {
 
-    for ( const auto &entity : m_entities ) {
-      auto &transform = m_ecsCoordinator->getComponent<Transform>( entity );
-      auto &renderable = m_ecsCoordinator->getComponent<Renderable>( entity );
-      auto &sprite = m_ecsCoordinator->getComponent<SpriteComponent>( entity );
+    for ( const auto &entity : entities_ ) {
+      auto &transform = ecs_coordinator_->getComponent<Transform>( entity );
+      auto &renderable = ecs_coordinator_->getComponent<Renderable>( entity );
+      auto &sprite = ecs_coordinator_->getComponent<SpriteComponent>( entity );
 
-      this->m_spriteShader->use();
+      this->sprite_shader_->use();
 
       glm::mat4 model = glm::mat4( 1.0f );
       model = glm::translate( model, transform.position );
@@ -66,28 +69,28 @@ namespace nile {
       //
       model = glm::scale( model, glm::vec3( transform.scale.x, transform.scale.y, 1.0f ) );
 
-      this->m_spriteShader->SetMatrix4( "model", model );
-      this->m_spriteShader->SetVector3f( "objectColor", renderable.color );
+      this->sprite_shader_->SetMatrix4( "model", model );
+      this->sprite_shader_->SetVector3f( "objectColor", renderable.color );
 
       glActiveTexture( GL_TEXTURE0 );
       sprite.texture->bind();
 
-      glBindVertexArray( this->m_quadVAO );
+      glBindVertexArray( this->quad_vao_ );
       glDrawArrays( GL_TRIANGLES, 0, 6 );
       glBindVertexArray( 0 );
     }
   }
 
-  void SpriteRenderingSystem::initRenderData() noexcept {
+  void SpriteRenderingSystem::init_rendering_data() noexcept {
     u32 vbo;
-    f32 vertices[] = {0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f,
-                      0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
-                      0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f,
-                      0.0f, 0.0f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f};
+    f32 vertices[] = { 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f,
+                       0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
+                       0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f,
+                       0.0f, 0.0f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f };
 
-    log::print("Sprite rendering system\n");
+    log::print( "Sprite rendering system\n" );
 
-    glGenVertexArrays( 1, &this->m_quadVAO );
+    glGenVertexArrays( 1, &this->quad_vao_ );
     glGenBuffers( 1, &vbo );
     // pos
     // normal
@@ -96,7 +99,7 @@ namespace nile {
     glBindBuffer( GL_ARRAY_BUFFER, vbo );
     glBufferData( GL_ARRAY_BUFFER, sizeof( vertices ), vertices, GL_STATIC_DRAW );
 
-    glBindVertexArray( this->m_quadVAO );
+    glBindVertexArray( this->quad_vao_ );
 
     // Position
     glEnableVertexAttribArray( 0 );

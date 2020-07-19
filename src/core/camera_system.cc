@@ -5,45 +5,49 @@
 #include "Nile/ecs/ecs_coordinator.hh"
 #include <glm/gtc/matrix_transform.hpp>
 
+#include <spdlog/spdlog.h>
+
 namespace nile {
 
   CameraSystem::CameraSystem( const std::shared_ptr<Coordinator> &coordinator,
-                              const std::shared_ptr<Settings> settings ) noexcept
-      : m_ecsCoordinator( coordinator )
-      , m_settings( settings ) {}
+                              const std::shared_ptr<Settings> &settings ) noexcept
+      : ecs_coordinator_( coordinator )
+      , settings_( settings ) {}
 
   void CameraSystem::create() noexcept {
 
     // Setup the camera, create the projection matrix
-    for ( const auto &entity : m_entities ) {
+    for ( const auto &entity : entities_ ) {
 
-      auto &cameraComponent = m_ecsCoordinator->getComponent<CameraComponent>( entity );
+      auto &cameraComponent = ecs_coordinator_->getComponent<CameraComponent>( entity );
 
       switch ( cameraComponent.projectionType ) {
         case ProjectionType::ORTHOGRAPHIC:
           cameraComponent.projectionMatrix =
-              glm::ortho( 0.0f, static_cast<f32>( m_settings->getWidth() ),
-                          static_cast<f32>( m_settings->getHeight() ), 0.0f );
+              glm::ortho( 0.0f, static_cast<f32>( settings_->getWidth() ),
+                          static_cast<f32>( settings_->getHeight() ), 0.0f );
           break;
         case ProjectionType::PERSPECTIVE:
           // TODO(stel): create perspective projection matrix
           cameraComponent.projectionMatrix =
               glm::perspective( glm::radians( cameraComponent.fieldOfView ),
-                                static_cast<f32>( m_settings->getWidth() ) /
-                                    static_cast<f32>( m_settings->getHeight() ),
+                                static_cast<f32>( settings_->getWidth() ) /
+                                    static_cast<f32>( settings_->getHeight() ),
                                 cameraComponent.near, cameraComponent.far );
           break;
         default:
           break;
       };
     }
+
+    spdlog::info( "ECS CameraSystem has been registered to ECS manager and created successfully." );
   }
 
   void CameraSystem::update( f32 dt ) noexcept {
 
-    for ( const auto &entity : m_entities ) {
-      auto &transform = m_ecsCoordinator->getComponent<Transform>( entity );
-      auto &cameraComponent = m_ecsCoordinator->getComponent<CameraComponent>( entity );
+    for ( const auto &entity : entities_ ) {
+      auto &transform = ecs_coordinator_->getComponent<Transform>( entity );
+      auto &cameraComponent = ecs_coordinator_->getComponent<CameraComponent>( entity );
       if ( cameraComponent.shouldCameraUpdate ) {
         glm::vec3 translation = transform.position;
         cameraComponent.cameraMatrix =
@@ -63,7 +67,6 @@ namespace nile {
         cameraComponent.up = glm::normalize(
             glm::cross( cameraComponent.cameraRight, cameraComponent.cameraFront ) );
         cameraComponent.shouldCameraUpdate = false;
-
       }
     }
   }

@@ -11,16 +11,19 @@
 #include <GL/glew.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include <spdlog/spdlog.h>
 
 namespace nile {
 
   RenderingSystem::RenderingSystem( const std::shared_ptr<Coordinator> &coordinator,
                                     const std::shared_ptr<ShaderSet> &shader ) noexcept
-      : m_ecsCoordinator( coordinator )
-      , m_shader( shader ) {}
+      : ecs_coordinator_( coordinator )
+      , shader_( shader ) {}
 
   void RenderingSystem::create() noexcept {
-    this->initRenderData();
+    this->init_rendering_data();
+    spdlog::info(
+        "ECS RenderingSystem has been registered to ECS manager and created successfully." );
   }
 
   void RenderingSystem::update( float dt ) noexcept {}
@@ -29,16 +32,16 @@ namespace nile {
 
     glEnable( GL_CULL_FACE );
 
-    for ( const auto &entity : m_entities ) {
+    for ( const auto &entity : entities_ ) {
 
-      auto &mesh = m_ecsCoordinator->getComponent<MeshComponent>( entity );
-      auto &transform = m_ecsCoordinator->getComponent<Transform>( entity );
-      auto &renderable = m_ecsCoordinator->getComponent<Renderable>( entity );
+      auto &mesh = ecs_coordinator_->getComponent<MeshComponent>( entity );
+      auto &transform = ecs_coordinator_->getComponent<Transform>( entity );
+      auto &renderable = ecs_coordinator_->getComponent<Renderable>( entity );
 
       // Allow user to set user-defined shaders
       // if the shaderset is set in the renderable component, then use it
       // otherwise use the default one provided by the rendering system
-      auto shader = ( renderable.shaderSet ) ? renderable.shaderSet : m_shader;
+      auto shader = ( renderable.shaderSet ) ? renderable.shaderSet : shader_;
 
       if ( renderable.blend )
         glEnable( GL_BLEND );
@@ -70,7 +73,7 @@ namespace nile {
 
       shader->use();
 
-      glm::mat4 model = glm::mat4 {1.0f};
+      glm::mat4 model = glm::mat4 { 1.0f };
       model = glm::translate( model, transform.position );
       model =
           glm::rotate( model, glm::radians( transform.xRotation ), glm::vec3( 1.0f, 0.0f, 0.0f ) );
@@ -100,12 +103,11 @@ namespace nile {
     glDisable( GL_CULL_FACE );
   }
 
-  void RenderingSystem::initRenderData() noexcept {
+  void RenderingSystem::init_rendering_data() noexcept {
 
+    for ( const auto &entity : entities_ ) {
 
-    for ( const auto &entity : m_entities ) {
-
-      auto &mesh = m_ecsCoordinator->getComponent<MeshComponent>( entity );
+      auto &mesh = ecs_coordinator_->getComponent<MeshComponent>( entity );
 
       glGenVertexArrays( 1, &mesh.vao );
       glGenBuffers( 1, &mesh.ebo );

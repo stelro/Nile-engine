@@ -39,14 +39,14 @@ namespace nile::AssetBuilder {
       return;
     }
 
-    spdlog::debug( "Model \"{}\" has been loaded.", m_path );
 
     m_directoryName = m_path.substr( 0, m_path.find_last_of( '/' ) );
     processNode( scene->mRootNode, scene );
+
+    spdlog::debug( "Model \"{}\" has been loaded.", m_path );
   }
 
   void Builder<Model>::processNode( aiNode *node, const aiScene *scene ) noexcept {
-
 
     for ( u32 i = 0; i < node->mNumMeshes; i++ ) {
       aiMesh *mesh = scene->mMeshes[ node->mMeshes[ i ] ];
@@ -64,7 +64,6 @@ namespace nile::AssetBuilder {
     std::vector<u32> indices;
     std::vector<std::shared_ptr<Texture2D>> textures;
 
-
     for ( u32 i = 0; i < mesh->mNumVertices; i++ ) {
       Vertex vertex;
 
@@ -73,10 +72,12 @@ namespace nile::AssetBuilder {
       vertex.position.y = mesh->mVertices[ i ].y;
       vertex.position.z = mesh->mVertices[ i ].z;
 
-      // Retrieve Normals
-      vertex.normal.x = mesh->mNormals[ i ].x;
-      vertex.normal.y = mesh->mNormals[ i ].y;
-      vertex.normal.z = mesh->mNormals[ i ].z;
+      if ( mesh->HasNormals() ) {
+        // Retrieve Normals
+        vertex.normal.x = mesh->mNormals[ i ].x;
+        vertex.normal.y = mesh->mNormals[ i ].y;
+        vertex.normal.z = mesh->mNormals[ i ].z;
+      }
 
       if ( mesh->mTextureCoords[ 0 ] ) {
         vertex.uv.x = mesh->mTextureCoords[ 0 ][ i ].x;

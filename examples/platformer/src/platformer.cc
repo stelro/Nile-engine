@@ -1,4 +1,5 @@
 #include "platformer.hh"
+#include "Nile/core/types.hh"
 
 #include <Nile/asset/builder/model_builder.hh>
 #include <Nile/asset/builder/shaderset_builder.hh>
@@ -26,58 +27,59 @@ namespace platformer {
   using namespace nile;
 
   Platformer::Platformer( const std::shared_ptr<nile::GameHost> &gameHost ) noexcept
-      : m_gameHost( gameHost )
-      , m_inputManager( gameHost->getInputManager() )
-      , m_renderer( gameHost->getRenderer() )
-      , m_settings( gameHost->getSettings() )
-      , m_assetManager( gameHost->getAssetManager() )
-      , m_ecsCoordinator( gameHost->getEcsCoordinator() ) {
+      : game_host_( gameHost )
+      , input_manager_( gameHost->get_input_manager() )
+      , renderer_( gameHost->get_renderer() )
+      , settings_( gameHost->get_settings() )
+      , assets_manager_( gameHost->get_asset_manager() )
+      , ecs_coordinator_( gameHost->get_ecs_coordinator() ) {
 
-    m_lastX = m_settings->getWidth() / 2.0f;
-    m_lastY = m_settings->getHeight() / 2.0f;
+    last_x_ = settings_->getWidth() / 2.0f;
+    last_y_ = settings_->getHeight() / 2.0f;
   }
-
 
   void Platformer::initialize() noexcept {
 
-    // auto modelShader =
-    //     m_assetManager->createBuilder<ShaderSet>()
+    // auto model_shader =
+    //     assets_manager_->createBuilder<ShaderSet>()
     //         .setVertexPath( FileSystem::getPath( "assets/shaders/model.vert.glsl" ) )
     //         .setFragmentPath( FileSystem::getPath( "assets/shaders/model.frag.glsl" ) )
     //         .build();
     //
-    //    m_assetManager->storeAsset<ShaderSet>( "model_shader", modelShader );
+    //    assets_manager_->storeAsset<ShaderSet>( "model_shader", model_shader );
 
     auto lampShader =
-        m_assetManager->createBuilder<ShaderSet>()
+        assets_manager_->createBuilder<ShaderSet>()
             .setVertexPath( FileSystem::getPath( "assets/shaders/lamp_vertex.glsl" ) )
             .setFragmentPath( FileSystem::getPath( "assets/shaders/lamp_fragment.glsl" ) )
             .build();
 
-    m_assetManager->storeAsset<ShaderSet>( "lamp_shader", lampShader );
+    assets_manager_->storeAsset<ShaderSet>( "lamp_shader", lampShader );
 
-    m_cameraEntity = m_ecsCoordinator->createEntity();
+    camera_entity_ = ecs_coordinator_->createEntity();
 
     Transform camera_transform;
     camera_transform.position = glm::vec3( -12.0f, 20.0f, 70.0f );
-    m_ecsCoordinator->addComponent<Transform>( m_cameraEntity, camera_transform );
+    ecs_coordinator_->addComponent<Transform>( camera_entity_, camera_transform );
 
-    CameraComponent cameraComponent( 0.1f, 200.0f, 45.0f, ProjectionType::PERSPECTIVE );
-    m_ecsCoordinator->addComponent<CameraComponent>( m_cameraEntity, cameraComponent );
+    CameraComponent camera_component( 0.1f, 200.0f, 45.0f, ProjectionType::PERSPECTIVE );
+    ecs_coordinator_->addComponent<CameraComponent>( camera_entity_, camera_component );
 
-    // m_assetManagerHelper = std::make_shared<AssetManagerHelper>( m_assetManager );
+    // assets_manager_Helper = std::make_shared<AssetManagerHelper>( assets_manager_ );
 
-    m_textBuffer = std::make_unique<TextBuffer>( m_settings, m_ecsCoordinator, m_assetManager );
+    text_buffer_ = std::make_unique<TextBuffer>( settings_, ecs_coordinator_, assets_manager_ );
 
-    this->drawTextureFloor();
-    //    this->drawStoneTiles();
-    this->drawContainers();
-    // this->drawNanoModel();
-    // this->drawGrass();
-    // this->drawWindows();
-    this->drawFont();
-    this->drawLigths();
-    //    this->draw_sprites_test();
+    this->draw_textured_floor();
+    // this->draw_stone_tiles();
+    //    this->draw_containers();
+    // this->draw_nano_model();
+    // this->draw_grass();
+    // this->draw_windows();
+    // this->draw_text_font();
+    this->draw_micro_subscene();
+    // this->draw_point_lights();
+    // this->draw_pizza_box();
+    // this->draw_sprites_test();
 
     // m_textBuffer->append( "this is text 1", glm::vec2( 40, 20 ) );
     // m_textBuffer->append( "this is text 2", glm::vec2( 40, 60 ) );
@@ -89,125 +91,158 @@ namespace platformer {
 
   void Platformer::update( f32 deltaTime ) noexcept {
 
-    this->processMouseEvents( deltaTime );
-    this->processKeyboardEvents( deltaTime );
-    this->processMouseScroll( deltaTime );
+    this->process_mouse_events( deltaTime );
+    this->process_keyboard_events( deltaTime );
+    this->process_mouse_scrolling_events( deltaTime );
 
-    m_textBuffer->update( deltaTime );
+    text_buffer_->update( deltaTime );
 
-    auto &camera_component = m_ecsCoordinator->getComponent<CameraComponent>( m_cameraEntity );
-
-    auto &c_transform = m_ecsCoordinator->getComponent<Transform>( m_cameraEntity );
-    auto &c_camera = m_ecsCoordinator->getComponent<CameraComponent>( m_cameraEntity );
+    auto &camera_component = ecs_coordinator_->getComponent<CameraComponent>( camera_entity_ );
+    auto &c_transform = ecs_coordinator_->getComponent<Transform>( camera_entity_ );
+    auto &c_camera = ecs_coordinator_->getComponent<CameraComponent>( camera_entity_ );
 
 
     glm::mat4 view =
         Math::lookAt( c_transform.position, c_transform.position + camera_component.cameraFront,
                       camera_component.cameraUp );
     glm::mat4 projection = glm::perspective( glm::radians( c_camera.fieldOfView ),
-                                             static_cast<f32>( m_settings->getWidth() ) /
-                                                 static_cast<f32>( m_settings->getHeight() ),
+                                             static_cast<f32>( settings_->getWidth() ) /
+                                                 static_cast<f32>( settings_->getHeight() ),
                                              c_camera.near, c_camera.far );
 
     // We set projection matrix to the object that are "moving"
     // since the camera is static, and we shift the world
 
-    m_assetManager->getAsset<ShaderSet>( "line_shader" )
+    assets_manager_->getAsset<ShaderSet>( "line_shader" )
         ->use()
         .SetMatrix4( "projection", projection );
 
-    auto modelShader = m_assetManager->getAsset<ShaderSet>( "model_shader" );
-    modelShader->use();
-    modelShader->SetMatrix4( "view", view );
-    modelShader->SetMatrix4( "projection", projection );
-    modelShader->SetVector3f( "lightColor", lightColor );
-    modelShader->SetFloat( "material.shininess", 32.0f );
-    modelShader->SetVector3f( "pointLight.position", lightPos );
-    modelShader->SetVector3f( "pointLight.ambient", 0.2f, 0.2f, 0.2f );
-    modelShader->SetVector3f( "pointLight.diffuse", 0.7f, 0.7f, 0.7f );
-    modelShader->SetVector3f( "pointLight.specular", 0.6f, 0.6f, 0.6f );
-    modelShader->SetFloat( "pointLight.constant", 1.0f );
-    modelShader->SetFloat( "pointLight.linear", 0.045f );
-    modelShader->SetFloat( "pointLight.quadratic", 0.0075f );
+    auto model_shader = assets_manager_->getAsset<ShaderSet>( "model_shader" );
+    model_shader->use();
+    model_shader->SetMatrix4( "view", view );
+    model_shader->SetMatrix4( "projection", projection );
+    model_shader->SetVector3f( "lightColor", default_light_color_ );
+    model_shader->SetFloat( "material.shininess", 32.0f );
 
-    modelShader->SetVector3f( "directionalLight.direction", -0.2f, -1.0f, -0.3f );
-    modelShader->SetVector3f( "directionalLight.ambient", 0.05f, 0.05f, 0.05f );
-    modelShader->SetVector3f( "directionalLight.diffuse", 0.4f, 0.4f, 0.4f );
-    modelShader->SetVector3f( "directionalLight.specular", 0.5f, 0.5f, 0.5f );
+    // Point light 1
+    model_shader->SetVector3f( "pointLights[0].position", point_lights_positions_[ 0 ] );
+    model_shader->SetVector3f( "pointLights[0].ambient", 0.2f, 0.2f, 0.2f );
+    model_shader->SetVector3f( "pointLights[0].diffuse", 0.7f, 0.7f, 0.7f );
+    model_shader->SetVector3f( "pointLights[0].specular", 0.6f, 0.6f, 0.6f );
+    model_shader->SetFloat( "pointLights[0].constant", 1.0f );
+    model_shader->SetFloat( "pointLights[0].linear", 0.045f );
+    model_shader->SetFloat( "pointLights[0].quadratic", 0.0075f );
 
-    modelShader->SetVector3f( "viewPos", c_transform.position );
+    // Point light 2
+    model_shader->SetVector3f( "pointLights[1].position", point_lights_positions_[ 1 ] );
+    model_shader->SetVector3f( "pointLights[1].ambient", 0.2f, 0.2f, 0.2f );
+    model_shader->SetVector3f( "pointLights[1].diffuse", 0.7f, 0.7f, 0.7f );
+    model_shader->SetVector3f( "pointLights[1].specular", 0.6f, 0.6f, 0.6f );
+    model_shader->SetFloat( "pointLights[1].constant", 1.0f );
+    model_shader->SetFloat( "pointLights[1].linear", 0.045f );
+    model_shader->SetFloat( "pointLights[1].quadratic", 0.0075f );
 
-    m_assetManager->getAsset<ShaderSet>( "lamp_shader" )
+    // Point light 3
+    model_shader->SetVector3f( "pointLights[2].position", point_lights_positions_[ 2 ] );
+    model_shader->SetVector3f( "pointLights[2].ambient", 0.2f, 0.2f, 0.2f );
+    model_shader->SetVector3f( "pointLights[2].diffuse", 0.7f, 0.7f, 0.7f );
+    model_shader->SetVector3f( "pointLights[2].specular", 0.6f, 0.6f, 0.6f );
+    model_shader->SetFloat( "pointLights[2].constant", 1.0f );
+    model_shader->SetFloat( "pointLights[2].linear", 0.045f );
+    model_shader->SetFloat( "pointLights[2].quadratic", 0.0075f );
+
+    // Point light 4
+    model_shader->SetVector3f( "pointLights[3].position", point_lights_positions_[ 3 ] );
+    model_shader->SetVector3f( "pointLights[3].ambient", 0.2f, 0.2f, 0.2f );
+    model_shader->SetVector3f( "pointLights[3].diffuse", 0.7f, 0.7f, 0.7f );
+    model_shader->SetVector3f( "pointLights[3].specular", 0.6f, 0.6f, 0.6f );
+    model_shader->SetFloat( "pointLights[3].constant", 1.0f );
+    model_shader->SetFloat( "pointLights[3].linear", 0.045f );
+    model_shader->SetFloat( "pointLights[3].quadratic", 0.0075f );
+
+    // Point light 5
+    model_shader->SetVector3f( "pointLights[4].position", point_lights_positions_[ 4 ] );
+    model_shader->SetVector3f( "pointLight[4].ambient", 0.2f, 0.2f, 0.2f );
+    model_shader->SetVector3f( "pointLight[4].diffuse", 0.2f, 0.2f, 0.2f );
+    model_shader->SetVector3f( "pointLight[4].specular", 0.6f, 0.6f, 0.6f );
+    model_shader->SetFloat( "pointLight[4].constant", 1.0f );
+    model_shader->SetFloat( "pointLight[4].linear", 0.045f );
+    model_shader->SetFloat( "pointLight[4].quadratic", 0.0075f );
+
+    model_shader->SetVector3f( "directionalLight.direction", -0.2f, -1.0f, -0.3f );
+    model_shader->SetVector3f( "directionalLight.ambient", 0.02f, 0.02f, 0.02f );
+    model_shader->SetVector3f( "directionalLight.diffuse", 0.1f, 0.1f, 0.1f );
+    model_shader->SetVector3f( "directionalLight.specular", 0.5f, 0.5f, 0.5f );
+
+    model_shader->SetVector3f( "viewPos", c_transform.position );
+
+    assets_manager_->getAsset<ShaderSet>( "lamp_shader" )
         ->use()
         .SetMatrix4( "projection", projection );
 
-    m_assetManager->getAsset<ShaderSet>( "lamp_shader" )->use().SetMatrix4( "view", view );
+    assets_manager_->getAsset<ShaderSet>( "lamp_shader" )->use().SetMatrix4( "view", view );
 
     // char buffer[ 32 ];
     // sprintf( buffer, "@fps: %.3f", ( 1000 / deltaTime ) );
     //
     // m_screenText->print( buffer, TextPosition::LEFT_UP );
     //
-    // glCheckError();
+    glCheckError();
   }
 
 
-  void Platformer::processKeyboardEvents( f32 dt ) noexcept {
+  void Platformer::process_keyboard_events( f32 dt ) noexcept {
 
     constexpr f32 movement_speed = 0.010f;
     f32 velocity = movement_speed * dt;
 
     // Camera components
-    auto &c_transform = m_ecsCoordinator->getComponent<Transform>( m_cameraEntity );
-    auto &c_camera = m_ecsCoordinator->getComponent<CameraComponent>( m_cameraEntity );
+    auto &c_transform = ecs_coordinator_->getComponent<Transform>( camera_entity_ );
+    auto &c_camera = ecs_coordinator_->getComponent<CameraComponent>( camera_entity_ );
 
-    if ( m_inputManager->isKeyPressed( SDLK_o ) ) {
-      m_textBuffer->append( "random text", glm::vec2( 40, 10 ) );
+    if ( input_manager_->isKeyPressed( SDLK_o ) ) {
+      text_buffer_->append( "random text", glm::vec2( 40, 10 ) );
     }
 
-    if ( m_inputManager->isKeyHoldDown( SDLK_w ) ) {
+    if ( input_manager_->isKeyHoldDown( SDLK_w ) ) {
       // Forward
       c_transform.position += c_camera.cameraFront * velocity;
     }
 
-    if ( m_inputManager->isKeyHoldDown( SDLK_s ) ) {
+    if ( input_manager_->isKeyHoldDown( SDLK_s ) ) {
       // Backward
       c_transform.position -= c_camera.cameraFront * velocity;
     }
 
-    if ( m_inputManager->isKeyHoldDown( SDLK_a ) ) {
+    if ( input_manager_->isKeyHoldDown( SDLK_a ) ) {
       // Left
       c_transform.position -= c_camera.cameraRight * velocity;
     }
 
-    if ( m_inputManager->isKeyHoldDown( SDLK_d ) ) {
+    if ( input_manager_->isKeyHoldDown( SDLK_d ) ) {
       // Right
       c_transform.position += c_camera.cameraRight * velocity;
     }
 
-    if ( m_inputManager->isKeyPressed( SDLK_ESCAPE ) ) {
-      m_inputManager->terminateEngine();
+    if ( input_manager_->isKeyPressed( SDLK_ESCAPE ) ) {
+      input_manager_->terminateEngine();
     }
-    //
-    // if ( m_inputManager->isKeyPressed( SDLK_r ) ) {
-    //   m_assetManagerHelper->reloadShaders();
-    // }
   }
 
-  void Platformer::processMouseEvents( f32 dt ) noexcept {
+  void Platformer::process_mouse_events( f32 dt ) noexcept {
 
-    auto &c_camera = m_ecsCoordinator->getComponent<CameraComponent>( m_cameraEntity );
+    auto &c_camera = ecs_coordinator_->getComponent<CameraComponent>( camera_entity_ );
 
-    if ( m_inputManager->mouseLeftPressed() ) {
+    if ( input_manager_->mouseLeftPressed() ) {
 
-      if ( m_firstMouse ) {
-        m_lastX = m_inputManager->getMousePos().x;
-        m_lastY = m_inputManager->getMousePos().y;
-        m_firstMouse = false;
+      if ( first_mouse_entry_ ) {
+        last_x_ = input_manager_->getMousePos().x;
+        last_y_ = input_manager_->getMousePos().y;
+        first_mouse_entry_ = false;
       }
 
-      float xoffset = m_inputManager->getMousePos().x - m_lastX;
-      float yoffset = m_lastY - m_inputManager->getMousePos().y;
+      float xoffset = input_manager_->getMousePos().x - last_x_;
+      float yoffset = last_y_ - input_manager_->getMousePos().y;
 
       f32 sensitivity = 0.004f;
 
@@ -226,12 +261,12 @@ namespace platformer {
     }
   }
 
-  void Platformer::processMouseScroll( f32 dt ) noexcept {
+  void Platformer::process_mouse_scrolling_events( f32 dt ) noexcept {
 
-    auto &c_camera = m_ecsCoordinator->getComponent<CameraComponent>( m_cameraEntity );
+    auto &c_camera = ecs_coordinator_->getComponent<CameraComponent>( camera_entity_ );
 
     if ( c_camera.fieldOfView >= 1.0f && c_camera.fieldOfView <= 45.0f ) {
-      c_camera.fieldOfView -= m_inputManager->getVerticalWheel() * 0.4f;
+      c_camera.fieldOfView -= input_manager_->getVerticalWheel() * 0.4f;
     }
 
     if ( c_camera.fieldOfView <= 1.0f ) {
@@ -243,11 +278,13 @@ namespace platformer {
     }
   }
 
-  void Platformer::drawStoneTiles() noexcept {
+  void Platformer::draw_stone_tiles() noexcept {
 
-    auto model = m_assetManager->storeAsset<Model>(
+    BenchmarkTimer timer( "draw_stone_tiles()" );
+
+    auto model = assets_manager_->storeAsset<Model>(
         "stonetile_model",
-        m_assetManager->createBuilder<Model>( m_assetManager )
+        assets_manager_->createBuilder<Model>( assets_manager_ )
             .setModelPath( FileSystem::getPath( "assets/models/stonetile/stonetile.obj" ) )
             .build() );
 
@@ -263,7 +300,7 @@ namespace platformer {
         u32 z = static_cast<f32>( col * z_model_offset );
 
         for ( const auto &i : stonetile_mesh ) {
-          auto entity = m_ecsCoordinator->createEntity();
+          auto entity = ecs_coordinator_->createEntity();
           Transform transform;
           transform.position = glm::vec3( x, 0.0f, z );
           transform.scale = glm::vec3( 3.0f );
@@ -276,38 +313,39 @@ namespace platformer {
           Renderable renderable;
           renderable.color = glm::vec3( 1.0f, 1.0f, 1.0f );
 
-          m_ecsCoordinator->addComponent<Transform>( entity, transform );
-          m_ecsCoordinator->addComponent<Renderable>( entity, renderable );
-          m_ecsCoordinator->addComponent<MeshComponent>( entity, mesh );
+          ecs_coordinator_->addComponent<Transform>( entity, transform );
+          ecs_coordinator_->addComponent<Renderable>( entity, renderable );
+          ecs_coordinator_->addComponent<MeshComponent>( entity, mesh );
         }
       }
     }
   }
 
-  void Platformer::drawTextureFloor() noexcept {
+  void Platformer::draw_textured_floor() noexcept {
 
-    auto floor_texture = m_assetManager->loadAsset<Texture2D>(
+    BenchmarkTimer timer( "draw_textured_floor()" );
+
+    auto floor_texture = assets_manager_->loadAsset<Texture2D>(
         "metal_texture", FileSystem::getPath( "assets/textures/metal.png" ) );
 
-    auto entity = m_ecsCoordinator->createEntity();
+    auto entity = ecs_coordinator_->createEntity();
 
     Transform transform( glm::vec3( 0.0f, 0.0f, 0.0f ), glm::vec3( 120.f ) );
-
     transform.xRotation = 90.0f;
 
     Renderable renderable( glm::vec3( 1.0f ) );
 
     // Background
-    m_ecsCoordinator->addComponent<Transform>( entity, transform );
-    m_ecsCoordinator->addComponent<Renderable>( entity, renderable );
-    m_ecsCoordinator->addComponent<SpriteComponent>( entity, SpriteComponent( floor_texture ) );
+    ecs_coordinator_->addComponent<Transform>( entity, transform );
+    ecs_coordinator_->addComponent<Renderable>( entity, renderable );
+    ecs_coordinator_->addComponent<SpriteComponent>( entity, SpriteComponent( floor_texture ) );
   }
 
-  void Platformer::drawContainers() noexcept {
+  void Platformer::draw_containers() noexcept {
 
-    auto model = m_assetManager->storeAsset<Model>(
+    auto model = assets_manager_->storeAsset<Model>(
         "container_model",
-        m_assetManager->createBuilder<Model>( m_assetManager )
+        assets_manager_->createBuilder<Model>( assets_manager_ )
             .setModelPath( FileSystem::getPath( "assets/models/container/container.obj" ) )
             .build() );
 
@@ -318,14 +356,12 @@ namespace platformer {
       const f32 offset_x = 12.0f;
       const f32 offset_z = 8.0f;
 
-
       for ( const auto &i : model_mesh ) {
 
-        auto entity = m_ecsCoordinator->createEntity();
+        auto entity = ecs_coordinator_->createEntity();
         Transform transform;
         transform.position = glm::vec3( j * offset_x + 20, 3.2f, j * offset_z + 20 );
         transform.scale = glm::vec3( 0.15f );
-
         transform.xRotation = 90.0f;
         transform.yRotation = 90.0f;
 
@@ -336,18 +372,19 @@ namespace platformer {
 
         Renderable renderable;
         renderable.color = glm::vec3( 1.0f, 1.0f, 1.0f );
-        m_ecsCoordinator->addComponent<Transform>( entity, transform );
-        m_ecsCoordinator->addComponent<Renderable>( entity, renderable );
-        m_ecsCoordinator->addComponent<MeshComponent>( entity, mesh );
+        ecs_coordinator_->addComponent<Transform>( entity, transform );
+        ecs_coordinator_->addComponent<Renderable>( entity, renderable );
+        ecs_coordinator_->addComponent<MeshComponent>( entity, mesh );
       }
     }
   }
 
-  void Platformer::drawGrass() noexcept {
+  void Platformer::draw_grass() noexcept {
 
-    auto grass_texture = m_assetManager->loadAsset<Texture2D>(
+    BenchmarkTimer timer( "draw_grass()" );
+
+    auto grass_texture = assets_manager_->loadAsset<Texture2D>(
         "grass", FileSystem::getPath( "assets/textures/grass.png" ) );
-
 
     grass_texture->setParameter( nile::TextureTargetParams::TEXTURE_WRAP_S,
                                  nile::TextureParams::CLAMP_TO_EDGE );
@@ -365,28 +402,27 @@ namespace platformer {
     vegetation.emplace_back( 12.5f + offset_x, 0.0f, -0.6f + offset_z );
 
     for ( const auto &i : vegetation ) {
-      m_testEntity = m_ecsCoordinator->createEntity();
+      test_entity_ = ecs_coordinator_->createEntity();
 
       Transform transform( i, glm::vec3( 8.0f ) );
-
       Renderable renderable( glm::vec3( 1.0f ) );
 
       // Background
-      m_ecsCoordinator->addComponent<Transform>( m_testEntity, transform );
-      m_ecsCoordinator->addComponent<Renderable>( m_testEntity, renderable );
-      m_ecsCoordinator->addComponent<SpriteComponent>( m_testEntity,
-                                                       SpriteComponent( grass_texture ) );
+      ecs_coordinator_->addComponent<Transform>( test_entity_, transform );
+      ecs_coordinator_->addComponent<Renderable>( test_entity_, renderable );
+      ecs_coordinator_->addComponent<SpriteComponent>( test_entity_,
+                                                      SpriteComponent( grass_texture ) );
     }
   }
 
-  void Platformer::drawWindows() noexcept {
+  void Platformer::draw_windows() noexcept {
 
-    auto window_texture = m_assetManager->loadAsset<Texture2D>(
+    BenchmarkTimer timer( "draw_windows()" );
+
+    auto window_texture = assets_manager_->loadAsset<Texture2D>(
         "window", FileSystem::getPath( "assets/textures/window.png" ) );
 
-    log::print( "count: %d\n", window_texture->getRefCount() );
-
-    auto camera_transform = m_ecsCoordinator->getComponent<Transform>( m_cameraEntity );
+    auto camera_transform = ecs_coordinator_->getComponent<Transform>( camera_entity_ );
 
     const i32 offset_x = 20;
     const i32 offset_z = 10;
@@ -406,40 +442,39 @@ namespace platformer {
     }
 
     for ( const auto &[ first, second ] : sorted ) {
-      auto entity = m_ecsCoordinator->createEntity();
-
+      auto entity = ecs_coordinator_->createEntity();
       Transform transform( second, glm::vec3( 4.0f ) );
-
       Renderable renderable( glm::vec3( 1.0f ) );
 
+      renderable.blend = false;
       // Background
-      m_ecsCoordinator->addComponent<Transform>( entity, transform );
-      m_ecsCoordinator->addComponent<Renderable>( entity, renderable );
-      m_ecsCoordinator->addComponent<SpriteComponent>( entity, SpriteComponent( window_texture ) );
+      ecs_coordinator_->addComponent<Transform>( entity, transform );
+      ecs_coordinator_->addComponent<Renderable>( entity, renderable );
+      ecs_coordinator_->addComponent<SpriteComponent>( entity, SpriteComponent( window_texture ) );
     }
   }
 
-  void Platformer::drawNanoModel() noexcept {
+  void Platformer::draw_nano_model() noexcept {
 
-    BenchmarkTimer timer( "drawNanoModel()" );
+    BenchmarkTimer timer( "draw_nano_model()" );
 
-    auto model = m_assetManager->storeAsset<Model>(
+    auto model = assets_manager_->storeAsset<Model>(
         "nanosuit",
-        m_assetManager->createBuilder<Model>( m_assetManager )
+        assets_manager_->createBuilder<Model>( assets_manager_ )
             .setModelPath( FileSystem::getPath( "assets/models/nanosuit/nanosuit.obj" ) )
             .build() );
 
     auto model_mesh = model->meshes;
 
-    m_nanoModelEntity = m_ecsCoordinator->createEntity();
-    m_ecsCoordinator->addComponent<Relationship>( m_nanoModelEntity, Relationship() );
+    nano_model_entity_ = ecs_coordinator_->createEntity();
+    ecs_coordinator_->addComponent<Relationship>( nano_model_entity_, Relationship() );
 
     for ( const auto &i : model_mesh ) {
 
-      auto entity = m_ecsCoordinator->createEntity();
+      auto entity = ecs_coordinator_->createEntity();
 
-      m_ecsCoordinator->addComponent<Relationship>( entity, Relationship() );
-      m_ecsCoordinator->attachTo( m_nanoModelEntity, entity );
+      ecs_coordinator_->addComponent<Relationship>( entity, Relationship() );
+      ecs_coordinator_->attachTo( nano_model_entity_, entity );
 
       Transform transform;
       transform.position = glm::vec3( 6.0f, 0.0f, 22.0f );
@@ -455,21 +490,20 @@ namespace platformer {
       renderable.color = glm::vec3( 1.0f, 1.0f, 1.0f );
       renderable.blend = false;
 
-
-      m_ecsCoordinator->addComponent<Transform>( entity, transform );
-      m_ecsCoordinator->addComponent<Renderable>( entity, renderable );
-      m_ecsCoordinator->addComponent<MeshComponent>( entity, mesh );
+      ecs_coordinator_->addComponent<Transform>( entity, transform );
+      ecs_coordinator_->addComponent<Renderable>( entity, renderable );
+      ecs_coordinator_->addComponent<MeshComponent>( entity, mesh );
     }
   }
 
-  void Platformer::drawFont() noexcept {
+  void Platformer::draw_text_font() noexcept {
 
-    BenchmarkTimer timer( "drawFont()" );
+    BenchmarkTimer timer( "draw_font()" );
 
-    auto sfmono_font = m_assetManager->loadAsset<Font>(
+    auto sfmono_font = assets_manager_->loadAsset<Font>(
         "sfmono_font", FileSystem::getPath( "assets/fonts/LiberationMono-Regular.ttf" ) );
 
-    auto entity = m_ecsCoordinator->createEntity();
+    auto entity = ecs_coordinator_->createEntity();
 
     FontComponent font;
     font.font = sfmono_font;
@@ -482,18 +516,18 @@ namespace platformer {
     transform.position = glm::vec3( 22.0f, 0.0f, 0.0f );
     transform.scale = glm::vec3( 1.0f );
 
-    m_ecsCoordinator->addComponent<Transform>( entity, transform );
-    m_ecsCoordinator->addComponent<Renderable>( entity, renderable );
-    m_ecsCoordinator->addComponent<FontComponent>( entity, font );
+    ecs_coordinator_->addComponent<Transform>( entity, transform );
+    ecs_coordinator_->addComponent<Renderable>( entity, renderable );
+    ecs_coordinator_->addComponent<FontComponent>( entity, font );
   }
 
-  void Platformer::drawLigths() noexcept {
+  void Platformer::draw_point_lights() noexcept {
 
-    BenchmarkTimer timer( "drawLights()" );
+    BenchmarkTimer timer( "draw_point_lights()" );
 
-    auto model = m_assetManager->storeAsset<Model>(
+    auto model = assets_manager_->storeAsset<Model>(
         "light_sphere",
-        m_assetManager->createBuilder<Model>( m_assetManager )
+        assets_manager_->createBuilder<Model>( assets_manager_ )
             .setModelPath( FileSystem::getPath( "assets/models/sphere/sphere.obj" ) )
             .build() );
 
@@ -501,10 +535,10 @@ namespace platformer {
 
     for ( const auto &i : model_mesh ) {
 
-      m_lampEntity = m_ecsCoordinator->createEntity();
+      lamp_entity_ = ecs_coordinator_->createEntity();
 
       Transform transform;
-      transform.position = lightPos;
+      transform.position = point_lights_positions_[ 4 ];
       transform.scale = glm::vec3( 1.0f );
 
       MeshComponent mesh;
@@ -515,11 +549,11 @@ namespace platformer {
       Renderable renderable;
       renderable.color = glm::vec3( 1.0f, 1.0f, 1.0f );
       renderable.blend = false;
-      renderable.shaderSet = m_assetManager->getAsset<ShaderSet>( "lamp_shader" );
+      renderable.shaderSet = assets_manager_->getAsset<ShaderSet>( "lamp_shader" );
 
-      m_ecsCoordinator->addComponent<Transform>( m_lampEntity, transform );
-      m_ecsCoordinator->addComponent<Renderable>( m_lampEntity, renderable );
-      m_ecsCoordinator->addComponent<MeshComponent>( m_lampEntity, mesh );
+      ecs_coordinator_->addComponent<Transform>( lamp_entity_, transform );
+      ecs_coordinator_->addComponent<Renderable>( lamp_entity_, renderable );
+      ecs_coordinator_->addComponent<MeshComponent>( lamp_entity_, mesh );
     }
   }
 
@@ -527,30 +561,164 @@ namespace platformer {
 
     BenchmarkTimer timer( "draw_sprite_test()" );
 
+    sprite_entity_ = ecs_coordinator_->createEntity();
 
-    sprite_entity_ = m_ecsCoordinator->createEntity();
-
-    auto texture = m_assetManager->loadAsset<Texture2D>(
+    auto texture = assets_manager_->loadAsset<Texture2D>(
         "knight_attack", FileSystem::getPath( "assets/textures/Knight/knight_attack.png" ) );
-
 
     SpriteComponent sprite;
     sprite.texture = texture;
 
     Transform transform;
-    // transform.position = glm::vec3( 6.0f, 0.0f, 22.0f );
     transform.position = glm::vec3( 6.0f, 0.0f, 1.0f );
-    // transform.yRotation = -45.0f;
-    // transform.yRotation = -45.0f;
     transform.scale = glm::vec3( 3.0f );
 
     Renderable renderable;
     renderable.color = glm::vec3( 1.0f, 1.0f, 1.0f );
     renderable.blend = false;
 
-    m_ecsCoordinator->addComponent<Transform>( sprite_entity_, transform );
-    m_ecsCoordinator->addComponent<Renderable>( sprite_entity_, renderable );
-    m_ecsCoordinator->addComponent<SpriteComponent>( sprite_entity_, sprite );
+    ecs_coordinator_->addComponent<Transform>( sprite_entity_, transform );
+    ecs_coordinator_->addComponent<Renderable>( sprite_entity_, renderable );
+    ecs_coordinator_->addComponent<SpriteComponent>( sprite_entity_, sprite );
+  }
+
+  void Platformer::draw_pizza_box() noexcept {
+
+    BenchmarkTimer timer( "draw_pizza_box()" );
+
+    auto model = assets_manager_->storeAsset<Model>(
+        "piazza_box",
+        assets_manager_->createBuilder<Model>( assets_manager_ )
+            .setModelPath( FileSystem::getPath( "assets/models/pizza_box/pizza_box.obj" ) )
+            .build() );
+
+    auto model_mesh = model->meshes;
+
+    nano_model_entity_ = ecs_coordinator_->createEntity();
+    ecs_coordinator_->addComponent<Relationship>( nano_model_entity_, Relationship() );
+
+    for ( const auto &i : model_mesh ) {
+
+      auto entity = ecs_coordinator_->createEntity();
+
+      ecs_coordinator_->addComponent<Relationship>( entity, Relationship() );
+      ecs_coordinator_->attachTo( nano_model_entity_, entity );
+
+      Transform transform;
+      transform.position = glm::vec3( 22.0f, 6.3f, 18.0f );
+      // transform.yRotation = 45.0f;
+      transform.xRotation = -90.0f;
+      transform.zRotation = -17.0f;
+      transform.scale = glm::vec3( 0.044f );
+
+      MeshComponent mesh;
+      mesh.vertices = i.verticies;
+      mesh.textures = i.textures;
+      mesh.indices = i.indices;
+
+      Renderable renderable;
+      renderable.color = glm::vec3( 1.0f, 1.0f, 1.0f );
+      renderable.blend = false;
+
+      ecs_coordinator_->addComponent<Transform>( entity, transform );
+      ecs_coordinator_->addComponent<Renderable>( entity, renderable );
+      ecs_coordinator_->addComponent<MeshComponent>( entity, mesh );
+    }
+  }
+
+  void Platformer::draw_micro_subscene() noexcept {
+
+    BenchmarkTimer timer( "draw_micro_subscene()" );
+
+    auto model = assets_manager_->storeAsset<Model>(
+        "metal_container",
+        assets_manager_->createBuilder<Model>( assets_manager_ )
+            .setModelPath( FileSystem::getPath( "assets/models/container/container.obj" ) )
+            .build() );
+    auto model_mesh = model->meshes;
+
+    subscene_entity_ = ecs_coordinator_->createEntity();
+    ecs_coordinator_->addComponent<Relationship>( subscene_entity_, Relationship() );
+
+    f32 offset = 6.0f;
+
+    for ( size_t j = 0; j < 4; j++ ) {
+
+      point_lights_positions_.emplace_back( ( 12.0f + ( j * offset ) ), 18.0f, 62.0f );
+
+      for ( const auto &i : model_mesh ) {
+
+        auto entity = ecs_coordinator_->createEntity();
+
+        ecs_coordinator_->addComponent<Relationship>( entity, Relationship() );
+        ecs_coordinator_->attachTo( subscene_entity_, entity );
+
+        Transform transform;
+        transform.position = glm::vec3( ( 12.0f + ( j * offset ) ), 0.0f, 62.0f );
+        transform.xRotation = -90.0f;
+        transform.scale = glm::vec3( 0.1f );
+
+        MeshComponent mesh;
+        mesh.vertices = i.verticies;
+        mesh.textures = i.textures;
+        mesh.indices = i.indices;
+
+        Renderable renderable;
+        renderable.color = glm::vec3( 1.0f, 1.0f, 1.0f );
+        renderable.blend = false;
+
+        ecs_coordinator_->addComponent<Transform>( entity, transform );
+        ecs_coordinator_->addComponent<Renderable>( entity, renderable );
+        ecs_coordinator_->addComponent<MeshComponent>( entity, mesh );
+      }
+    }
+
+    spdlog::debug( "size of relationship comp: {}",
+                   ecs_coordinator_->get_relationship_size( subscene_entity_ ) );
+
+    auto f = ecs_coordinator_->getFirst( subscene_entity_ );
+
+    while ( f != nile::ecs::null ) {
+
+      spdlog::debug( "entity: {}", f );
+      f = ecs_coordinator_->getNext( f );
+    }
+
+    point_lights_positions_.emplace_back( 32.0f, 16.0f, 19.0f );
+
+    spdlog::debug( "num of points: {}", point_lights_positions_.size() );
+
+    auto light_model = assets_manager_->storeAsset<Model>(
+        "light_sphere",
+        assets_manager_->createBuilder<Model>( assets_manager_ )
+            .setModelPath( FileSystem::getPath( "assets/models/sphere/sphere.obj" ) )
+            .build() );
+
+    auto light_model_mesh = light_model->meshes;
+
+    for ( int j = 0; j < 4; j++ ) {
+      for ( const auto &i : light_model_mesh ) {
+        lamp_entity_ = ecs_coordinator_->createEntity();
+
+        Transform transform;
+        transform.position = point_lights_positions_[ j ];
+        transform.scale = glm::vec3( 1.0f );
+
+        MeshComponent mesh;
+        mesh.vertices = i.verticies;
+        mesh.textures = i.textures;
+        mesh.indices = i.indices;
+
+        Renderable renderable;
+        renderable.color = glm::vec3( 1.0f, 1.0f, 1.0f );
+        renderable.blend = false;
+        renderable.shaderSet = assets_manager_->getAsset<ShaderSet>( "lamp_shader" );
+
+        ecs_coordinator_->addComponent<Transform>( lamp_entity_, transform );
+        ecs_coordinator_->addComponent<Renderable>( lamp_entity_, renderable );
+        ecs_coordinator_->addComponent<MeshComponent>( lamp_entity_, mesh );
+      }
+    }
   }
 
 }    // namespace platformer

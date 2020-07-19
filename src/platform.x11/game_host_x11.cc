@@ -16,6 +16,7 @@ $Notice: $
 #include "Nile/core/input_manager.hh"
 #include "Nile/core/settings.hh"
 #include "Nile/core/timer.hh"
+#include "Nile/core/transform_system.hh"
 #include "Nile/debug/benchmark_timer.hh"
 #include "Nile/ecs/components/camera_component.hh"
 #include "Nile/ecs/components/font_component.hh"
@@ -39,8 +40,8 @@ $Notice: $
 
 #include <GL/glew.h>
 #include <SDL2/SDL.h>
-#include <spdlog/spdlog.h>
 #include <spdlog/sinks/basic_file_sink.h>
+#include <spdlog/spdlog.h>
 
 #include <thread>
 
@@ -49,22 +50,21 @@ namespace nile::X11 {
   class GameHostX11::Impl {
   private:
     // Just to keep things orginized
-    void registerEcs() noexcept;
+    void initializ_ecs_subsystems() noexcept;
 
-    std::unique_ptr<OpenglFramebuffer> m_framebuffer;
+    std::unique_ptr<OpenglFramebuffer> frame_buffer_;
 
-    std::shared_ptr<RenderingSystem> renderingSystem;
-    std::shared_ptr<SpriteRenderingSystem> spriteRenderingSystem;
-    std::shared_ptr<RenderPrimitiveSystem> renderPrimitiveSystem;
-    std::shared_ptr<FontRenderingSystem> fontRenderingSystem;
+    std::shared_ptr<RenderingSystem> rendering_system_;
+    std::shared_ptr<SpriteRenderingSystem> sprite_rendering_system_;
+    std::shared_ptr<RenderPrimitiveSystem> rendering_primitive_system_;
+    std::shared_ptr<FontRenderingSystem> font_rendering_system_;
+    std::shared_ptr<TransformSystem> transform_system_;
 
-    std::shared_ptr<AssetManagerHelper> m_assetManagerHelper;
+    std::shared_ptr<AssetManagerHelper> assets_manager_helper_;
+    std::shared_ptr<ShaderSet> framebuffer_screen_shader_;
 
-    std::shared_ptr<ShaderSet> m_fbScreenShader;
-
-    Timer m_uptime;
-
-    ProgramMode m_programMode;
+    Timer uptime_;
+    ProgramMode program_mode_;
 
   public:
     Impl( const std::shared_ptr<Settings> &settings ) noexcept;
@@ -74,9 +74,9 @@ namespace nile::X11 {
 
     std::shared_ptr<Settings> settings;
     std::shared_ptr<BaseRenderer> renderer;
-    std::shared_ptr<InputManager> inputManager;
-    std::shared_ptr<AssetManager> assetManager;
-    std::shared_ptr<Coordinator> ecsCoordinator;
+    std::shared_ptr<InputManager> input_manager;
+    std::shared_ptr<AssetManager> assets_manager;
+    std::shared_ptr<Coordinator> ecs_coordinator;
   };
 
   GameHostX11::Impl::Impl( const std::shared_ptr<Settings> &settings ) noexcept
@@ -87,14 +87,12 @@ namespace nile::X11 {
 
     // spdlog / logger settings
     spdlog::set_level( spdlog::level::debug );
-    // auto file_logger = spdlog::basic_logger_mt("basic_logger", "logs/engine.log");
-    // spdlog::set_default_logger(file_logger);
-    
-    m_uptime.start();
 
-    inputManager = std::make_shared<InputManager>( settings );
-    ( inputManager ) ? spdlog::info( "InputManager has been created!" )
-                     : spdlog::critical( "Engine has failed to create InputManager!" );
+    uptime_.start();
+
+    input_manager = std::make_shared<InputManager>( settings );
+    ( input_manager ) ? spdlog::info( "input_manager has been created!" )
+                      : spdlog::critical( "Engine has failed to create input_manager!" );
 
     renderer = std::make_shared<OpenGLRenderer>( settings );
     renderer->init();
@@ -102,130 +100,137 @@ namespace nile::X11 {
     ( renderer ) ? spdlog::info( "OpenGL Renderer has been created and initialized!" )
                  : spdlog::critical( "Engine has failed to create OpenGL Renderer!" );
 
-    m_framebuffer = std::make_unique<OpenglFramebuffer>( settings );
-    m_framebuffer->prepareQuad();
-    ( m_framebuffer ) ? spdlog::info( "OpenGL Frambuffer has been created and initialized!" )
+    frame_buffer_ = std::make_unique<OpenglFramebuffer>( settings );
+    frame_buffer_->prepareQuad();
+    ( frame_buffer_ ) ? spdlog::info( "OpenGL Frambuffer has been created and initialized!" )
                       : spdlog::critical( "Engine has failed to create OpenGL Framebuffer!" );
 
 
-    assetManager = std::make_shared<AssetManager>();
-    ( assetManager ) ? spdlog::info( "AssetManager has been created!" )
-                     : spdlog::critical( "Engine has failed to create AssetManager!" );
+    assets_manager = std::make_shared<AssetManager>();
+    ( assets_manager ) ? spdlog::info( "assets_manager has been created!" )
+                       : spdlog::critical( "Engine has failed to create assets_manager!" );
 
     // Create and initialize Entity Component System coordinator
-    ecsCoordinator = std::make_shared<Coordinator>();
-    ecsCoordinator->init();
-    ( ecsCoordinator ) ? spdlog::info( "ECS Coordinator has been created!" )
-                       : spdlog::critical( "Engine has failed to create ECS Coordinator!" );
+    ecs_coordinator = std::make_shared<Coordinator>();
+    ecs_coordinator->init();
+    ( ecs_coordinator ) ? spdlog::info( "ECS Coordinator has been created!" )
+                        : spdlog::critical( "Engine has failed to create ECS Coordinator!" );
 
-    m_assetManagerHelper = std::make_shared<AssetManagerHelper>( assetManager );
-    m_programMode = settings->getProgramMode();
+    assets_manager_helper_ = std::make_shared<AssetManagerHelper>( assets_manager );
+    program_mode_ = settings->getProgramMode();
 
-    auto spriteShader = assetManager->createBuilder<ShaderSet>()
-                            .setVertexPath( "../assets/shaders/sprite_vertex.glsl" )
-                            .setFragmentPath( "../assets/shaders/sprite_fragment.glsl" )
-                            .build();
+    auto sprite_shader = assets_manager->createBuilder<ShaderSet>()
+                             .setVertexPath( "../assets/shaders/sprite_vertex.glsl" )
+                             .setFragmentPath( "../assets/shaders/sprite_fragment.glsl" )
+                             .build();
 
-    assetManager->storeAsset<ShaderSet>( "sprite_shader", spriteShader );
+    assets_manager->storeAsset<ShaderSet>( "sprite_shader", sprite_shader );
 
-    auto fontShader = assetManager->createBuilder<ShaderSet>()
-                          .setVertexPath( "../assets/shaders/font_vertex.glsl" )
-                          .setFragmentPath( "../assets/shaders/font_fragment.glsl" )
-                          .build();
-
-    assetManager->storeAsset<ShaderSet>( "font_shader", fontShader );
-
-    auto lineShader = assetManager->createBuilder<ShaderSet>()
-                          .setVertexPath( "../assets/shaders/line_vertex.glsl" )
-                          .setFragmentPath( "../assets/shaders/line_fragment.glsl" )
-                          .build();
-
-    assetManager->storeAsset<ShaderSet>( "line_shader", lineShader );
-
-    auto modelShader = assetManager->createBuilder<ShaderSet>()
-                           .setVertexPath( "../assets/shaders/model.vert.glsl" )
-                           .setFragmentPath( "../assets/shaders/model.frag.glsl" )
+    auto font_shader = assets_manager->createBuilder<ShaderSet>()
+                           .setVertexPath( "../assets/shaders/font_vertex.glsl" )
+                           .setFragmentPath( "../assets/shaders/font_fragment.glsl" )
                            .build();
 
-    assetManager->storeAsset<ShaderSet>( "model_shader", modelShader );
+    assets_manager->storeAsset<ShaderSet>( "font_shader", font_shader );
+
+    auto line_shader = assets_manager->createBuilder<ShaderSet>()
+                           .setVertexPath( "../assets/shaders/line_vertex.glsl" )
+                           .setFragmentPath( "../assets/shaders/line_fragment.glsl" )
+                           .build();
+
+    assets_manager->storeAsset<ShaderSet>( "line_shader", line_shader );
+
+    auto model_shader = assets_manager->createBuilder<ShaderSet>()
+                            .setVertexPath( "../assets/shaders/model.vert.glsl" )
+                            .setFragmentPath( "../assets/shaders/model.frag.glsl" )
+                            .build();
+
+    assets_manager->storeAsset<ShaderSet>( "model_shader", model_shader );
 
     // main window framebuffer shader
-    m_fbScreenShader = assetManager->storeAsset<ShaderSet>(
-        "fb_screen_shader", assetManager->createBuilder<ShaderSet>()
+    framebuffer_screen_shader_ = assets_manager->storeAsset<ShaderSet>(
+        "fb_screen_shader", assets_manager->createBuilder<ShaderSet>()
                                 .setVertexPath( FileSystem::getBinaryDir() +
                                                 "/resources/shaders/screen_fb_vertex.glsl" )
                                 .setFragmentPath( FileSystem::getBinaryDir() +
                                                   "/resources/shaders/screen_fb_fragment.glsl" )
                                 .build() );
 
-    this->registerEcs();
+    this->initializ_ecs_subsystems();
   }
 
-  void GameHostX11::Impl::registerEcs() noexcept {
-
+  void GameHostX11::Impl::initializ_ecs_subsystems() noexcept {
 
     // some default components to begin with
     // Register components to the entity-component-system
-    ecsCoordinator->registerComponent<Transform>();
-    ecsCoordinator->registerComponent<Renderable>();
-    ecsCoordinator->registerComponent<SpriteComponent>();
-    ecsCoordinator->registerComponent<CameraComponent>();
-    ecsCoordinator->registerComponent<Primitive>();
-    ecsCoordinator->registerComponent<MeshComponent>();
-    ecsCoordinator->registerComponent<FontComponent>();
-    ecsCoordinator->registerComponent<Relationship>();
+    ecs_coordinator->registerComponent<Transform>();
+    ecs_coordinator->registerComponent<Renderable>();
+    ecs_coordinator->registerComponent<SpriteComponent>();
+    ecs_coordinator->registerComponent<CameraComponent>();
+    ecs_coordinator->registerComponent<Primitive>();
+    ecs_coordinator->registerComponent<MeshComponent>();
+    ecs_coordinator->registerComponent<FontComponent>();
+    ecs_coordinator->registerComponent<Relationship>();
 
     // Output some logs to know which components has been registered by the engine
     spdlog::info( "Registered ECS components by the engine: "
                   "[ Transform, Renderable, SpriteComponent, CameraComponent, Primitive, "
                   "MeshComponent, FontComponent, Renletionship ]" );
 
-    renderingSystem = ecsCoordinator->registerSystem<RenderingSystem>(
-        ecsCoordinator, assetManager->getAsset<ShaderSet>( "model_shader" ) );
+    rendering_system_ = ecs_coordinator->registerSystem<RenderingSystem>(
+        ecs_coordinator, assets_manager->getAsset<ShaderSet>( "model_shader" ) );
 
-    spriteRenderingSystem = ecsCoordinator->registerSystem<SpriteRenderingSystem>(
-        ecsCoordinator, assetManager->getAsset<ShaderSet>( "model_shader" ) );
+    sprite_rendering_system_ = ecs_coordinator->registerSystem<SpriteRenderingSystem>(
+        ecs_coordinator, assets_manager->getAsset<ShaderSet>( "model_shader" ) );
 
-    renderPrimitiveSystem = ecsCoordinator->registerSystem<RenderPrimitiveSystem>(
-        ecsCoordinator, assetManager->getAsset<ShaderSet>( "line_shader" ) );
+    rendering_primitive_system_ = ecs_coordinator->registerSystem<RenderPrimitiveSystem>(
+        ecs_coordinator, assets_manager->getAsset<ShaderSet>( "line_shader" ) );
 
-    fontRenderingSystem = ecsCoordinator->registerSystem<FontRenderingSystem>(
-        ecsCoordinator, settings, assetManager->getAsset<ShaderSet>( "font_shader" ) );
+    font_rendering_system_ = ecs_coordinator->registerSystem<FontRenderingSystem>(
+        ecs_coordinator, settings, assets_manager->getAsset<ShaderSet>( "font_shader" ) );
 
-    auto cameraSystem = ecsCoordinator->registerSystem<CameraSystem>( ecsCoordinator, settings );
+    transform_system_ = ecs_coordinator->registerSystem<TransformSystem>( ecs_coordinator );
+
+    auto cameraSystem = ecs_coordinator->registerSystem<CameraSystem>( ecs_coordinator, settings );
 
     spdlog::info(
         "Registered ECS systems by the engine: "
-        "[ SpriteRenderingSystem, RenderingPrimitiveSystem, RenderingSystem, CameraSystem ]" );
+        "[ SpriteRenderingSystem, RenderingPrimitiveSystem, RenderingSystem, CameraSystem, TransformSystem ]" );
 
-    Signature signature;
-    signature.set( ecsCoordinator->getComponentType<Transform>() );
-    signature.set( ecsCoordinator->getComponentType<Renderable>() );
-    signature.set( ecsCoordinator->getComponentType<SpriteComponent>() );
-    ecsCoordinator->setSystemSignature<SpriteRenderingSystem>( signature );
+    Signature sprite_signature;
+    sprite_signature.set( ecs_coordinator->getComponentType<Transform>() );
+    sprite_signature.set( ecs_coordinator->getComponentType<Renderable>() );
+    sprite_signature.set( ecs_coordinator->getComponentType<SpriteComponent>() );
+    ecs_coordinator->setSystemSignature<SpriteRenderingSystem>( sprite_signature );
 
-    Signature cameraSignature;
-    cameraSignature.set( ecsCoordinator->getComponentType<Transform>() );
-    cameraSignature.set( ecsCoordinator->getComponentType<CameraComponent>() );
-    ecsCoordinator->setSystemSignature<CameraSystem>( cameraSignature );
+    Signature camera_signature;
+    camera_signature.set( ecs_coordinator->getComponentType<Transform>() );
+    camera_signature.set( ecs_coordinator->getComponentType<CameraComponent>() );
+    ecs_coordinator->setSystemSignature<CameraSystem>( camera_signature );
 
-    Signature primSignature;
-    primSignature.set( ecsCoordinator->getComponentType<Transform>() );
-    primSignature.set( ecsCoordinator->getComponentType<Renderable>() );
-    primSignature.set( ecsCoordinator->getComponentType<Primitive>() );
-    ecsCoordinator->setSystemSignature<RenderPrimitiveSystem>( primSignature );
+    Signature primitive_signature;
+    primitive_signature.set( ecs_coordinator->getComponentType<Transform>() );
+    primitive_signature.set( ecs_coordinator->getComponentType<Renderable>() );
+    primitive_signature.set( ecs_coordinator->getComponentType<Primitive>() );
+    ecs_coordinator->setSystemSignature<RenderPrimitiveSystem>( primitive_signature );
 
-    Signature renderingSignature;
-    renderingSignature.set( ecsCoordinator->getComponentType<Transform>() );
-    renderingSignature.set( ecsCoordinator->getComponentType<Renderable>() );
-    renderingSignature.set( ecsCoordinator->getComponentType<MeshComponent>() );
-    ecsCoordinator->setSystemSignature<RenderingSystem>( renderingSignature );
+    Signature rendering_signature;
+    rendering_signature.set( ecs_coordinator->getComponentType<Transform>() );
+    rendering_signature.set( ecs_coordinator->getComponentType<Renderable>() );
+    rendering_signature.set( ecs_coordinator->getComponentType<MeshComponent>() );
+    ecs_coordinator->setSystemSignature<RenderingSystem>( rendering_signature );
 
-    Signature fontSignature;
-    fontSignature.set( ecsCoordinator->getComponentType<Transform>() );
-    fontSignature.set( ecsCoordinator->getComponentType<Renderable>() );
-    fontSignature.set( ecsCoordinator->getComponentType<FontComponent>() );
-    ecsCoordinator->setSystemSignature<FontRenderingSystem>( fontSignature );
+    Signature font_signature;
+    font_signature.set( ecs_coordinator->getComponentType<Transform>() );
+    font_signature.set( ecs_coordinator->getComponentType<Renderable>() );
+    font_signature.set( ecs_coordinator->getComponentType<FontComponent>() );
+    ecs_coordinator->setSystemSignature<FontRenderingSystem>( font_signature );
+
+    Signature transform_signature;
+    transform_signature.set( ecs_coordinator->getComponentType<Transform>() );
+    transform_signature.set( ecs_coordinator->getComponentType<Relationship>() );
+    ecs_coordinator->setSystemSignature<TransformSystem>( transform_signature );
+
   }
 
   GameHostX11::Impl::~Impl() noexcept {}
@@ -233,7 +238,7 @@ namespace nile::X11 {
   void GameHostX11::Impl::run( Game &game ) noexcept {
 
     game.initialize();
-    ecsCoordinator->createSystems();
+    ecs_coordinator->createSystems();
     f64 lastStep = SDL_GetTicks();
 
     // draw wireframe
@@ -241,39 +246,39 @@ namespace nile::X11 {
 
     // u32 frame = 0;
 
-    while ( !inputManager->shouldClose() ) {
+    while ( !input_manager->shouldClose() ) {
 
       //  log::print("[%d]\n", frame++);
 
       f64 currentStep = SDL_GetTicks();
       f64 delta = currentStep - lastStep;    // elapsed time
 
-      inputManager->update( delta );
+      input_manager->update( delta );
 
       // @fix(stel) : move all of these framebuffer related stuff
       // to the framebuffer class
       renderer->submitFrame();
-      m_framebuffer->bind();
+      frame_buffer_->bind();
       glEnable( GL_DEPTH_TEST );
       glClearColor( 0.1f, 0.1f, 0.1f, 1.0f );
       //     glClearColor( 0.635f, 0.851f, 0.808f, 1.0f );
       glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 
-      ecsCoordinator->update( delta );
-      ecsCoordinator->render( delta );
+      ecs_coordinator->update( delta );
+      ecs_coordinator->render( delta );
 
       game.update( delta );
 
-      m_framebuffer->unbind();
+      frame_buffer_->unbind();
       glDisable( GL_DEPTH_TEST );
       glClearColor( 1.0f, 1.0f, 1.0f, 1.0f );
       glClear( GL_COLOR_BUFFER_BIT );
 
-      m_fbScreenShader->use();
-      m_framebuffer->submitFrame();
+      framebuffer_screen_shader_->use();
+      frame_buffer_->submitFrame();
       renderer->endFrame();
 
-      m_programMode = settings->getProgramMode();
+      program_mode_ = settings->getProgramMode();
 
       lastStep = currentStep;
     }
@@ -291,24 +296,24 @@ namespace nile::X11 {
     impl->run( game );
   }
 
-  [[nodiscard]] std::shared_ptr<Settings> GameHostX11::getSettings() const noexcept {
-    return this->m_settings;
+  [[nodiscard]] std::shared_ptr<Settings> GameHostX11::get_settings() const noexcept {
+    return this->settings_;
   }
 
-  [[nodiscard]] std::shared_ptr<BaseRenderer> GameHostX11::getRenderer() const noexcept {
+  [[nodiscard]] std::shared_ptr<BaseRenderer> GameHostX11::get_renderer() const noexcept {
     return this->impl->renderer;
   }
 
-  [[nodiscard]] std::shared_ptr<InputManager> GameHostX11::getInputManager() const noexcept {
-    return this->impl->inputManager;
+  [[nodiscard]] std::shared_ptr<InputManager> GameHostX11::get_input_manager() const noexcept {
+    return this->impl->input_manager;
   }
 
-  [[nodiscard]] std::shared_ptr<AssetManager> GameHostX11::getAssetManager() const noexcept {
-    return this->impl->assetManager;
+  [[nodiscard]] std::shared_ptr<AssetManager> GameHostX11::get_asset_manager() const noexcept {
+    return this->impl->assets_manager;
   }
 
-  [[nodiscard]] std::shared_ptr<Coordinator> GameHostX11::getEcsCoordinator() const noexcept {
-    return this->impl->ecsCoordinator;
+  [[nodiscard]] std::shared_ptr<Coordinator> GameHostX11::get_ecs_coordinator() const noexcept {
+    return this->impl->ecs_coordinator;
   }
 
 }    // namespace nile::X11

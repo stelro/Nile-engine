@@ -12,12 +12,12 @@ namespace nile {
 
   class CameraSystem : public System {
   private:
-    std::shared_ptr<Coordinator> m_ecsCoordinator;
-    std::shared_ptr<Settings> m_settings;
+    std::shared_ptr<Coordinator> ecs_coordinator_;
+    std::shared_ptr<Settings> settings_;
 
   public:
     CameraSystem( const std::shared_ptr<Coordinator> &coordinator,
-                  const std::shared_ptr<Settings> m_settings ) noexcept;
+                  const std::shared_ptr<Settings>& settings ) noexcept;
     void create() noexcept;
     void update( f32 dt ) noexcept;
     void destroy() noexcept;

@@ -8,6 +8,7 @@ $Notice: $
 
 #include "Nile/ecs/ecs_coordinator.hh"
 #include "Nile/ecs/components/relationship.hh"
+#include "spdlog/spdlog.h"
 
 namespace nile {
 
@@ -56,11 +57,12 @@ namespace nile {
 
     ASSERT_M( m_entityManager->hasComponent( parent,
                                              m_componentManager->getComponentType<Relationship>() ),
-              "Head entity doesn't have relationship compnent to create a hierarchical structure" );
-    ASSERT_M(
-        m_entityManager->hasComponent( child,
-                                       m_componentManager->getComponentType<Relationship>() ),
-        "Child entity doesn't have relationship compnent to create a hierarchical structure" );
+              "Head entity does not contain <Relationship> component in order to create a "
+              "hierarchical structure" );
+    ASSERT_M( m_entityManager->hasComponent( child,
+                                             m_componentManager->getComponentType<Relationship>() ),
+              "Child entity does not contain <Relationship> component in order to create a "
+              "hierarchical structure" );
 
     if ( child == parent )
       return false;
@@ -83,6 +85,7 @@ namespace nile {
     cRelationshipComp.next = next_index;
     cRelationshipComp.prev = ecs::null;
     pRelationshipComp.firstChild = child;
+    pRelationshipComp.size++;
 
     return true;
   }
@@ -135,5 +138,10 @@ namespace nile {
   Entity Coordinator::getFirst( Entity entity ) noexcept {
     return this->getComponent<Relationship>( entity ).firstChild;
   }
+
+  usize Coordinator::get_relationship_size( Entity entity ) noexcept {
+    return this->getComponent<Relationship>( entity ).size;
+  }
+
 
 }    // namespace nile

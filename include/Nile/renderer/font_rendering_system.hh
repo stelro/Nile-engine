@@ -19,10 +19,10 @@ namespace nile {
 
   class FontRenderingSystem : public System {
   private:
-    void initRenderData() noexcept;
-    std::shared_ptr<Coordinator> m_ecsCoordinator;
-    std::shared_ptr<Settings> m_settings;
-    std::shared_ptr<ShaderSet> m_fontShader;
+    void init_rendering_data() noexcept;
+    std::shared_ptr<Coordinator> ecs_coordinator_;
+    std::shared_ptr<Settings> settings_;
+    std::shared_ptr<ShaderSet> font_shader_;
 
   public:
     FontRenderingSystem( const std::shared_ptr<Coordinator> &coordinator,

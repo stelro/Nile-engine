@@ -15,7 +15,7 @@ namespace nile {
     // m_entities is a set so no check needed
     for ( const auto &[ first, second ] : m_systems ) {
       const auto &system = second;
-      system->m_entities.erase( entity );
+      system->entities_.erase( entity );
     }
   }
 
@@ -31,10 +31,10 @@ namespace nile {
 
       // Entity signature matches sytem signature - insert into set
       if ( ( entitySignature & systemSignature ) == systemSignature ) {
-        system->m_entities.insert( entity );
+        system->entities_.insert( entity );
       } else {
         // Entity signature does not match system signature - erase from the set
-        system->m_entities.erase( entity );
+        system->entities_.erase( entity );
       }
     }
   }
@@ -60,6 +60,5 @@ namespace nile {
   u32 EcsSystemManager::getSystemsCount() const noexcept {
     return m_systems.size();
   }
-
 
 }    // namespace nile

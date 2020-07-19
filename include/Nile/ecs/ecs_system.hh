@@ -15,7 +15,7 @@ namespace nile {
 
   class System {
   public:
-    std::set<Entity> m_entities;
+    std::set<Entity> entities_;
   };
 
 }    // namespace nile

@@ -25,10 +25,10 @@ namespace nile {
 
   class SpriteRenderingSystem : public System {
   private:
-    void initRenderData() noexcept;
-    std::shared_ptr<Coordinator> m_ecsCoordinator;
-    std::shared_ptr<ShaderSet> m_spriteShader;
-    u32 m_quadVAO;
+    void init_rendering_data() noexcept;
+    std::shared_ptr<Coordinator> ecs_coordinator_;
+    std::shared_ptr<ShaderSet> sprite_shader_;
+    u32 quad_vao_;
 
   public:
     SpriteRenderingSystem( const std::shared_ptr<Coordinator> &coordinator,

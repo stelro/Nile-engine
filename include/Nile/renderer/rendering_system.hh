@@ -20,11 +20,9 @@ namespace nile {
 
   class RenderingSystem : public System {
   private:
-    std::shared_ptr<Coordinator> m_ecsCoordinator;
-    u32 m_vao;
-    std::shared_ptr<ShaderSet> m_shader;
-    void initRenderData() noexcept;
-
+    std::shared_ptr<Coordinator> ecs_coordinator_;
+    std::shared_ptr<ShaderSet> shader_;
+    void init_rendering_data() noexcept;
 
   public:
     RenderingSystem( const std::shared_ptr<Coordinator> &coordinator,

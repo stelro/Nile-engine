@@ -85,6 +85,8 @@ namespace nile {
 
     Entity getFirst(Entity entity) noexcept;
 
+    usize get_relationship_size(Entity entity) noexcept;
+
     template <typename T, typename... Args>
     std::shared_ptr<T> registerSystem( Args &&... args ) noexcept {
       return m_systemManager->registerSystem<T>( std::forward<Args>( args )... );

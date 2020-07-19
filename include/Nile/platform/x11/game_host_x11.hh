@@ -31,11 +31,11 @@ namespace nile {
 
       void run( Game &game ) noexcept;
 
-      [[nodiscard]] std::shared_ptr<Settings> getSettings() const noexcept override;
-      [[nodiscard]] std::shared_ptr<BaseRenderer> getRenderer() const noexcept override;
-      [[nodiscard]] std::shared_ptr<InputManager> getInputManager() const noexcept override;
-      [[nodiscard]] std::shared_ptr<AssetManager> getAssetManager() const noexcept override;
-      [[nodiscard]] std::shared_ptr<Coordinator> getEcsCoordinator() const noexcept override;
+      [[nodiscard]] std::shared_ptr<Settings> get_settings() const noexcept override;
+      [[nodiscard]] std::shared_ptr<BaseRenderer> get_renderer() const noexcept override;
+      [[nodiscard]] std::shared_ptr<InputManager> get_input_manager() const noexcept override;
+      [[nodiscard]] std::shared_ptr<AssetManager> get_asset_manager() const noexcept override;
+      [[nodiscard]] std::shared_ptr<Coordinator> get_ecs_coordinator() const noexcept override;
     };
 
   }    // namespace X11
