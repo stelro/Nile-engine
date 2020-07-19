@@ -28,36 +28,36 @@ namespace nile {
     using destroy_handle = std::function<void()>;
 
     // Map from system type string pointer to a signature
-    std::unordered_map<const char *, Signature> m_signatures;
+    std::unordered_map<const char *, Signature> signatures_;
 
     // Map from system type string pointer to system pointer
-    std::unordered_map<const char *, std::shared_ptr<System>> m_systems;
+    std::unordered_map<const char *, std::shared_ptr<System>> systems_;
 
     // Update handlers for every system ( we try to avoid virtual inheritance )
-    std::vector<update_handle> m_updateHandles;
+    std::vector<update_handle> update_handles_;
 
     // Render handlers for every system
-    std::vector<render_handle> m_renderHandles;
+    std::vector<render_handle> render_handles_;
 
     // Create handler ( those are the create() method handlers from the ecs
     // system manager ) and they're called right before the first update method
     // and not on the moment of the registtrtion of the system to ecs_system_manager,
     // so we assume, that there is some components available
-    std::vector<create_handle> m_createHandles;
+    std::vector<create_handle> create_handles_;
 
     template <typename T>
     void registerUpdateHandle( const T &t ) {
-      m_updateHandles.push_back( [=]( float dt ) { t->update( dt ); } );
+      update_handles_.push_back( [=]( float dt ) { t->update( dt ); } );
     }
 
     template <typename T>
     void registerRenderHandle( const T &t ) {
-      m_updateHandles.push_back( [=]( float dt ) { t->render( dt ); } );
+      render_handles_.push_back( [=]( float dt ) { t->render( dt ); } );
     }
 
     template <typename T>
     void registerCreateHandle( const T &t ) {
-      m_createHandles.push_back( [=]() { t->create(); } );
+      create_handles_.push_back( [=]() { t->create(); } );
     }
 
   public:
@@ -65,7 +65,7 @@ namespace nile {
     std::shared_ptr<T> registerSystem( Args &&... args ) noexcept {
       const char *typeName = typeid( T ).name();
 
-      ASSERT_M( m_systems.find( typeName ) == m_systems.end(),
+      ASSERT_M( systems_.find( typeName ) == systems_.end(),
                 " Registering system more than once" );
 
       // Create a pointer to the system and return it so it can be used externally
@@ -80,7 +80,7 @@ namespace nile {
       if constexpr ( ecs_has_render<T> )
         this->registerRenderHandle( system );
 
-      m_systems.insert( {typeName, system} );
+      systems_.insert( {typeName, system} );
       return system;
     }
 
@@ -88,10 +88,10 @@ namespace nile {
     void setSignature( Signature signature ) noexcept {
       const char *typeName = typeid( T ).name();
 
-      ASSERT_M( m_systems.find( typeName ) != m_systems.end(), "System used before registered." );
+      ASSERT_M( systems_.find( typeName ) != systems_.end(), "System used before registered." );
 
       // Set the signature for this system
-      m_signatures.insert( {typeName, signature} );
+      signatures_.insert( {typeName, signature} );
     }
 
     void entityDestroyed( Entity entity ) noexcept;

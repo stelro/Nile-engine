@@ -21,6 +21,8 @@
 #include <Nile/renderer/texture2d.hh>
 
 #include <cstdio>
+#include <iterator>
+#include <memory>
 
 namespace platformer {
 
@@ -47,6 +49,9 @@ namespace platformer {
     //         .build();
     //
     //    assets_manager_->storeAsset<ShaderSet>( "model_shader", model_shader );
+    //
+
+    fps_text_buffer_ = std::make_unique<char>( fps_text_buffer_len_ );
 
     auto lampShader =
         assets_manager_->createBuilder<ShaderSet>()
@@ -67,24 +72,17 @@ namespace platformer {
 
     // assets_manager_Helper = std::make_shared<AssetManagerHelper>( assets_manager_ );
 
-    text_buffer_ = std::make_unique<TextBuffer>( settings_, ecs_coordinator_, assets_manager_ );
-
     this->draw_textured_floor();
     // this->draw_stone_tiles();
     //    this->draw_containers();
     // this->draw_nano_model();
     // this->draw_grass();
     // this->draw_windows();
-    // this->draw_text_font();
+    this->draw_text_font();
     this->draw_micro_subscene();
     // this->draw_point_lights();
     // this->draw_pizza_box();
     // this->draw_sprites_test();
-
-    // m_textBuffer->append( "this is text 1", glm::vec2( 40, 20 ) );
-    // m_textBuffer->append( "this is text 2", glm::vec2( 40, 60 ) );
-    // m_textBuffer->append( "this is text 3", glm::vec2( 40, 100 ) );
-    // m_textBuffer->append( "this is text 4", glm::vec2( 80, 100 ) );
   }
 
   void Platformer::draw( f32 deltaTime ) noexcept {}
@@ -94,8 +92,6 @@ namespace platformer {
     this->process_mouse_events( deltaTime );
     this->process_keyboard_events( deltaTime );
     this->process_mouse_scrolling_events( deltaTime );
-
-    text_buffer_->update( deltaTime );
 
     auto &camera_component = ecs_coordinator_->getComponent<CameraComponent>( camera_entity_ );
     auto &c_transform = ecs_coordinator_->getComponent<Transform>( camera_entity_ );
@@ -182,11 +178,12 @@ namespace platformer {
 
     assets_manager_->getAsset<ShaderSet>( "lamp_shader" )->use().SetMatrix4( "view", view );
 
-    // char buffer[ 32 ];
-    // sprintf( buffer, "@fps: %.3f", ( 1000 / deltaTime ) );
-    //
-    // m_screenText->print( buffer, TextPosition::LEFT_UP );
-    //
+    // TODO(stel): Maybe we can handle better this?
+    // every time we recreate new std::string
+    snprintf( fps_text_buffer_.get(), fps_text_buffer_len_, "@fps: %.3f | @delta: %.3fms", ( 1000 / deltaTime ), deltaTime );
+    auto &fps_text_component = ecs_coordinator_->getComponent<FontComponent>( fps_text_entity_ );
+    fps_text_component.text = std::string( fps_text_buffer_.get() );
+
     glCheckError();
   }
 
@@ -199,10 +196,6 @@ namespace platformer {
     // Camera components
     auto &c_transform = ecs_coordinator_->getComponent<Transform>( camera_entity_ );
     auto &c_camera = ecs_coordinator_->getComponent<CameraComponent>( camera_entity_ );
-
-    if ( input_manager_->isKeyPressed( SDLK_o ) ) {
-      text_buffer_->append( "random text", glm::vec2( 40, 10 ) );
-    }
 
     if ( input_manager_->isKeyHoldDown( SDLK_w ) ) {
       // Forward
@@ -411,7 +404,7 @@ namespace platformer {
       ecs_coordinator_->addComponent<Transform>( test_entity_, transform );
       ecs_coordinator_->addComponent<Renderable>( test_entity_, renderable );
       ecs_coordinator_->addComponent<SpriteComponent>( test_entity_,
-                                                      SpriteComponent( grass_texture ) );
+                                                       SpriteComponent( grass_texture ) );
     }
   }
 
@@ -498,27 +491,27 @@ namespace platformer {
 
   void Platformer::draw_text_font() noexcept {
 
-    BenchmarkTimer timer( "draw_font()" );
+    BenchmarkTimer timer( "draw_text_font()" );
 
     auto sfmono_font = assets_manager_->loadAsset<Font>(
         "sfmono_font", FileSystem::getPath( "assets/fonts/LiberationMono-Regular.ttf" ) );
 
-    auto entity = ecs_coordinator_->createEntity();
+    fps_text_entity_ = ecs_coordinator_->createEntity();
 
     FontComponent font;
     font.font = sfmono_font;
-    font.text = "This is testing font";
+    font.text = std::string( fps_text_buffer_.get() );
 
     Renderable renderable;
     renderable.color = glm::vec3( 0.9f, 0.2f, 0.2f );
 
     Transform transform;
-    transform.position = glm::vec3( 22.0f, 0.0f, 0.0f );
+    transform.position = glm::vec3( 2.0f, 0.2f, 0.0f );
     transform.scale = glm::vec3( 1.0f );
 
-    ecs_coordinator_->addComponent<Transform>( entity, transform );
-    ecs_coordinator_->addComponent<Renderable>( entity, renderable );
-    ecs_coordinator_->addComponent<FontComponent>( entity, font );
+    ecs_coordinator_->addComponent<Transform>( fps_text_entity_, transform );
+    ecs_coordinator_->addComponent<Renderable>( fps_text_entity_, renderable );
+    ecs_coordinator_->addComponent<FontComponent>( fps_text_entity_, font );
   }
 
   void Platformer::draw_point_lights() noexcept {
@@ -676,17 +669,7 @@ namespace platformer {
     spdlog::debug( "size of relationship comp: {}",
                    ecs_coordinator_->get_relationship_size( subscene_entity_ ) );
 
-    auto f = ecs_coordinator_->getFirst( subscene_entity_ );
-
-    while ( f != nile::ecs::null ) {
-
-      spdlog::debug( "entity: {}", f );
-      f = ecs_coordinator_->getNext( f );
-    }
-
     point_lights_positions_.emplace_back( 32.0f, 16.0f, 19.0f );
-
-    spdlog::debug( "num of points: {}", point_lights_positions_.size() );
 
     auto light_model = assets_manager_->storeAsset<Model>(
         "light_sphere",

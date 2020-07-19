@@ -22,6 +22,9 @@ namespace platformer {
 
   class Platformer : public nile::Game {
   private:
+    static constexpr const size_t fps_text_buffer_len_ = 32;
+    std::unique_ptr<char> fps_text_buffer_;
+
     std::shared_ptr<nile::GameHost> game_host_;
     std::shared_ptr<nile::InputManager> input_manager_;
     std::shared_ptr<nile::BaseRenderer> renderer_;
@@ -30,15 +33,13 @@ namespace platformer {
     std::shared_ptr<nile::Coordinator> ecs_coordinator_;
     ///    std::shared_ptr<nile::AssetManagerHelper> m_assetManagerHelper;
 
-    std::unique_ptr<TextBuffer> text_buffer_;
-
     nile::Entity camera_entity_;
     nile::Entity lamp_entity_;
     nile::Entity nano_model_entity_;
     nile::Entity subscene_entity_;
     nile::Entity sprite_entity_;
-
     nile::Entity test_entity_;
+    nile::Entity fps_text_entity_;
 
     void draw_stone_tiles() noexcept;
     void draw_nano_model() noexcept;

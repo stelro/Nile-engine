@@ -21,6 +21,14 @@ namespace nile {
   void TransformSystem::create() {
     spdlog::info(
         "ECS TransformSystem has been registered to ECS manager and created successfully." );
+
+    for ( const auto &entity : entities_ ) {
+      [[maybe_unused]] auto &relationship = ecs_coordinator_->getComponent<Relationship>( entity );
+      [[maybe_unused]] auto &transform = ecs_coordinator_->getComponent<Transform>( entity );
+
+      spdlog::debug( "entity: {0} - [x: {1},  y: {2}, z:{3}]", entity, transform.position.x,
+                     transform.position.y, transform.position.z );
+    }
   }
 
   void TransformSystem::update() {
