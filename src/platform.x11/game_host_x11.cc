@@ -27,8 +27,6 @@ $Notice: $
 #include "Nile/ecs/components/transform.hh"
 #include "Nile/ecs/ecs_coordinator.hh"
 #include "Nile/experimental/asset/asset_manager_helper.hh"
-#include "Nile/log/log.hh"
-#include "Nile/log/stream_logger.hh"
 #include "Nile/renderer/base_renderer.hh"
 #include "Nile/renderer/font_rendering_system.hh"
 #include "Nile/renderer/opengl_framebuffer.hh"
@@ -37,9 +35,12 @@ $Notice: $
 #include "Nile/renderer/rendering_system.hh"
 #include "Nile/renderer/sprite_rendering_system.hh"
 #include "Nile/renderer/texture2d.hh"
+#include "spdlog/common.h"
 
 #include <GL/glew.h>
 #include <SDL2/SDL.h>
+#include <spdlog/spdlog.h>
+#include <spdlog/sinks/basic_file_sink.h>
 
 #include <thread>
 
@@ -84,37 +85,38 @@ namespace nile::X11 {
     // @IMPORTANT FIX(stel): correct the orrder of creation and initialization
     // of systems and subsystems ESPECIALLY RENDERING SYSTEM
 
+    // spdlog / logger settings
+    spdlog::set_level( spdlog::level::debug );
+    // auto file_logger = spdlog::basic_logger_mt("basic_logger", "logs/engine.log");
+    // spdlog::set_default_logger(file_logger);
+    
     m_uptime.start();
 
-    // Connect log output to std stream logger ( console / terminal )
-    log::on_message.connect(
-        []( const char *msg, LogType type ) { StreamLogger::printToStream( msg, type ); } );
-
     inputManager = std::make_shared<InputManager>( settings );
-    ( inputManager ) ? log::notice( "InputManager have been created!\n" )
-                     : log::fatal( "Engine has failed to create InputManager!\n" );
+    ( inputManager ) ? spdlog::info( "InputManager has been created!" )
+                     : spdlog::critical( "Engine has failed to create InputManager!" );
 
     renderer = std::make_shared<OpenGLRenderer>( settings );
     renderer->init();
 
-    ( renderer ) ? log::notice( "OpenGL Renderer have been created and initialized!\n" )
-                 : log::fatal( "Engine has failed to create OpenGL Renderer!\n" );
+    ( renderer ) ? spdlog::info( "OpenGL Renderer has been created and initialized!" )
+                 : spdlog::critical( "Engine has failed to create OpenGL Renderer!" );
 
     m_framebuffer = std::make_unique<OpenglFramebuffer>( settings );
     m_framebuffer->prepareQuad();
-    ( m_framebuffer ) ? log::print( "\tOpenGL Frambuffer have been created and initialized!\n" )
-                      : log::fatal( "Engine has failed to create OpenGL Framebuffer!\n" );
+    ( m_framebuffer ) ? spdlog::info( "OpenGL Frambuffer has been created and initialized!" )
+                      : spdlog::critical( "Engine has failed to create OpenGL Framebuffer!" );
 
 
     assetManager = std::make_shared<AssetManager>();
-    ( assetManager ) ? log::notice( "AssetManager have been created!\n" )
-                     : log::fatal( "Engine has failed to create AssetManager!\n" );
+    ( assetManager ) ? spdlog::info( "AssetManager has been created!" )
+                     : spdlog::critical( "Engine has failed to create AssetManager!" );
 
     // Create and initialize Entity Component System coordinator
     ecsCoordinator = std::make_shared<Coordinator>();
     ecsCoordinator->init();
-    ( ecsCoordinator ) ? log::notice( "ECS Coordinator have been created!\n" )
-                       : log::fatal( "Engine has failed to create ECS Coordinator!\n" );
+    ( ecsCoordinator ) ? spdlog::info( "ECS Coordinator has been created!" )
+                       : spdlog::critical( "Engine has failed to create ECS Coordinator!" );
 
     m_assetManagerHelper = std::make_shared<AssetManagerHelper>( assetManager );
     m_programMode = settings->getProgramMode();
@@ -145,9 +147,7 @@ namespace nile::X11 {
                            .setFragmentPath( "../assets/shaders/model.frag.glsl" )
                            .build();
 
-
     assetManager->storeAsset<ShaderSet>( "model_shader", modelShader );
-
 
     // main window framebuffer shader
     m_fbScreenShader = assetManager->storeAsset<ShaderSet>(
@@ -157,7 +157,6 @@ namespace nile::X11 {
                                 .setFragmentPath( FileSystem::getBinaryDir() +
                                                   "/resources/shaders/screen_fb_fragment.glsl" )
                                 .build() );
-
 
     this->registerEcs();
   }
@@ -177,15 +176,9 @@ namespace nile::X11 {
     ecsCoordinator->registerComponent<Relationship>();
 
     // Output some logs to know which components has been registered by the engine
-    log::notice( "Registered ECS components by the engine: \n"
-                 "\t Transform\n"
-                 "\t Renderable\n"
-                 "\t SpriteComponent\n"
-                 "\t CameraComponent\n"
-                 "\t Primitive\n"
-                 "\t MeshComponent\n"
-                 "\t FontComponent\n"
-                 "\t Relationship\n" );
+    spdlog::info( "Registered ECS components by the engine: "
+                  "[ Transform, Renderable, SpriteComponent, CameraComponent, Primitive, "
+                  "MeshComponent, FontComponent, Renletionship ]" );
 
     renderingSystem = ecsCoordinator->registerSystem<RenderingSystem>(
         ecsCoordinator, assetManager->getAsset<ShaderSet>( "model_shader" ) );
@@ -201,11 +194,9 @@ namespace nile::X11 {
 
     auto cameraSystem = ecsCoordinator->registerSystem<CameraSystem>( ecsCoordinator, settings );
 
-    log::notice( "Registered ECS systems by the engine: \n"
-                 "\t SpriteRenderingSystem\n"
-                 "\t RenderPrimitiveSystem\n"
-                 "\t RenderingSystem\n"
-                 "\t CameraSystem\n" );
+    spdlog::info(
+        "Registered ECS systems by the engine: "
+        "[ SpriteRenderingSystem, RenderingPrimitiveSystem, RenderingSystem, CameraSystem ]" );
 
     Signature signature;
     signature.set( ecsCoordinator->getComponentType<Transform>() );
@@ -245,10 +236,6 @@ namespace nile::X11 {
     ecsCoordinator->createSystems();
     f64 lastStep = SDL_GetTicks();
 
-    std::thread t1( [=]() { m_assetManagerHelper->reloadShaders(); } );
-    t1.detach();
-
-
     // draw wireframe
     // glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
 
@@ -269,6 +256,7 @@ namespace nile::X11 {
       m_framebuffer->bind();
       glEnable( GL_DEPTH_TEST );
       glClearColor( 0.1f, 0.1f, 0.1f, 1.0f );
+      //     glClearColor( 0.635f, 0.851f, 0.808f, 1.0f );
       glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 
       ecsCoordinator->update( delta );

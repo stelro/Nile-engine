@@ -1,7 +1,8 @@
 #pragma once
 
 #include "Nile/core/timer.hh"
-#include "Nile/log/log.hh"
+
+#include <spdlog/spdlog.h>
 
 #include <chrono>
 #include <iostream>
@@ -10,12 +11,12 @@ namespace nile {
 
   class BenchmarkTimer {
   private:
-    std::string m_methodName;
+    std::string rutine_name_;
     Timer timer;
 
   public:
-    BenchmarkTimer( const std::string &name ) noexcept
-        : m_methodName( name ) {
+    BenchmarkTimer( std::string name ) noexcept
+        : rutine_name_( std::move(name) ) {
       timer.start();
     }
 
@@ -23,7 +24,7 @@ namespace nile {
       auto ticks = timer.getTicks();
       timer.stop();
 
-      log::notice( "-- method %s needed %.3fs to execute\n", m_methodName.c_str(), ( ticks / 1000.f ) );
+      spdlog::debug( "(benchmark) Rutine {} exectued and finished in {:.3f} seconds.", rutine_name_, ( ticks / 1000.f ) );
     }
   };
 

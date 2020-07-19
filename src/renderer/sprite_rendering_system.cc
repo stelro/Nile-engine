@@ -85,6 +85,8 @@ namespace nile {
                       0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f,
                       0.0f, 0.0f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f};
 
+    log::print("Sprite rendering system\n");
+
     glGenVertexArrays( 1, &this->m_quadVAO );
     glGenBuffers( 1, &vbo );
     // pos

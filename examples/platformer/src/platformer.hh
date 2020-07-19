@@ -34,6 +34,7 @@ namespace platformer {
     nile::Entity m_cameraEntity;
     nile::Entity m_lampEntity;
     nile::Entity m_nanoModelEntity;
+    nile::Entity sprite_entity_;
 
     nile::Entity m_testEntity;
 
@@ -45,6 +46,7 @@ namespace platformer {
     void drawWindows() noexcept;
     void drawFont() noexcept;
     void drawLigths() noexcept;
+    void draw_sprites_test() noexcept;
 
     void processKeyboardEvents( f32 dt ) noexcept;
     void processMouseEvents( f32 dt ) noexcept;

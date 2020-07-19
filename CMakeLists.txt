@@ -127,10 +127,9 @@ set(NILE_SOURCE_EXPERIMENTAL
 
 set(SOURCE_FILES ${NILE_SOURCES_CORE} ${NILE_SOURCE_EXPERIMENTAL})
 
-
-
 add_subdirectory(external/freetype)
 add_subdirectory(external/assimp)
+add_subdirectory(external/spdlog)
 
 # FreeType package
 find_package(Freetype REQUIRED)
@@ -192,6 +191,7 @@ include_directories("${PROJECT_BINARY_DIR}")
 
 
 set(ASSIMP_INCLUDE_DIRS "external/assimp/include")
+set(SPDLOG_INCLUDE_DIRS "external/spdlog/include")
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS 1)
 
@@ -291,11 +291,11 @@ endif()
 
 target_include_directories(nile_static PUBLIC ${FREETYPE_INCLUDE_DIRS})
 target_include_directories(nile_static PUBLIC ${ASSIMP_INCLUDE_DIRS})
-
+target_include_directories(nile_static PUBLIC ${SPDLOG_INCLUDE_DIRS})
 
 target_link_libraries(nile_static PUBLIC ${SDL2_LIBRARY})
 target_link_libraries(nile_static INTERFACE ${GLEW_LIBRARIES} ${OPENGL_LIBRARIES} )
-target_link_libraries(nile_static PUBLIC ${FREETYPE_LIBRARIES} assimp )
+target_link_libraries(nile_static PUBLIC ${FREETYPE_LIBRARIES} assimp spdlog)
 
 file(COPY resources DESTINATION ${CMAKE_BINARY_DIR})
 

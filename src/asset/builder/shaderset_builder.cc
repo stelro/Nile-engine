@@ -9,9 +9,9 @@ $Notice: $
 #include "Nile/asset/builder/shaderset_builder.hh"
 #include "Nile/core/assert.hh"
 #include "Nile/core/file_system.hh"
-#include "Nile/log/log.hh"
 
 #include <GL/glew.h>
+#include <spdlog/spdlog.h>
 
 #include <filesystem>
 #include <fstream>
@@ -92,14 +92,16 @@ namespace nile::AssetBuilder {
     // Open files
     std::ifstream vertexShaderFile( vshaderFile.data() );
     if ( !vertexShaderFile.is_open() ) {
-      log::error( "Failed to open { %s } file for vertex shader", vshaderFile.data() );
-      ASSERT( false );
+      spdlog::error( "Failed to open \"{}\" file for vertex shader", vshaderFile.data() );
+    } else {
+      spdlog::debug( "Shader \"{}\" has been loaded.", vshaderFile.data() );
     }
 
     std::ifstream fragmentShaderFile( fshaderFile.data() );
     if ( !fragmentShaderFile.is_open() ) {
-      log::error( "Failed to open { %s } file for fragment shader", fshaderFile.data() );
-      ASSERT( false );
+      spdlog::error( "Failed to open \"{}\" file for fragment shader", fshaderFile.data() );
+    } else {
+      spdlog::debug( "Shader \"{}\" has been loaded.", fshaderFile.data() );
     }
 
     std::stringstream vShaderStream, fShaderStream;
@@ -119,8 +121,9 @@ namespace nile::AssetBuilder {
     if ( gshaderFile.size() != 0 ) {
       std::ifstream geometryShaderFile( gshaderFile.data() );
       if ( !geometryShaderFile.is_open() ) {
-        log::error( "Failed to open { %s } file for geometry shader", gshaderFile.data() );
-        ASSERT( false );
+        spdlog::error( "Failed to open \"{}\" file for geometry shader", gshaderFile.data() );
+      } else {
+        spdlog::debug( "Shader \"{}\" has been loaded", gshaderFile.data() );
       }
 
       std::stringstream gShaderStream;
@@ -190,13 +193,13 @@ namespace nile::AssetBuilder {
       glGetShaderiv( object, GL_COMPILE_STATUS, &success );
       if ( !success ) {
         glGetShaderInfoLog( object, 1024, NULL, infoLog );
-        log::error( "::SHADER: Compile-time error: Type %s\n%s\n", type, infoLog );
+        spdlog::error( "::SHADER: Compile-time error: Type {1}\n{2}\n", type, infoLog );
       }
     } else {
       glGetProgramiv( object, GL_LINK_STATUS, &success );
       if ( !success ) {
         glGetProgramInfoLog( object, 1024, NULL, infoLog );
-        log::error( "::SHADER: Link-time error: Type: %s\n%s\n", type, infoLog );
+        spdlog::error( "::SHADER: Link-time error: Type: {1}\n{2}\n", type, infoLog );
       }
     }
   }

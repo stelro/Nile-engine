@@ -65,18 +65,19 @@ namespace platformer {
     CameraComponent cameraComponent( 0.1f, 200.0f, 45.0f, ProjectionType::PERSPECTIVE );
     m_ecsCoordinator->addComponent<CameraComponent>( m_cameraEntity, cameraComponent );
 
-    //m_assetManagerHelper = std::make_shared<AssetManagerHelper>( m_assetManager );
+    // m_assetManagerHelper = std::make_shared<AssetManagerHelper>( m_assetManager );
 
     m_textBuffer = std::make_unique<TextBuffer>( m_settings, m_ecsCoordinator, m_assetManager );
 
-    //    this->drawTextureFloor();
-    this->drawStoneTiles();
-  //  this->drawContainers();
-//    this->drawNanoModel();
- //   this->drawGrass();
-     this->drawWindows();
-    // this->drawFont();
+    this->drawTextureFloor();
+    //    this->drawStoneTiles();
+    this->drawContainers();
+    // this->drawNanoModel();
+    // this->drawGrass();
+    // this->drawWindows();
+    this->drawFont();
     this->drawLigths();
+    //    this->draw_sprites_test();
 
     // m_textBuffer->append( "this is text 1", glm::vec2( 40, 20 ) );
     // m_textBuffer->append( "this is text 2", glm::vec2( 40, 60 ) );
@@ -383,7 +384,7 @@ namespace platformer {
     auto window_texture = m_assetManager->loadAsset<Texture2D>(
         "window", FileSystem::getPath( "assets/textures/window.png" ) );
 
-    log::print("count: %d\n", window_texture->getRefCount());
+    log::print( "count: %d\n", window_texture->getRefCount() );
 
     auto camera_transform = m_ecsCoordinator->getComponent<Transform>( m_cameraEntity );
 
@@ -520,6 +521,36 @@ namespace platformer {
       m_ecsCoordinator->addComponent<Renderable>( m_lampEntity, renderable );
       m_ecsCoordinator->addComponent<MeshComponent>( m_lampEntity, mesh );
     }
+  }
+
+  void Platformer::draw_sprites_test() noexcept {
+
+    BenchmarkTimer timer( "draw_sprite_test()" );
+
+
+    sprite_entity_ = m_ecsCoordinator->createEntity();
+
+    auto texture = m_assetManager->loadAsset<Texture2D>(
+        "knight_attack", FileSystem::getPath( "assets/textures/Knight/knight_attack.png" ) );
+
+
+    SpriteComponent sprite;
+    sprite.texture = texture;
+
+    Transform transform;
+    // transform.position = glm::vec3( 6.0f, 0.0f, 22.0f );
+    transform.position = glm::vec3( 6.0f, 0.0f, 1.0f );
+    // transform.yRotation = -45.0f;
+    // transform.yRotation = -45.0f;
+    transform.scale = glm::vec3( 3.0f );
+
+    Renderable renderable;
+    renderable.color = glm::vec3( 1.0f, 1.0f, 1.0f );
+    renderable.blend = false;
+
+    m_ecsCoordinator->addComponent<Transform>( sprite_entity_, transform );
+    m_ecsCoordinator->addComponent<Renderable>( sprite_entity_, renderable );
+    m_ecsCoordinator->addComponent<SpriteComponent>( sprite_entity_, sprite );
   }
 
 }    // namespace platformer

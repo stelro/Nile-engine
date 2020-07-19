@@ -1,7 +1,8 @@
 #include "Nile/asset/builder/model_builder.hh"
 #include "Nile/core/assert.hh"
 #include "Nile/debug/benchmark_timer.hh"
-#include "Nile/log/log.hh"
+
+#include <spdlog/spdlog.h>
 
 
 namespace nile::AssetBuilder {
@@ -34,9 +35,11 @@ namespace nile::AssetBuilder {
                                      aiProcess_OptimizeGraph | aiProcess_OptimizeMeshes );
 
     if ( !scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode ) {
-      log::error( "Assimp: %s\n", import.GetErrorString() );
+      spdlog::error( "Assimp: {}", import.GetErrorString() );
       return;
     }
+
+    spdlog::debug( "Model \"{}\" has been loaded.", m_path );
 
     m_directoryName = m_path.substr( 0, m_path.find_last_of( '/' ) );
     processNode( scene->mRootNode, scene );
@@ -149,6 +152,7 @@ namespace nile::AssetBuilder {
   [[nodiscard]] std::shared_ptr<Model> Builder<Model>::build() noexcept {
     ASSERT_M( !m_path.empty(), "Model path is empty!" );
     this->loadModel();
+    spdlog::debug( "Builder<Model> has built the \"{}\" model", m_path );
     return std::make_shared<Model>( m_meshes );
   }
 
